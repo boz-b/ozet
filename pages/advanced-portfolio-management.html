@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Advanced Portfolio Management — Findings and Code Applications</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+</head>
+<body>
+<main>
+  <nav class="site-nav" aria-label="Site navigation">
+    <a class="brand" href="../index.html">Virtual Hedge Fund summaries</a>
+    <div class="nav-links">
+      <a href="trading-volatility-correlation-term-structure-skew.html">Trading Volatility</a>
+      <a href="advanced-portfolio-management.html">Advanced Portfolio Management</a>
+    </div>
+  </nav>
+
+  <header class="page-header">
+    <div class="eyebrow">Findings + code applications</div>
+    <h1>Advanced Portfolio Management</h1>
+  </header>
+
+  <section class="grid">
+    <article class="card">
+      <div class="role">risk-management</div>
+      <h2>Factor Risk Models</h2>
+      <p class="finding"><strong>Finding:</strong> A factor model separates portfolio returns into shared exposures — market, industry, value, momentum, volatility — and idiosyncratic stock-specific returns.</p>
+      <p class="application-label">Code application:</p>
+<pre><code>exposures = estimate_factor_exposures(universe)
+risk = covariance(factor_returns)
+portfolio_risk = weights.T @ exposures @ risk @ exposures.T @ weights
+if exposure(weights, "market") > limit:
+    weights = hedge_factor(weights, factor="market")</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">signal-generation</div>
+      <h2>Alpha Sizing</h2>
+      <p class="finding"><strong>Finding:</strong> Alpha scores or expected returns are not final portfolio weights. They must be scaled by risk, confidence, liquidity, and diversification.</p>
+      <p class="application-label">Code application:</p>
+<pre><code>alpha = model.predict_expected_returns(data)
+confidence = estimate_signal_confidence(alpha)
+vol = estimate_asset_volatility(returns)
+raw_weight = alpha * confidence / vol
+weights = normalize_to_gross(raw_weight, target_gross=1.0)</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">portfolio-construction</div>
+      <h2>Factor-Neutral Portfolio Construction</h2>
+      <p class="finding"><strong>Finding:</strong> Modify raw alpha-driven weights as little as possible while meeting constraints: factor neutrality, gross exposure, concentration, and turnover.</p>
+      <p class="application-label">Code application:</p>
+<pre><code>raw = alpha_to_weights(alpha)
+constraints = [gross == 1.0, net == 0.0, factor_exposure == 0]
+weights = minimize_distance(raw, constraints)
+orders = rebalance(current_weights, weights)</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">backtesting-evaluation</div>
+      <h2>Performance Attribution</h2>
+      <p class="finding"><strong>Finding:</strong> Break PnL into factor returns, stock selection, sizing, timing, and trading effects. This prevents confusing luck or hidden beta with skill.</p>
+      <p class="application-label">Code application:</p>
+<pre><code>pnl = portfolio_returns(weights, returns)
+factor_pnl = exposures(weights) @ factor_returns
+selection_pnl = pnl - factor_pnl
+report = attribution(pnl, factor_pnl, selection_pnl, costs)</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">risk-management</div>
+      <h2>Stop-Loss Policy</h2>
+      <p class="finding"><strong>Finding:</strong> A stop-loss policy is not just an order type. It is a governance rule for review, reduction, or exit when losses exceed expected behavior.</p>
+      <p class="application-label">Code application:</p>
+<pre><code>drawdown = position_pnl / capital_at_entry
+if drawdown < hard_stop:
+    target_weight = 0
+elif drawdown < review_stop:
+    target_weight = reduce(weight, by=0.5)
+    flag_for_review(position)</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">risk-management</div>
+      <h2>Sustainable Leverage</h2>
+      <p class="finding"><strong>Finding:</strong> Leverage should be set by survivability: volatility, drawdown tolerance, diversification, and business return requirements — not by broker maximums.</p>
+      <p class="application-label">Code application:</p>
+<pre><code>expected_vol = estimate_portfolio_vol(weights)
+max_leverage_by_vol = target_vol / expected_vol
+max_leverage_by_drawdown = loss_budget / stress_loss(weights)
+leverage = min(max_leverage_by_vol, max_leverage_by_drawdown)</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">data-engineering</div>
+      <h2>Alternative Data Evaluation</h2>
+      <p class="finding"><strong>Finding:</strong> New datasets need metadata, cleaning, leakage checks, cost analysis, and evidence that they improve selection, timing, or sizing.</p>
+      <p class="application-label">Code application:</p>
+<pre><code>dataset = ingest_dataset(source)
+validate_no_lookahead(dataset)
+signal = build_signal(dataset)
+result = backtest(signal, costs=True)
+accept = result.ir > threshold and result.stable_across_periods</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">proposed strategy</div>
+      <h2>Factor-Neutral Alpha Portfolio</h2>
+      <p class="finding"><strong>Finding:</strong> Generate alpha scores, size them by risk, then neutralize unwanted factors before trading.</p>
+      <p class="application-label">Code application:</p>
+<pre><code>alpha = compute_alpha(universe)
+raw_weights = size_alpha(alpha, risk, confidence)
+neutral_weights = neutralize_factors(raw_weights, exposures)
+orders = apply_cost_and_liquidity_constraints(neutral_weights)
+run_backtest(orders, attribution=True)</code></pre>
+    </article>
+  </section>
+
+  <footer>Source: Giuseppe A. Paleologo, <em>Advanced Portfolio Management</em>.</footer>
+</main>
+</body>
+</html>
