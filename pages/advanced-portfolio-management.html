@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Advanced Portfolio Management — Findings and Code Applications</title>
+  <title>Advanced Portfolio Management — Expanded Findings and Code Applications</title>
   <link rel="stylesheet" href="../assets/styles.css" />
 </head>
 <body>
@@ -17,27 +17,84 @@
   </nav>
 
   <header class="page-header">
-    <div class="eyebrow">Findings + code applications</div>
+    <div class="eyebrow">Standalone concept primer + findings + code applications</div>
     <h1>Advanced Portfolio Management</h1>
+    <p class="lede">This page translates the source into a self-contained portfolio-management primer for the Virtual Hedge Fund. It explains the vocabulary first, then expands each finding so the relationship between alpha, risk, construction, governance, and implementation is clear before reading the pseudocode.</p>
   </header>
 
-  <section class="grid">
+  <section class="intro-panel" aria-label="Concept introduction">
+    <div class="eyebrow">Read this first</div>
+    <h2>Concepts and terminology</h2>
+    <div class="intro-grid">
+      <article class="intro-box">
+        <h3>Core mental model</h3>
+        <p>The book is about converting research ideas into a robust portfolio process. A signal is not a portfolio, and a profitable backtest is not automatically skill. The central loop is: estimate alpha, scale it by risk and confidence, neutralize unwanted factor exposure, trade within constraints, and attribute the results.</p>
+      </article>
+      <article class="intro-box">
+        <h3>How the ideas relate</h3>
+        <p>Factor models describe the risks; alpha sizing turns forecasts into desired positions; portfolio construction imposes constraints; attribution checks what actually made money; stop-loss and leverage policies keep the process survivable; alternative data feeds the signal pipeline only after validation.</p>
+      </article>
+      <article class="intro-box">
+        <h3>How to read the findings</h3>
+        <p>Each card starts with the extracted finding, then explains the concept in plain language, shows where it sits in the research-to-portfolio workflow, and gives an implementation lens before pseudocode. Read the cards as connected modules rather than isolated notes.</p>
+      </article>
+    </div>
+    <dl class="term-list">
+      <div class="term"><dt>Alpha</dt><dd>The estimated stock-specific edge: a forecast that one asset should outperform another after accounting for risk and costs.</dd></div>
+      <div class="term"><dt>Factor</dt><dd>A shared return driver such as market beta, industry, value, momentum, size, rates, or volatility exposure.</dd></div>
+      <div class="term"><dt>Exposure / beta</dt><dd>How sensitive a position or portfolio is to a factor. Exposure is what turns a factor move into portfolio PnL.</dd></div>
+      <div class="term"><dt>Idiosyncratic return</dt><dd>The residual asset-specific return left after shared factor effects are removed; often the desired source of skill.</dd></div>
+      <div class="term"><dt>Gross / net exposure</dt><dd>Gross is total absolute long plus short exposure; net is long minus short exposure. A market-neutral book can still have high gross leverage.</dd></div>
+      <div class="term"><dt>Constraint</dt><dd>A rule the portfolio must satisfy: factor neutrality, max position size, turnover, liquidity, drawdown budget, or target volatility.</dd></div>
+      <div class="term"><dt>Attribution</dt><dd>A post-trade explanation of where PnL came from: factors, selection, sizing, timing, costs, or accidental exposures.</dd></div>
+      <div class="term"><dt>Governance rule</dt><dd>A pre-agreed process rule, such as stop-loss review or leverage reduction, designed to prevent emotional ad hoc decisions.</dd></div>
+    </dl>
+  </section>
+
+  <section class="finding-stack" aria-label="Expanded findings">
     <article class="card">
       <div class="role">risk-management</div>
       <h2>Factor Risk Models</h2>
-      <p class="finding"><strong>Finding:</strong> A factor model separates portfolio returns into shared exposures — market, industry, value, momentum, volatility — and idiosyncratic stock-specific returns.</p>
+      <p class="finding-text"><strong>Finding:</strong> A factor model separates portfolio returns into shared exposures — market, industry, value, momentum, volatility — and idiosyncratic stock-specific returns.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A portfolio can make or lose money because the manager found good securities, or because it accidentally loaded up on a broad factor. A factor risk model makes that distinction explicit by describing each asset as a bundle of factor sensitivities plus a residual return.</p><p>In practical terms, the model answers: how much market beta do we have, how much industry exposure, how much value/momentum tilt, and how much risk remains that is specific to individual names?</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Factor models are the shared language for sizing, neutralization, leverage, stress testing, and attribution. If the alpha process wants stock-specific returns, factor exposures are the risks to measure and often hedge.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Store an exposure matrix for assets versus factors, estimate factor covariance, and compute portfolio exposure as weights times exposures. Use the same model before trading for limits and after trading for attribution.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>exposures = estimate_factor_exposures(universe)
 risk = covariance(factor_returns)
 portfolio_risk = weights.T @ exposures @ risk @ exposures.T @ weights
-if exposure(weights, "market") > limit:
-    weights = hedge_factor(weights, factor="market")</code></pre>
+if exposure(weights, &quot;market&quot;) &gt; limit:
+    weights = hedge_factor(weights, factor=&quot;market&quot;)</code></pre>
     </article>
-
     <article class="card">
       <div class="role">signal-generation</div>
       <h2>Alpha Sizing</h2>
-      <p class="finding"><strong>Finding:</strong> Alpha scores or expected returns are not final portfolio weights. They must be scaled by risk, confidence, liquidity, and diversification.</p>
+      <p class="finding-text"><strong>Finding:</strong> Alpha scores or expected returns are not final portfolio weights. They must be scaled by risk, confidence, liquidity, and diversification.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>An alpha forecast says something about expected return; a position size says how much capital to risk. Those are different decisions. A weak but stable signal in a liquid low-volatility asset may deserve more size than a high-return forecast with low confidence and high trading cost.</p><p>Sizing is where research conviction becomes risk consumption. It should penalize fragile, crowded, expensive, illiquid, or highly correlated ideas.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Alpha sizing feeds portfolio construction. It uses volatility and confidence estimates from research, risk model outputs from the factor layer, and cost/liquidity estimates from execution.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Convert raw alpha into risk-adjusted desired weights, then normalize to a target gross exposure or risk budget. Keep diagnostics showing which inputs changed the final weight.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>alpha = model.predict_expected_returns(data)
 confidence = estimate_signal_confidence(alpha)
@@ -45,69 +102,147 @@ vol = estimate_asset_volatility(returns)
 raw_weight = alpha * confidence / vol
 weights = normalize_to_gross(raw_weight, target_gross=1.0)</code></pre>
     </article>
-
     <article class="card">
       <div class="role">portfolio-construction</div>
       <h2>Factor-Neutral Portfolio Construction</h2>
-      <p class="finding"><strong>Finding:</strong> Modify raw alpha-driven weights as little as possible while meeting constraints: factor neutrality, gross exposure, concentration, and turnover.</p>
+      <p class="finding-text"><strong>Finding:</strong> Modify raw alpha-driven weights as little as possible while meeting constraints: factor neutrality, gross exposure, concentration, and turnover.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Portfolio construction is the translation layer between desired trades and a tradeable book. The aim is not to erase the alpha signal; it is to keep the intended bets while removing unwanted factor bets and operational risks.</p><p>Factor-neutral does not mean risk-free. It means specified factor exposures are zero or bounded, while residual/security-selection risk remains.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This step sits after alpha sizing and before execution. It consumes factor exposures, risk estimates, position limits, and turnover constraints, then outputs target weights and orders.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Start with least-change optimization: stay close to raw weights while satisfying gross, net, factor, concentration, and turnover constraints. Report before/after exposures so the cost of neutrality is visible.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>raw = alpha_to_weights(alpha)
 constraints = [gross == 1.0, net == 0.0, factor_exposure == 0]
 weights = minimize_distance(raw, constraints)
 orders = rebalance(current_weights, weights)</code></pre>
     </article>
-
     <article class="card">
       <div class="role">backtesting-evaluation</div>
       <h2>Performance Attribution</h2>
-      <p class="finding"><strong>Finding:</strong> Break PnL into factor returns, stock selection, sizing, timing, and trading effects. This prevents confusing luck or hidden beta with skill.</p>
+      <p class="finding-text"><strong>Finding:</strong> Break PnL into factor returns, stock selection, sizing, timing, and trading effects. This prevents confusing luck or hidden beta with skill.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A profitable backtest is not enough. The fund needs to know why it was profitable. Attribution separates returns caused by broad market/factor moves from security selection, sizing decisions, timing, and transaction costs.</p><p>Without attribution, a supposedly market-neutral strategy may simply be a disguised beta, sector, or momentum bet.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Attribution closes the research loop. It checks whether factor models and construction did their job, whether alpha actually predicted residual returns, and whether costs or turnover ate the edge.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Every backtest should output factor PnL, residual/selection PnL, costs, turnover, drawdowns, and exposure history. Use those reports to accept, reject, or revise the strategy.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>pnl = portfolio_returns(weights, returns)
 factor_pnl = exposures(weights) @ factor_returns
 selection_pnl = pnl - factor_pnl
 report = attribution(pnl, factor_pnl, selection_pnl, costs)</code></pre>
     </article>
-
     <article class="card">
       <div class="role">risk-management</div>
       <h2>Stop-Loss Policy</h2>
-      <p class="finding"><strong>Finding:</strong> A stop-loss policy is not just an order type. It is a governance rule for review, reduction, or exit when losses exceed expected behavior.</p>
+      <p class="finding-text"><strong>Finding:</strong> A stop-loss policy is not just an order type. It is a governance rule for review, reduction, or exit when losses exceed expected behavior.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A stop-loss is often described as a price order, but the richer portfolio-management idea is a decision rule. It says when a loss is normal noise, when it requires review, when size should be cut, and when the thesis is invalidated.</p><p>Good policies are path-aware: they reduce catastrophic drift but avoid mechanically selling every temporary drawdown.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Stop-loss rules connect risk management with behavioral governance. They depend on expected volatility, leverage, drawdown budget, position liquidity, and whether attribution shows the loss came from the intended risk.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Represent stops as state-machine rules: review threshold, reduction threshold, hard exit threshold, cool-down period, and required notes for override. Test the policy inside backtests, not only live trading.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>drawdown = position_pnl / capital_at_entry
-if drawdown < hard_stop:
+if drawdown &lt; hard_stop:
     target_weight = 0
-elif drawdown < review_stop:
+elif drawdown &lt; review_stop:
     target_weight = reduce(weight, by=0.5)
     flag_for_review(position)</code></pre>
     </article>
-
     <article class="card">
       <div class="role">risk-management</div>
       <h2>Sustainable Leverage</h2>
-      <p class="finding"><strong>Finding:</strong> Leverage should be set by survivability: volatility, drawdown tolerance, diversification, and business return requirements — not by broker maximums.</p>
+      <p class="finding-text"><strong>Finding:</strong> Leverage should be set by survivability: volatility, drawdown tolerance, diversification, and business return requirements — not by broker maximums.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Leverage is gross exposure relative to capital. It can make a good Sharpe strategy economically meaningful, but it also magnifies estimation error, crowding, liquidity shocks, and drawdowns.</p><p>Sustainable leverage asks: what size can the strategy carry through bad but plausible conditions without forced liquidation or business-level failure?</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Leverage depends on portfolio volatility, concentration, factor exposure, stop-loss policy, margin rules, and expected returns. It should be recalculated when correlations rise or liquidity falls.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Combine volatility targeting with stress-loss limits. The final leverage should be the minimum of what volatility, drawdown budget, liquidity, and margin constraints allow.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>expected_vol = estimate_portfolio_vol(weights)
 max_leverage_by_vol = target_vol / expected_vol
 max_leverage_by_drawdown = loss_budget / stress_loss(weights)
 leverage = min(max_leverage_by_vol, max_leverage_by_drawdown)</code></pre>
     </article>
-
     <article class="card">
       <div class="role">data-engineering</div>
       <h2>Alternative Data Evaluation</h2>
-      <p class="finding"><strong>Finding:</strong> New datasets need metadata, cleaning, leakage checks, cost analysis, and evidence that they improve selection, timing, or sizing.</p>
+      <p class="finding-text"><strong>Finding:</strong> New datasets need metadata, cleaning, leakage checks, cost analysis, and evidence that they improve selection, timing, or sizing.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Alternative data is only valuable if it becomes reliable information before the market prices it in. Raw novelty is not edge. The dataset must survive provenance checks, timestamp checks, survivorship-bias checks, cleaning, and economic interpretation.</p><p>A dataset can fail because it leaks future information, is too expensive, is too sparse, is not point-in-time, or improves backtests only by overfitting.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Data evaluation links data engineering to signal generation and attribution. A dataset should get a concept page and quality report before becoming part of an alpha model.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Create a repeatable gate: ingest metadata, validate point-in-time availability, build a simple signal, backtest with costs, then compare incremental attribution versus existing signals.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>dataset = ingest_dataset(source)
 validate_no_lookahead(dataset)
 signal = build_signal(dataset)
 result = backtest(signal, costs=True)
-accept = result.ir > threshold and result.stable_across_periods</code></pre>
+accept = result.ir &gt; threshold and result.stable_across_periods</code></pre>
     </article>
-
     <article class="card">
       <div class="role">proposed strategy</div>
       <h2>Factor-Neutral Alpha Portfolio</h2>
-      <p class="finding"><strong>Finding:</strong> Generate alpha scores, size them by risk, then neutralize unwanted factors before trading.</p>
+      <p class="finding-text"><strong>Finding:</strong> Generate alpha scores, size them by risk, then neutralize unwanted factors before trading.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>This is the first complete strategy sketch from the source: forecast returns, translate forecasts into desired positions, remove unwanted factor exposures, trade with realistic constraints, and evaluate what actually made money.</p><p>The important design principle is &quot;invest in the edge and hedge the rest.&quot; The edge should be the chosen alpha; broad factor risk should be explicit, limited, or intentionally paid for.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This strategy ties together every preceding concept: factor models define unwanted exposures, alpha sizing produces raw weights, construction neutralizes them, attribution verifies the result, and stop/leverage rules govern survival.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Implement a minimal end-to-end research loop before adding sophistication: simple alpha input, simple factor model, constrained portfolio builder, transaction-cost-aware backtest, and attribution report.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>alpha = compute_alpha(universe)
 raw_weights = size_alpha(alpha, risk, confidence)

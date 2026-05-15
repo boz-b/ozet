@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Trading Volatility — Findings and Code Applications</title>
+  <title>Trading Volatility — Expanded Findings and Code Applications</title>
   <link rel="stylesheet" href="../assets/styles.css" />
 </head>
 <body>
@@ -17,15 +17,59 @@
   </nav>
 
   <header class="page-header">
-    <div class="eyebrow">Findings + code applications</div>
+    <div class="eyebrow">Standalone concept primer + findings + code applications</div>
     <h1>Trading Volatility, Correlation, Term Structure and Skew</h1>
+    <p class="lede">This page translates Bennett’s volatility research into a self-contained primer for the Virtual Hedge Fund. It introduces the language of variance, option Greeks, volatility surfaces, carry, roll yield, dispersion, event jumps, and hedging policy before expanding each finding and code sketch.</p>
   </header>
 
-  <section class="grid">
+  <section class="intro-panel" aria-label="Concept introduction">
+    <div class="eyebrow">Read this first</div>
+    <h2>Concepts and terminology</h2>
+    <div class="intro-grid">
+      <article class="intro-box">
+        <h3>Core mental model</h3>
+        <p>Volatility trading is trading the market price of future movement, not just trading direction. The clean mathematical object is often variance, while the traded objects are options, variance-like replications, volatility futures, and hedges whose PnL depends on path, surface movement, costs, and regime.</p>
+      </article>
+      <article class="intro-box">
+        <h3>How the ideas relate</h3>
+        <p>Variance is the measurement base. Delta hedging turns options into path-dependent volatility trades. Implied-versus-realized carry, VIX roll yield, relative-value spreads, dispersion, and event jumps are different ways to compare priced volatility with expected realized movement. Surface regimes and hedge policy control when those trades are dangerous.</p>
+      </article>
+      <article class="intro-box">
+        <h3>How to read the findings</h3>
+        <p>Each card explains the finding, defines the terminology needed to understand it, links it to nearby volatility concepts, and then turns it into an implementation sketch. The pseudocode is intentionally research-code oriented rather than production execution code.</p>
+      </article>
+    </div>
+    <dl class="term-list">
+      <div class="term"><dt>Volatility</dt><dd>The quoted square root of variance: a market-friendly way to express the expected size of price moves.</dd></div>
+      <div class="term"><dt>Variance</dt><dd>Squared return dispersion. It is additive across time and central to option replication, carry, jumps, and dispersion math.</dd></div>
+      <div class="term"><dt>Implied vs realized</dt><dd>Implied volatility is priced by options today; realized volatility is what the underlying actually delivers later.</dd></div>
+      <div class="term"><dt>Delta / gamma / vega / theta</dt><dd>Delta is spot sensitivity, gamma is change in delta, vega is volatility sensitivity, and theta is time decay.</dd></div>
+      <div class="term"><dt>Delta hedging</dt><dd>Trading the underlying to neutralize directional exposure, leaving a position more exposed to volatility and path.</dd></div>
+      <div class="term"><dt>Skew and term structure</dt><dd>Skew describes volatility across strikes; term structure describes volatility across maturities. Together they form the volatility surface.</dd></div>
+      <div class="term"><dt>Carry and roll yield</dt><dd>Carry is expected return from holding a position if conditions do not change; roll yield is gain/loss from moving along a futures or term-structure curve.</dd></div>
+      <div class="term"><dt>Dispersion / correlation</dt><dd>Index volatility depends on constituent volatilities and correlations. Dispersion trades isolate the correlation component imperfectly.</dd></div>
+    </dl>
+  </section>
+
+  <section class="finding-stack" aria-label="Expanded findings">
     <article class="card">
       <div class="role">risk-management</div>
       <h2>Variance as the Core Volatility Measure</h2>
-      <p class="finding"><strong>Finding:</strong> Variance is the natural primitive for volatility trading because squared returns do not cancel and option gamma PnL is tied to squared moves. Volatility is mainly the quoting/reporting square root of variance.</p>
+      <p class="finding-text"><strong>Finding:</strong> Variance is the natural primitive for volatility trading because squared returns do not cancel and option gamma PnL is tied to squared moves. Volatility is mainly the quoting/reporting square root of variance.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>If a price goes up 2% and down 2%, simple returns can offset, but squared returns accumulate. That is why realized variance measures the total amount of movement rather than direction.</p><p>Options care about movement because gamma profits from curvature when the underlying moves. Many volatility products and calculations are cleaner in variance space, then translated back to volatility for reporting.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Variance is the base unit behind forward variance, variance swaps, event-jump extraction, implied correlation, and implied-versus-realized carry. Treating volatility as the square root prevents mixing incompatible measures.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Store both variance and volatility. Do comparisons, aggregation, term-structure interpolation, and jump decomposition in variance units; convert to volatility only for display or quoting.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>def realized_variance(log_returns, annualization=252):
     return annualization * sum(r*r for r in log_returns) / len(log_returns)
@@ -37,11 +81,24 @@ def forward_variance(vol1, t1, vol2, t2):
 def variance_to_vol(var):
     return max(var, 0.0) ** 0.5</code></pre>
     </article>
-
     <article class="card">
       <div class="role">execution-trade-management</div>
       <h2>Delta-Hedged Option PnL</h2>
-      <p class="finding"><strong>Finding:</strong> Delta hedging converts an option into a volatility position, but realized PnL depends on the hedge path, hedge frequency, dividends, borrow, transaction costs, and changes in the volatility surface.</p>
+      <p class="finding-text"><strong>Finding:</strong> Delta hedging converts an option into a volatility position, but realized PnL depends on the hedge path, hedge frequency, dividends, borrow, transaction costs, and changes in the volatility surface.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>An unhedged option mixes direction and volatility. Delta hedging tries to remove the directional component by trading the underlying against the option delta. The remaining economics are mainly gamma/theta/vega plus practical frictions.</p><p>The same option can have different PnL under different hedge schedules because hedging is path dependent and trading costs accumulate.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Delta hedging links option Greeks, realized variance, transaction costs, and surface regimes. It is the execution layer that turns an option idea into a measured volatility trade.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Backtests should simulate the hedge path day by day, including option repricing, underlying hedge trades, dividends, borrow, slippage, and attribution into gamma, theta, vega, and costs.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>def run_delta_hedged_option(option, market):
     hedge = 0.0
@@ -53,13 +110,26 @@ def variance_to_vol(var):
         costs = estimate_execution_cost(trade, market.liquidity(t))
         hedge += trade
         pnl_path.append(mark_option(option, t) + hedge_pnl(hedge, t) - costs)
-    return attribution(pnl_path, ['gamma', 'theta', 'vega', 'borrow', 'dividend', 'cost'])</code></pre>
+    return attribution(pnl_path, [&#x27;gamma&#x27;, &#x27;theta&#x27;, &#x27;vega&#x27;, &#x27;borrow&#x27;, &#x27;dividend&#x27;, &#x27;cost&#x27;])</code></pre>
     </article>
-
     <article class="card">
       <div class="role">signal-generation</div>
       <h2>Volatility Risk Premium and Carry</h2>
-      <p class="finding"><strong>Finding:</strong> Implied volatility usually trades above realized volatility, but the premium is compensation for crash exposure, equity-beta-like behavior, hedge demand, structured products, and crowded short-vol risk.</p>
+      <p class="finding-text"><strong>Finding:</strong> Implied volatility usually trades above realized volatility, but the premium is compensation for crash exposure, equity-beta-like behavior, hedge demand, structured products, and crowded short-vol risk.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Selling volatility can look attractive because option buyers often pay insurance premia. But the seller is short crash convexity: small steady gains can be offset by rare violent losses.</p><p>The volatility risk premium is therefore not free money; it is payment for bearing tail risk, liquidity risk, mark-to-market pain, and potentially crowded positioning.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Carry signals need variance measurement, skew/tail diagnostics, term structure, equity beta, liquidity, and regime filters. The premium is attractive only after subtracting the cost of crash exposure and crowding.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Calculate implied variance minus forecast realized variance, then haircut it for put-wing steepness, drawdown risk, liquidity, crowded open interest, and correlation with equity-market stress.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>def volatility_carry_signal(surface, realized_vol, equity_beta, liquidity):
     raw_carry = surface.variance_swap_level() - realized_vol**2
@@ -68,11 +138,24 @@ def variance_to_vol(var):
     beta_penalty = abs(equity_beta) * market_drawdown_risk()
     return raw_carry - crash_penalty - crowding_penalty - beta_penalty</code></pre>
     </article>
-
     <article class="card">
       <div class="role">risk-management</div>
       <h2>Volatility, Variance, and Gamma Swaps</h2>
-      <p class="finding"><strong>Finding:</strong> Vol, variance, and gamma swaps provide cleaner volatility exposure than a single vanilla option, but they differ in convexity, tail sensitivity, and vol-of-vol exposure.</p>
+      <p class="finding-text"><strong>Finding:</strong> Vol, variance, and gamma swaps provide cleaner volatility exposure than a single vanilla option, but they differ in convexity, tail sensitivity, and vol-of-vol exposure.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A volatility swap pays roughly on realized volatility; a variance swap pays on realized variance; a gamma swap weights exposure by spot movement. These instruments are conceptually useful even when the fund trades only listed options.</p><p>Their differences matter because a variance payoff is more sensitive to large moves than a volatility payoff. That convexity has value and risk.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Swaps connect the variance-first framework to option-strip replication, VIX-style calculations, dispersion, and tail-risk management. They are benchmarks for understanding what listed option portfolios approximate.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Model synthetic variance swaps with option strips and classify products by payoff convexity, tail sensitivity, liquidity, and whether the exposure can actually be traded or only used as a benchmark.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>def synthetic_variance_swap(option_chain, forward, expiry):
     legs = []
@@ -84,24 +167,50 @@ def variance_to_vol(var):
 def variance_swap_payoff(realized_vol, strike_vol, notional):
     return (realized_vol**2 - strike_vol**2) * notional</code></pre>
     </article>
-
     <article class="card">
       <div class="role">execution-trade-management</div>
       <h2>Volatility Index Futures and Roll Yield</h2>
-      <p class="finding"><strong>Finding:</strong> Volatility-index futures are linear claims on future index settlement, not variance swaps. Long VIX-style products can lose from roll-down when the curve is upward sloping, and futures delta declines with maturity.</p>
+      <p class="finding-text"><strong>Finding:</strong> Volatility-index futures are linear claims on future index settlement, not variance swaps. Long VIX-style products can lose from roll-down when the curve is upward sloping, and futures delta declines with maturity.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A VIX future is a futures contract on a future volatility-index settlement. It is not the same as holding spot VIX and not the same as holding a variance swap.</p><p>When the futures curve is in contango, a constant-maturity long-volatility product repeatedly sells cheaper near futures and buys more expensive next futures, creating negative roll yield.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This links term structure, carry, hedge design, and ETP mechanics. A long-volatility hedge can be directionally right about fear but still lose money through roll and timing.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Represent futures by maturity, settlement date, curve slope, roll schedule, and estimated delta to spot volatility. Do not backtest VIX exposure as if it were a static spot index.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>def vol_future_roll_model(futures_curve, target_maturity_days=30):
     front, second = futures_curve.front_two()
     w_second = days_until(front.expiry, target_maturity_days) / days_between(front.expiry, second.expiry)
     synthetic_level = (1 - w_second) * front.price + w_second * second.price
     daily_roll = (second.price - front.price) / days_between(front.expiry, second.expiry)
-    return {'level': synthetic_level, 'roll_cost': daily_roll}</code></pre>
+    return {&#x27;level&#x27;: synthetic_level, &#x27;roll_cost&#x27;: daily_roll}</code></pre>
     </article>
-
     <article class="card">
       <div class="role">signal-generation</div>
       <h2>Volatility Relative-Value Pairs</h2>
-      <p class="finding"><strong>Finding:</strong> Volatility pair trades have two engines: mean reversion in implied-vol spreads and longer-horizon carry from implied-versus-realized volatility differences.</p>
+      <p class="finding-text"><strong>Finding:</strong> Volatility pair trades have two engines: mean reversion in implied-vol spreads and longer-horizon carry from implied-versus-realized volatility differences.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Instead of asking whether volatility is absolutely cheap or expensive, relative value asks whether one market’s implied volatility is cheap or expensive versus another comparable market.</p><p>The spread can converge because relative implied vol mean-reverts, or because one side offers better implied-versus-realized carry after hedging risk.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Pair trades require consistent variance units, beta/vega-neutral sizing, liquidity checks, skew differences, and correlation between underlyings. They borrow tools from equity pairs but operate on option surfaces.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Build pair signals from z-scored implied-vol spreads plus carry edge, then size by vega and underlying beta so the trade is not just a disguised directional or market-volatility bet.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>def vol_pair_signal(asset_a, asset_b):
     spread_z = rolling_zscore(asset_a.atmf_vol - asset_b.atmf_vol, lookback=252)
@@ -109,11 +218,24 @@ def variance_swap_payoff(realized_vol, strike_vol, notional):
     liquidity_penalty = bid_ask_penalty(asset_a.options, asset_b.options)
     return -spread_z + carry_weight() * carry_edge - liquidity_penalty</code></pre>
     </article>
-
     <article class="card">
       <div class="role">portfolio-construction</div>
       <h2>Implied Correlation and Dispersion</h2>
-      <p class="finding"><strong>Finding:</strong> Index variance is determined by constituent variance and pairwise correlation. Dispersion is economically short correlation and can be short vol-of-vol, so it needs more than a simple implied-versus-realized correlation comparison.</p>
+      <p class="finding-text"><strong>Finding:</strong> Index variance is determined by constituent variance and pairwise correlation. Dispersion is economically short correlation and can be short vol-of-vol, so it needs more than a simple implied-versus-realized correlation comparison.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>An index does not move only because its members are volatile; it moves because members are volatile and because they move together. Correlation is the bridge between single-name variance and index variance.</p><p>A dispersion trade tries to isolate that bridge, often by selling index volatility and buying constituent volatility. The risk is that correlation and vol-of-vol spike together in crises.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Dispersion combines variance math, correlation estimation, index weights, single-name liquidity, skew, and portfolio construction. It is one of the clearest examples of volatility research becoming a portfolio problem.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Estimate implied correlation from index and constituent variance, compare with realized/forecast correlation, then penalize for concentration, missing option data, rebalancing cost, and crisis correlation jumps.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>def implied_correlation(index_var, constituent_vars, weights):
     single_var = sum((w*w) * v for w, v in zip(weights, constituent_vars))
@@ -123,11 +245,24 @@ def variance_swap_payoff(realized_vol, strike_vol, notional):
     avg_vol_product = weighted_avg_vol_product(constituent_vars, weights)
     return avg_cov_term / (2 * cross_weight * avg_vol_product)</code></pre>
     </article>
-
     <article class="card">
       <div class="role">signal-generation</div>
       <h2>Earnings and Event Jump Volatility</h2>
-      <p class="finding"><strong>Finding:</strong> Scheduled events such as earnings can be isolated by variance additivity across expiries. The edge is the difference between implied event jump and robust historical/forecast event move.</p>
+      <p class="finding-text"><strong>Finding:</strong> Scheduled events such as earnings can be isolated by variance additivity across expiries. The edge is the difference between implied event jump and robust historical/forecast event move.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A near-term option expiring after earnings contains normal day-to-day volatility plus a discrete jump component for the announcement. Because variance adds over time, the event component can be estimated by comparing expiries around the event.</p><p>The trade is not simply &quot;earnings options are expensive.&quot; It is whether the implied jump is too high or too low relative to a robust expectation of the actual event move and trading costs.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Event volatility connects term structure, variance additivity, event calendars, single-name liquidity, and historical move estimation. It is a data-engineering problem as much as an options problem.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Maintain a point-in-time event calendar, extract implied jumps from option expiries, estimate fair jumps from historical/event features, and apply liquidity and uncertainty penalties before trading.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>def implied_event_jump(vol_after, t_after, diffusive_vol, event_days=1, trading_days=252):
     non_event_t = max(t_after - event_days / trading_days, 0)
@@ -138,39 +273,65 @@ def event_vol_signal(implied_jump, historical_event_moves, liquidity):
     fair_jump = robust_expected_abs_move(historical_event_moves)
     return implied_jump - fair_jump - bid_ask_penalty(liquidity)</code></pre>
     </article>
-
     <article class="card">
       <div class="role">regime-macro-detection</div>
       <h2>Skew, Term Structure, and Surface Regimes</h2>
-      <p class="finding"><strong>Finding:</strong> Skew and term structure are linked slices of the same volatility surface. PnL depends on whether the market behaves sticky-delta, sticky-strike, sticky-local-vol, or jumpy-vol.</p>
+      <p class="finding-text"><strong>Finding:</strong> Skew and term structure are linked slices of the same volatility surface. PnL depends on whether the market behaves sticky-delta, sticky-strike, sticky-local-vol, or jumpy-vol.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Skew shows how implied volatility changes across strikes; term structure shows how it changes across maturities. A trade that looks cheap at one strike and expiry can behave very differently if the whole surface shifts under stress.</p><p>Surface regime assumptions describe how implied volatility moves when spot moves. Sticky-delta, sticky-strike, sticky-local-vol, and jumpy-vol regimes imply different PnL for the same listed option.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Surface regimes affect delta hedging, skew trades, carry signals, hedge selection, and stress tests. They are the macro/regime layer of volatility research.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Normalize skew by maturity, classify surface behavior from historical spot/vol moves, and reprice trades at fixed strike and expiry rather than relying only on relative ATM measures.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>def normalize_skew(skew_points, maturity_years):
     return skew_points * (maturity_years ** 0.5)
 
 def classify_surface_regime(surface_history):
     beta = regression(surface_history.delta_implied_vol, surface_history.underlying_return).beta
-    if beta > threshold():
-        return 'sticky-delta-or-calm'
-    if abs(beta) <= threshold():
-        return 'sticky-strike'
-    if beta < -large_threshold():
-        return 'jumpy-vol-or-panic'
-    return 'sticky-local-vol'</code></pre>
+    if beta &gt; threshold():
+        return &#x27;sticky-delta-or-calm&#x27;
+    if abs(beta) &lt;= threshold():
+        return &#x27;sticky-strike&#x27;
+    if beta &lt; -large_threshold():
+        return &#x27;jumpy-vol-or-panic&#x27;
+    return &#x27;sticky-local-vol&#x27; </code></pre>
     </article>
-
     <article class="card">
       <div class="role">risk-management</div>
       <h2>Volatility Hedging Policy</h2>
-      <p class="finding"><strong>Finding:</strong> Long volatility can hedge drawdowns, but it is often expensive and imperfect. Compare it against exposure reduction, futures hedges, puts, and collars before spending hedge budget.</p>
+      <p class="finding-text"><strong>Finding:</strong> Long volatility can hedge drawdowns, but it is often expensive and imperfect. Compare it against exposure reduction, futures hedges, puts, and collars before spending hedge budget.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Long volatility is attractive because it can pay during market stress, but the premium, roll cost, basis risk, timing risk, and imperfect equity correlation can make it an expensive hedge.</p><p>A hedge policy should decide when convexity is worth buying and when simpler actions, like reducing exposure or using futures, are more efficient.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Hedging policy uses everything above: carry, roll yield, surface regime, put skew, futures delta, drawdown budget, and the portfolio’s actual stress exposures.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Compare candidate hedges on expected carry cost, stress payoff, implementation liquidity, convexity, basis risk, and drawdown reduction. Allocate hedge budget only when benefits beat simpler alternatives.</p>
+        </div>
+      </div>
       <p class="application-label">Code application:</p>
 <pre><code>def choose_drawdown_hedge(portfolio, hedge_market):
     candidates = {
-        'reduce_equity': expected_tracking_cost(portfolio.reduce_beta()),
-        'short_futures': futures_basis_and_margin_cost(hedge_market.index_future),
-        'long_puts': option_premium_cost(hedge_market.puts) - convexity_benefit(portfolio),
-        'long_vol_futures': vol_carry_cost(hedge_market.vix_curve) + roll_down_cost(hedge_market.vix_curve),
+        &#x27;reduce_equity&#x27;: expected_tracking_cost(portfolio.reduce_beta()),
+        &#x27;short_futures&#x27;: futures_basis_and_margin_cost(hedge_market.index_future),
+        &#x27;long_puts&#x27;: option_premium_cost(hedge_market.puts) - convexity_benefit(portfolio),
+        &#x27;long_vol_futures&#x27;: vol_carry_cost(hedge_market.vix_curve) + roll_down_cost(hedge_market.vix_curve),
     }
-    feasible = {k: v for k, v in candidates.items() if stress_test(k).loss <= portfolio.hedge_budget}
+    feasible = {k: v for k, v in candidates.items() if stress_test(k).loss &lt;= portfolio.hedge_budget}
     return min(feasible, key=feasible.get)</code></pre>
     </article>
   </section>

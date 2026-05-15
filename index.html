@@ -17,16 +17,16 @@
   </nav>
 
   <header class="page-header">
-    <div class="eyebrow">Browseable ingestion pages</div>
+    <div class="eyebrow">Standalone research primers</div>
     <h1>Research findings and code applications</h1>
-    <p>Select an ingestion summary. Each page keeps only the extracted concepts/findings and their pseudocode implementation sketches.</p>
+    <p class="lede">Each ingestion page now starts with a concept primer and terminology map, then expands every finding with context, relationships, implementation interpretation, and pseudocode. The goal is that a page is understandable without opening the original source first.</p>
   </header>
 
   <section class="summary-list" aria-label="Available summaries">
     <article class="summary-card">
       <div class="eyebrow">Latest ingestion</div>
       <h2><a href="pages/trading-volatility-correlation-term-structure-skew.html">Trading Volatility, Correlation, Term Structure and Skew</a></h2>
-      <p>Variance-first volatility measurement, delta-hedged option PnL, volatility carry, volatility-index roll yield, relative-value volatility, dispersion/correlation, event jumps, skew/term structure, and hedge policy.</p>
+      <p>Dark standalone primer for volatility research: variance-first measurement, delta-hedged option PnL, volatility risk premium, swaps, VIX futures, roll yield, relative value, dispersion, event jumps, surface regimes, and hedge policy.</p>
       <div class="meta">Source: Colin Bennett · Volatility / derivatives research</div>
       <p><a class="button-link" href="pages/trading-volatility-correlation-term-structure-skew.html">Open page</a></p>
     </article>
@@ -34,14 +34,14 @@
     <article class="summary-card">
       <div class="eyebrow">Previous ingestion</div>
       <h2><a href="pages/advanced-portfolio-management.html">Advanced Portfolio Management</a></h2>
-      <p>Factor risk models, alpha sizing, factor-neutral portfolio construction, attribution, stop-loss policy, sustainable leverage, alternative data evaluation, and a factor-neutral alpha portfolio sketch.</p>
+      <p>Dark standalone primer for quant portfolio management: alpha, factor risk models, factor neutrality, sizing, attribution, stop-loss governance, sustainable leverage, alternative data, and a factor-neutral alpha portfolio sketch.</p>
       <div class="meta">Source: Giuseppe A. Paleologo · Quant portfolio research</div>
       <p><a class="button-link" href="pages/advanced-portfolio-management.html">Open page</a></p>
     </article>
   </section>
 
   <footer>
-    Add new ingestion pages under <code>pages/</code>, link them from this index, and keep page bodies limited to findings plus pseudocode/code applications.
+    New ingestion pages should follow <code>HTML_SUMMARY_RULES.md</code>: dark standalone introduction, terminology map, expanded findings, and code applications.
   </footer>
 </main>
 </body>
