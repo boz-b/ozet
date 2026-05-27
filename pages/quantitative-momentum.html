@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quantitative Momentum — Expanded Findings and Code Applications</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+</head>
+<body>
+<main>
+  <nav class="site-nav" aria-label="Site navigation">
+    <a class="brand" href="../index.html">Virtual Hedge Fund summaries</a>
+    <div class="nav-links">
+      <a href="quantitative-momentum.html">Quantitative Momentum</a>
+      <a href="trading-volatility-correlation-term-structure-skew.html">Trading Volatility</a>
+      <a href="advanced-portfolio-management.html">Advanced Portfolio Management</a>
+    </div>
+  </nav>
+
+  <header class="page-header">
+    <div class="eyebrow">Standalone concept primer + findings + code applications</div>
+    <h1>Quantitative Momentum</h1>
+    <p class="lede">This page translates Gray and Vogel's momentum book into a self-contained research primer for the Virtual Hedge Fund. The source turns a simple idea, buying recent winners, into an implementable equity sleeve with universe controls, signal definitions, path-quality filters, rebalance timing, transaction-cost realism, and behavioral discipline.</p>
+  </header>
+
+  <section class="intro-panel" aria-label="Concept introduction">
+    <div class="eyebrow">Read this first</div>
+    <h2>Concepts and terminology</h2>
+    <div class="intro-grid">
+      <article class="intro-box">
+        <h3>Core mental model</h3>
+        <p>Momentum is not a forecast that prices rise forever. It is a disciplined bet that investors often underreact to information, that professional managers face career constraints, and that the strongest recent winners can keep outperforming for a while when the signal is built and traded carefully.</p>
+      </article>
+      <article class="intro-box">
+        <h3>How the ideas relate</h3>
+        <p>The base signal ranks stocks by intermediate-term relative strength. Universe filters make the backtest investable. Path-quality filters separate smooth winners from lottery-like spikes. Rebalance timing, turnover, costs, and capacity determine whether the paper edge survives contact with implementation.</p>
+      </article>
+      <article class="intro-box">
+        <h3>How to read the findings</h3>
+        <p>Each finding moves from a research claim to a code lens. The pseudocode is intentionally research-oriented: it shows what should become auditable modules before the fund treats momentum as a production sleeve.</p>
+      </article>
+    </div>
+    <dl class="term-list">
+      <div class="term"><dt>Cross-sectional momentum</dt><dd>Ranking stocks against one another by past returns, then buying the relative winners.</dd></div>
+      <div class="term"><dt>12-2 momentum</dt><dd>A common signal using cumulative return over the prior 12 months while skipping the most recent month.</dd></div>
+      <div class="term"><dt>Short-term reversal</dt><dd>The tendency for last month's strongest stocks to mean-revert, which is why many momentum formulas skip that month.</dd></div>
+      <div class="term"><dt>Path quality</dt><dd>Whether a winner rose through many small moves or through a few large jumps; smoother paths are treated as higher quality.</dd></div>
+      <div class="term"><dt>Information discreteness</dt><dd>A proxy for continuous versus discrete information flow during the formation period.</dd></div>
+      <div class="term"><dt>Window dressing</dt><dd>Quarter-end institutional behavior where managers may buy visible winners and sell visible losers for reporting optics.</dd></div>
+      <div class="term"><dt>Tax-loss selling</dt><dd>Year-end selling pressure on losing stocks that can distort January momentum behavior.</dd></div>
+      <div class="term"><dt>Capacity</dt><dd>The amount of capital a strategy can plausibly run before turnover and market impact consume the edge.</dd></div>
+    </dl>
+  </section>
+
+  <section class="finding-stack" aria-label="Expanded findings">
+    <article class="card">
+      <div class="role">signal-generation</div>
+      <h2>Intermediate-Term Momentum Is the Base Signal</h2>
+      <p class="finding-text"><strong>Finding:</strong> The book's core signal is cross-sectional intermediate-term momentum: rank stocks by roughly one year of prior performance, usually skipping the most recent month to reduce reversal noise.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Momentum in this context is stock selection, not broad trend following. The strategy asks which stocks have outperformed their peers over the formation window, then builds a portfolio from the strongest candidates.</p>
+          <p>The skipped month is a practical guard against short-term reversal contaminating the signal.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This becomes the first layer beneath all later refinements. Path quality, seasonality, costs, and portfolio construction should improve or constrain the base rank, not obscure it.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Start with a small, reproducible signal function. Robustness tests can compare 12-1, 12-2, 6-2, and 9-2 variants, but the canonical research baseline should be stable.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def momentum_12_2(monthly_returns):
+    formation = monthly_returns[-12:-1]
+    gross = 1.0
+    for r in formation:
+        gross *= 1.0 + r
+    return gross - 1.0
+
+def rank_by_momentum(universe):
+    return sorted(
+        [(stock.ticker, momentum_12_2(stock.monthly_returns)) for stock in universe],
+        key=lambda row: row[1],
+        reverse=True,
+    )</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">data-engineering</div>
+      <h2>Universe Rules Come Before Signals</h2>
+      <p class="finding-text"><strong>Finding:</strong> Momentum backtests are only useful if the eligible universe is investable: ordinary common shares, adjusted returns, market-cap/liquidity thresholds, and survivorship/delisting controls must be defined up front.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A backtest that accidentally leans on microcaps, stale prices, or survivorship-biased data can make momentum look cleaner than it is. The book repeatedly narrows tests toward liquid, implementable stocks.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Universe rules affect turnover, capacity, concentration, drawdown, and the final rank. They are not an administrative detail; they are part of the strategy definition.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Persist the universe snapshot with every rebalance. Later performance should be explainable from stored eligibility rules, not recreated from today's security master.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def eligible_for_momentum(security, as_of):
+    return (
+        security.type == "ordinary_common_share"
+        and security.has_adjusted_history(as_of, months=13)
+        and security.market_cap(as_of) >= nyse_40th_percentile(as_of)
+        and security.avg_dollar_volume(as_of, days=60) >= MIN_ADV
+        and not security.has_stale_price(as_of)
+    )</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">signal-generation</div>
+      <h2>Path Quality Separates Smooth Winners from Jumpy Winners</h2>
+      <p class="finding-text"><strong>Finding:</strong> Two stocks can have the same trailing return but very different information paths. Smooth, continuous momentum is treated as higher quality than jump-driven momentum.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A stock that slowly compounds upward may still be underappreciated because gradual information attracts less attention. A stock that jumps in a few dramatic moves may already have attracted speculative demand.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This links momentum to behavioral finance: limited attention and lottery preference. The fund should not treat every high trailing return as equally attractive.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Score path quality after the generic momentum rank. Useful proxies include information discreteness, maximum daily return, return volatility, beta, and jump concentration.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def information_discreteness(daily_returns, past_return):
+    positives = sum(r > 0 for r in daily_returns) / len(daily_returns)
+    negatives = sum(r < 0 for r in daily_returns) / len(daily_returns)
+    return (1 if past_return >= 0 else -1) * (negatives - positives)
+
+def quality_adjusted_momentum(stock):
+    base = momentum_12_2(stock.monthly_returns)
+    id_score = information_discreteness(stock.daily_returns[-252:-21], base)
+    jump_penalty = max(stock.daily_returns[-252:-21])
+    return base - 0.25 * id_score - 0.50 * jump_penalty</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">portfolio-construction</div>
+      <h2>Concentration Captures the Edge, Turnover Taxes It</h2>
+      <p class="finding-text"><strong>Finding:</strong> Fewer holdings and more frequent rebalancing historically captured more of the momentum premium, but implementation costs and capacity decide what can actually be run.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Momentum decays. If a portfolio holds too many names or waits too long to rebalance, the signal is diluted. But high turnover creates trading costs, market impact, and operational complexity.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>The strategy's sustainability partly comes from this trade-off. Large pools of capital cannot exploit the fastest, most concentrated version without moving prices.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Do not optimize on gross CAGR. Report net results across holdings counts, rebalance frequencies, turnover assumptions, and capacity limits.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def build_portfolio(ranked, n_holdings, max_weight=0.05):
+    selected = ranked[:n_holdings]
+    raw_weight = 1.0 / len(selected)
+    return {sid: min(raw_weight, max_weight) for sid, score in selected}
+
+def apply_turnover_cost(prev_weights, next_weights, cost_bps):
+    turnover = sum(abs(next_weights.get(k, 0) - prev_weights.get(k, 0))
+                   for k in set(prev_weights) | set(next_weights))
+    return turnover * cost_bps / 10000.0</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">execution-trade-management</div>
+      <h2>Seasonality Changes Rebalance Timing</h2>
+      <p class="finding-text"><strong>Finding:</strong> Window dressing and tax-loss selling can distort momentum returns around quarter ends and January, so rebalance calendars should be tested as part of the model.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Institutional managers may buy visible winners before reporting dates. Taxable investors may sell losers near year-end. These flows can temporarily push or reverse momentum-related returns.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Seasonality is not a replacement for the base signal. It is a trading calendar overlay that should be evaluated net of liquidity and frictional costs.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Backtest monthly, quarter-start, quarter-end, and seasonality-aware rebalance schedules with identical signal and universe rules.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def rebalance_months(mode):
+    calendars = {
+        "monthly": set(range(1, 13)),
+        "quarter_start": {1, 4, 7, 10},
+        "quarter_end": {3, 6, 9, 12},
+        "seasonality_aware": {2, 5, 8, 11},
+    }
+    return calendars[mode]
+
+def is_rebalance_date(date, mode):
+    return is_month_end(date) and date.month in rebalance_months(mode)</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">portfolio-construction</div>
+      <h2>Momentum Is Not Growth, and Complements Value</h2>
+      <p class="finding-text"><strong>Finding:</strong> The book argues that momentum should not be confused with growth investing. Value and momentum are different behavioral premiums and can diversify one another.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Growth portfolios buy expensive firms based on high expectations. Momentum portfolios buy recent winners based on relative price behavior. The overlap can exist, but the mechanisms are different.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>For the fund, momentum can become a sleeve beside value and factor-neutral alpha work, or a confirmation signal inside stock selection. It should not be treated as a generic risk-on growth bucket.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Report momentum exposure separately from valuation exposure. A combined portfolio should show how much return comes from each signal family.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def combined_value_momentum_rank(value_score, momentum_score, path_quality):
+    momentum_component = zscore(momentum_score) * path_quality
+    value_component = zscore(value_score)
+    return 0.5 * value_component + 0.5 * momentum_component</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">backtesting-evaluation</div>
+      <h2>Costs and Capacity Are Part of the Signal</h2>
+      <p class="finding-text"><strong>Finding:</strong> Momentum requires trading, so costs, spread, impact, and scale can turn a beautiful gross backtest into an unusable strategy.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>The book treats the transaction-cost debate seriously: momentum may survive costs, but not at unlimited capital and not under every rebalance design.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>Costs link universe design, concentration, rebalance frequency, and capacity. A strategy variant with lower gross return can be superior if it trades less and scales better.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Every candidate portfolio should produce gross return, turnover, estimated cost, net return, and capacity diagnostics in the same report.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def implementation_adjusted_score(signal, trade_notional, adv, spread_bps):
+    impact_bps = IMPACT_COEF * (trade_notional / max(adv, 1.0)) ** 0.5 * 10000
+    total_cost_bps = spread_bps + impact_bps
+    return signal - total_cost_bps / 10000.0
+
+def capacity_status(order_notional, adv):
+    return "too_large" if order_notional > 0.05 * adv else "ok"</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">behavioral-process-governance</div>
+      <h2>Drawdown Pain Is a Governance Problem</h2>
+      <p class="finding-text"><strong>Finding:</strong> Momentum can have severe drawdowns and long relative underperformance. The book frames this discomfort as part of why the premium persists, not as a defect to optimize away casually.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Investors often abandon strategies after painful periods. Professional managers also face benchmark and career pressure. Those constraints create room for disciplined capital to earn a premium.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>The fund needs a prewritten review policy. Expected pain should be monitored, while data failures, implementation drift, or invalid assumptions should trigger model review.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Backtest reports should include worst drawdown, rolling underperformance, tracking error, and rule-based status labels so decisions are not improvised under stress.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def momentum_governance_state(drawdown, tracking_error, signal_integrity):
+    if not signal_integrity:
+        return "stop_and_review_data_or_process"
+    if drawdown < -0.35 or tracking_error > 0.20:
+        return "expected_pain_committee_review"
+    return "normal_monitoring"</code></pre>
+    </article>
+  </section>
+
+  <footer>
+    Source: Wesley R. Gray and Jack R. Vogel, <code>Quantitative Momentum</code>. Local wiki lineage includes the source page, 8 concept pages, a proposed quality-momentum sleeve, and an equity momentum operating-model synthesis.
+  </footer>
+</main>
+</body>
+</html>
