@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Learn Algorithmic Trading - Research Primer and Code Applications</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+</head>
+<body>
+<main>
+  <nav class="site-nav" aria-label="Site navigation">
+    <a class="brand" href="../index.html">Virtual Hedge Fund summaries</a>
+    <div class="nav-links">
+      <a href="learn-algorithmic-trading.html">Learn Algorithmic Trading</a>
+      <a href="quantitative-momentum.html">Quantitative Momentum</a>
+      <a href="trading-volatility-correlation-term-structure-skew.html">Trading Volatility</a>
+      <a href="advanced-portfolio-management.html">Advanced Portfolio Management</a>
+    </div>
+  </nav>
+
+  <header class="page-header">
+    <div class="eyebrow">Standalone concept primer + findings + code applications</div>
+    <h1>Learn Algorithmic Trading</h1>
+    <p class="lede">This page translates Sebastien Donadio and Sourav Ghosh's practical book into an implementation primer for the Virtual Hedge Fund. The source is less about one magic alpha and more about the machinery around every alpha: feature calculation, signal validation, order flow, risk checks, backtesting, live-trading drift, and the maintenance loop that keeps strategies from decaying silently.</p>
+  </header>
+
+  <section class="intro-panel" aria-label="Concept introduction">
+    <div class="eyebrow">Read this first</div>
+    <h2>Concepts and terminology</h2>
+    <div class="intro-grid">
+      <article class="intro-box">
+        <h3>Core mental model</h3>
+        <p>An algorithmic strategy is not just a formula that says buy or sell. It is a pipeline: market data becomes normalized state; state becomes features; features become strategy intent; intent becomes orders; orders pass risk checks; fills update PnL; and backtests plus paper/live trading measure whether the system behaves as expected.</p>
+      </article>
+      <article class="intro-box">
+        <h3>How the ideas relate</h3>
+        <p>The book starts with technical indicators and basic ML targets, then layers on momentum, mean reversion, stat arb, volatility adjustment, risk limits, an order-management stack, event-driven backtesting, and live-adaptation analytics. Each layer reduces a different failure mode.</p>
+      </article>
+      <article class="intro-box">
+        <h3>How to read the findings</h3>
+        <p>The code blocks are simplified Python adaptations of the book's examples. They are intentionally compact so they can become VHF package modules instead of remaining one-off educational scripts.</p>
+      </article>
+    </div>
+    <dl class="term-list">
+      <div class="term"><dt>Feature factory</dt><dd>A reusable module that turns market data into signal columns such as EMA, APO, MACD, volatility, or lead-lag deltas.</dd></div>
+      <div class="term"><dt>Strategy intent</dt><dd>The desired exposure or order request produced by a strategy before execution and risk layers approve it.</dd></div>
+      <div class="term"><dt>Order manager</dt><dd>The component that validates orders, assigns market-facing IDs, routes orders, and processes execution reports.</dd></div>
+      <div class="term"><dt>Market simulator</dt><dd>A configurable model of fills, rejections, slippage, fees, latency, and market response used in backtesting.</dd></div>
+      <div class="term"><dt>Event-driven backtest</dt><dd>A backtest that processes market, book, signal, order, and fill events through the same components used by the trading system.</dd></div>
+      <div class="term"><dt>Simulation dislocation</dt><dd>The gap between simulated results and paper/live results due to fill, cost, latency, market data, or impact assumptions.</dd></div>
+      <div class="term"><dt>Signal decay</dt><dd>The loss of predictive power as participants, regimes, technology, and relationships change.</dd></div>
+      <div class="term"><dt>Risk guardrail</dt><dd>A pre-trade or post-trade control that blocks or flags behavior outside expected limits.</dd></div>
+    </dl>
+  </section>
+
+  <section class="finding-stack" aria-label="Expanded findings">
+    <article class="card">
+      <div class="role">execution-trade-management</div>
+      <h2>The Trading Stack Is the Product</h2>
+      <p class="finding-text"><strong>Finding:</strong> The book frames algorithmic trading as a system: market data, order books, signals, signal aggregators, execution logic, position/PnL, risk, and backtesting must work together.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A signal that cannot be routed, checked, filled, measured, and debugged is not yet a trading strategy. The surrounding infrastructure determines whether research survives implementation.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This creates the bridge from the existing VHF source notes to code. Momentum, volatility, factor-neutral, and stat-arb sleeves should share the same order, fill, risk, and PnL abstractions.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Start with a minimal shared interface instead of a large trading platform. The first useful stack can be bar-based and simulated, as long as its assumptions are explicit.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>class TradingStack:
+    def on_market_event(self, event):
+        book = self.order_book.update(event)
+        features = self.signal_engine.compute(book)
+        intent = self.strategy.decide(features, self.portfolio.state())
+        order = self.execution_policy.to_order(intent, book)
+        if self.risk.check(order, self.portfolio):
+            self.order_manager.submit(order)</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">signal-generation</div>
+      <h2>Indicators Should Become a Feature Factory</h2>
+      <p class="finding-text"><strong>Finding:</strong> SMA, EMA, APO, MACD, Bollinger bands, RSI, standard deviation, and momentum are reusable features, not isolated chart examples.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>The same indicator code can support trend following, mean reversion, momentum overlays, volatility scaling, and ML experiments. Rewriting each indicator inside each strategy creates errors.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>The momentum source already needs adjusted returns and path metrics. This book adds the technical feature layer that can sit beside cross-sectional ranks.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Simplify the book's iterative examples into vectorized functions with predictable column names and parameter metadata.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def add_trend_features(frame, close_col="close", fast=10, slow=40):
+    out = frame.copy()
+    close = out[close_col].astype(float)
+    out[f"ema_{fast}"] = close.ewm(span=fast, adjust=False).mean()
+    out[f"ema_{slow}"] = close.ewm(span=slow, adjust=False).mean()
+    out["apo"] = out[f"ema_{fast}"] - out[f"ema_{slow}"]
+    out["macd_signal"] = out["apo"].ewm(span=20, adjust=False).mean()
+    out["macd_hist"] = out["apo"] - out["macd_signal"]
+    return out</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">signal-generation</div>
+      <h2>ML Signals Need Time-Aware Validation</h2>
+      <p class="finding-text"><strong>Finding:</strong> The book's ML examples define explicit prediction targets, split time series chronologically, and judge models on data not used for training.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Financial ML fails easily through leakage and overfitting. A model that sees future data, shuffled regimes, or unlogged feature definitions is not evidence.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This complements the fund's alternative-data and momentum work. Any richer feature set should pass the same target, split, and out-of-sample reporting discipline.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Begin with target builders and chronological splits before choosing model classes. Walk-forward validation can come after the first stable API exists.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def make_direction_target(prices):
+    x = prices[["open", "high", "low", "close"]].copy()
+    x["open_close"] = x["open"] - x["close"]
+    x["high_low"] = x["high"] - x["low"]
+    y = (x["close"].shift(-1) > x["close"]).astype(int) * 2 - 1
+    return x[["open_close", "high_low"]].iloc[:-1], y.iloc[:-1]
+
+def chronological_split(x, y, train_ratio=0.8):
+    split = int(len(x) * train_ratio)
+    return x.iloc[:split], x.iloc[split:], y.iloc[:split], y.iloc[split:]</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">risk-management</div>
+      <h2>Volatility Should Adjust Strategy Behavior</h2>
+      <p class="finding-text"><strong>Finding:</strong> The book uses volatility adjustment to make trend and mean-reversion parameters less static: thresholds, smoothing, entries, exits, and risk can respond to changing market noise.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A fixed threshold can be too aggressive in high-volatility markets and too inert in quiet markets. Volatility scaling helps the strategy compare today's move to today's environment.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This links the volatility source to every non-option strategy. Volatility is not only an asset class; it is also a control variable for position size and signal confidence.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Keep volatility scaling separate from the signal so it can be logged, ablated, and tested across strategies.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def volatility_scaled_threshold(base_threshold, returns, lookback=20):
+    realized = returns.rolling(lookback).std()
+    median = realized.rolling(252, min_periods=lookback).median()
+    scale = (realized / median).clip(lower=0.5, upper=3.0)
+    return base_threshold * scale</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">signal-generation</div>
+      <h2>Lead-Lag Stat Arb Is a Reusable Sleeve Candidate</h2>
+      <p class="finding-text"><strong>Finding:</strong> The book's statistical-arbitrage example projects a target instrument's deviation from related instruments, weights those projections by relationship strength, then trades the resulting delta.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>The alpha hypothesis is relationship repair. If related instruments imply the target should have moved more or less than it did, the target may catch up or revert.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This complements momentum because it uses cross-instrument structure rather than single-asset continuation. It also connects to volatility/correlation research through rolling relationship stability.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Use the book's logic, but vectorize it and add stability filters before trusting the signal. Relationship breakdown should be an output, not a surprise.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def lead_lag_delta(target_dev, lead_devs):
+    weighted = []
+    for lead_dev in lead_devs.values():
+        corr = target_dev.rolling(200).corr(lead_dev)
+        beta = target_dev.rolling(200).cov(lead_dev) / lead_dev.rolling(200).var()
+        projection_gap = beta * lead_dev - target_dev
+        weighted.append(corr.abs() * projection_gap)
+    total_weight = sum(x.abs() for x in weighted)
+    return sum(weighted) / total_weight.replace(0, float("nan"))</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">risk-management</div>
+      <h2>Risk Limits Must Be Executable, Not Decorative</h2>
+      <p class="finding-text"><strong>Finding:</strong> Stop-losses, drawdown, position, holding time, variance, execution count, trade size, and volume limits should be coded into the strategy path.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Risk management is not a chart reviewed after the fact. It is a set of checks that can block new orders, reduce exposure, or trigger review when behavior leaves the expected envelope.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This extends the portfolio-management notes on stop-losses and sustainable leverage into an order-level guardrail system usable by every sleeve.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>The first risk API should return named violations so research reports can explain why a strategy stopped trading.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def check_order(order, state, limits):
+    projected_position = state.position + order.signed_quantity
+    violations = []
+    if abs(projected_position) > limits.max_position:
+        violations.append("max_position")
+    if abs(order.quantity) > limits.max_trade_size:
+        violations.append("max_trade_size")
+    if state.weekly_pnl < limits.weekly_stop_loss:
+        violations.append("weekly_stop_loss")
+    if state.position_age_days > limits.max_holding_days:
+        violations.append("holding_time")
+    return violations</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">backtesting-evaluation</div>
+      <h2>Event-Driven Backtests Make Fill Assumptions Visible</h2>
+      <p class="finding-text"><strong>Finding:</strong> A for-loop backtest is useful for rejecting bad ideas, but an event-driven backtest is needed to test orders, fills, rejections, queues, latency, and risk checks.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>If every order fills at the last close, the backtest may be testing fantasy execution. An event-driven simulator forces the strategy to interact with a market model.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This is crucial for momentum turnover, stat-arb fill sensitivity, and volatility strategies where timing and slippage decide whether gross edge survives.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Reuse the order manager and market simulator across backtest and paper modes so differences are traceable to assumptions, not different code paths.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def process_events(queues, components):
+    while any(queues[name] for name in queues):
+        components.order_book.consume(queues)
+        components.strategy.consume(queues)
+        components.order_manager.consume(queues)
+        components.market_simulator.consume(queues)
+        components.strategy.consume_fills(queues)</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">behavioral-process-governance</div>
+      <h2>Live Drift and Signal Decay Need Their Own Loop</h2>
+      <p class="finding-text"><strong>Finding:</strong> The book closes with the reality that profitable signals decay as participants, regimes, technology, costs, and relationships change.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A strategy can fail even if it was honestly researched. The market may change, competitors may discover the edge, or the backtester may have missed a live friction.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>VHF should maintain a signal dictionary and post-trade analytics, then compare live/paper behavior with simulation by strategy, parameter set, regime, and liquidity state.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Store health metrics continuously. A decayed signal should trigger review, parameter re-optimization, lower risk, or retirement.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def signal_health(today, trailing, min_ic=0.01):
+    recent_ic = today["information_coefficient"]
+    long_run_ic = trailing["information_coefficient"].median()
+    return {
+        "decayed": recent_ic < min_ic or recent_ic < 0.5 * long_run_ic,
+        "recent_ic": recent_ic,
+        "long_run_ic": long_run_ic,
+    }</code></pre>
+    </article>
+  </section>
+
+  <footer>
+    Source: Sebastien Donadio and Sourav Ghosh, <em>Learn Algorithmic Trading</em>. Local VHF lineage: source page <code>learn-algorithmic-trading-build-and-deploy-algorithmic-trading-systems-and-strategies</code>, concepts for trading-system architecture, feature factories, ML validation, volatility scaling, stat arb, risk guardrails, realistic backtesting, and signal-decay governance.
+  </footer>
+</main>
+</body>
+</html>
