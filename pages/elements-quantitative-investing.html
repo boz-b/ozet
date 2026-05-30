@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Elements of Quantitative Investing - Research Primer and Code Applications</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+</head>
+<body>
+<main>
+  <nav class="site-nav" aria-label="Site navigation">
+    <a class="brand" href="../index.html">Virtual Hedge Fund summaries</a>
+    <div class="nav-links">
+      <a href="elements-quantitative-investing.html">Elements of Quant Investing</a>
+      <a href="learn-algorithmic-trading.html">Learn Algorithmic Trading</a>
+      <a href="quantitative-momentum.html">Quantitative Momentum</a>
+      <a href="trading-volatility-correlation-term-structure-skew.html">Trading Volatility</a>
+      <a href="advanced-portfolio-management.html">Advanced Portfolio Management</a>
+    </div>
+  </nav>
+
+  <header class="page-header">
+    <div class="eyebrow">Standalone concept primer + findings + code applications</div>
+    <h1>The Elements of Quantitative Investing</h1>
+    <p class="lede">Giuseppe A. Paleologo's newer book is a compact operating manual for turning noisy return forecasts into portfolios that can be tested, traded, hedged, scaled, and explained. It extends the earlier Advanced Portfolio Management ingestion by giving the Virtual Hedge Fund a formal spine: returns, volatility, factor models, alpha validation, optimizer diagnostics, market impact, hedging, dynamic risk allocation, and attribution.</p>
+  </header>
+
+  <section class="intro-panel" aria-label="Concept introduction">
+    <div class="eyebrow">Read this first</div>
+    <h2>Core mental model</h2>
+    <div class="intro-grid">
+      <article class="intro-box">
+        <h3>Before the trade</h3>
+        <p>Define excess returns, measure volatility, build factor models, validate alphas, and protect against data leakage. A signal is only an input until its data provenance, target horizon, and risk model are clear.</p>
+      </article>
+      <article class="intro-box">
+        <h3>During the trade</h3>
+        <p>Convert expected returns into constrained portfolios, account for optimizer fragility, transaction cost, market impact, hedging, and capacity. The portfolio is the expression of the alpha after reality has been priced in.</p>
+      </article>
+      <article class="intro-box">
+        <h3>After the trade</h3>
+        <p>Allocate risk through time, diagnose drawdowns, and decompose PnL into factor, idiosyncratic, trading, selection, and sizing effects. Attribution closes the research loop.</p>
+      </article>
+    </div>
+    <dl class="term-list">
+      <div class="term"><dt>Excess return</dt><dd>Return above the financing or risk-free asset, aligned to the horizon being modeled.</dd></div>
+      <div class="term"><dt>Factor model</dt><dd>A decomposition of asset returns into shared factor movement plus idiosyncratic residual movement.</dd></div>
+      <div class="term"><dt>Alpha orthogonal</dt><dd>The part of expected return not explained by factor exposures; often the cleaner target for security-selection skill.</dd></div>
+      <div class="term"><dt>Precision matrix</dt><dd>The inverse covariance structure used by optimizers; errors here can distort portfolios more than raw volatility errors.</dd></div>
+      <div class="term"><dt>Rademacher bound</dt><dd>A way to penalize apparent Sharpe when many strategy variants were searched on the same history.</dd></div>
+      <div class="term"><dt>Market impact</dt><dd>The price movement caused by the fund's own trading, especially temporary impact during execution.</dd></div>
+      <div class="term"><dt>Fractional Kelly</dt><dd>A conservative haircut to optimal-growth sizing, used as a disciplined risk-budget heuristic rather than a leverage maximizer.</dd></div>
+      <div class="term"><dt>Attribution uncertainty</dt><dd>The recognition that factor and idiosyncratic PnL splits are estimates with error, not exact truth.</dd></div>
+    </dl>
+  </section>
+
+  <section class="finding-stack" aria-label="Expanded findings">
+    <article class="card">
+      <div class="role">risk-management</div>
+      <h2>Returns Are a Data Contract</h2>
+      <p class="finding-text"><strong>Finding:</strong> Return and volatility modeling begins with exact choices about price source, horizon, excess return convention, liquidity, bid/ask effects, stale prices, and tradability.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Bad return definitions contaminate every downstream result. A close-to-close return, intraday return, adjusted return, and execution-feasible return can answer different questions.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This reinforces the momentum and algorithmic-trading pages: universe filters, feature factories, and backtests need a shared point-in-time return contract.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Build return and volatility utilities before another strategy. Every source-derived sleeve should use the same excess-return, realized-volatility, and data-quality flags.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def make_excess_returns(prices, financing_rate, availability):
+    clean = prices.where(availability.tradable)
+    raw = clean.pct_change()
+    excess = raw.sub(financing_rate.reindex(raw.index), axis=0)
+    return excess.shift(0)  # features must lag separately, not inside this primitive
+
+def realized_volatility(returns, window=20):
+    return returns.rolling(window).std()</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">risk-management</div>
+      <h2>Factor Models Are the Fund's Shared Language</h2>
+      <p class="finding-text"><strong>Finding:</strong> Linear factor models connect risk forecasting, alpha research, portfolio construction, hedging, and attribution through one exposure/covariance interface.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Factors are not just labels on a report. They decide which risk is intentional, which exposure should be neutralized, and which PnL should be credited to skill or market structure.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>The earlier Advanced Portfolio Management book introduced factor-neutral portfolio construction. This book supplies the formal model, transformations, and production uses.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>The first risk module should expose loadings, factor covariance, specific risk, total covariance, factor exposures, and decomposition diagnostics.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>class FactorRiskModel:
+    def __init__(self, loadings, factor_cov, specific_var):
+        self.B = loadings
+        self.F = factor_cov
+        self.D = np.diag(specific_var)
+
+    def covariance(self):
+        return self.B @ self.F @ self.B.T + self.D
+
+    def exposure(self, weights):
+        return self.B.T @ weights</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">backtesting-evaluation</div>
+      <h2>Backtests Need Anti-Overfit Accounting</h2>
+      <p class="finding-text"><strong>Finding:</strong> The book treats leakage, point-in-time data, restatement, survivorship, split-adjusted prices, walk-forward design, and broad strategy searches as first-order research risks.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A high Sharpe is weak evidence if the research process tested many variants, saw future data, or used a universe that could not have been known at the time.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This strengthens machine-learning validation, alternative-data evaluation, and momentum testing. The failure mode is shared: accidental future information.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Every backtest should carry a protocol object and a trial log. Rademacher-style penalties can start as a conservative reporting field before becoming formal math.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def backtest_protocol_report(spec, results):
+    return {
+        "asof_data": spec.asof_data,
+        "feature_lag_days": spec.feature_lag_days,
+        "universe_rule": spec.universe_rule,
+        "walk_forward": spec.walk_forward,
+        "tested_variants": spec.tested_variants,
+        "raw_sharpe": results.sharpe,
+        "selection_penalty_flag": spec.tested_variants &gt; 20,
+    }</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">risk-management</div>
+      <h2>Risk Models Must Be Scored by Use Case</h2>
+      <p class="finding-text"><strong>Finding:</strong> Covariance forecasts, precision matrices, factor models, model turnover, beta stability, and optimized portfolio behavior need different tests. There may be no single best model.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A model that forecasts single-name volatility well may still be poor for optimization if inverse-covariance structure or factor exposures are unstable.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This supports every sleeve: momentum, factor-neutral alpha, lead-lag stat arb, and volatility research all depend on trustworthy covariance and beta estimates.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Risk model tests should run inside the same portfolio generator that will use the model. Testing a model after a portfolio was built with a different model hides errors.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def qlike(realized_var, forecast_var):
+    ratio = realized_var / np.maximum(forecast_var, 1e-12)
+    return ratio - np.log(ratio) - 1.0
+
+def random_portfolio_risk_score(returns, covariances, sampler):
+    scores = []
+    for date, cov in covariances.items():
+        w = sampler(len(returns.columns))
+        realized = float((returns.loc[date] @ w) ** 2)
+        predicted = float(w @ cov @ w)
+        scores.append(qlike(realized, predicted))
+    return np.mean(scores)</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">portfolio-construction</div>
+      <h2>Optimization Is Fragile Without Diagnostics</h2>
+      <p class="finding-text"><strong>Finding:</strong> Mean-variance optimization is powerful but sensitive to alpha error, risk error, correlation, constraints, penalties, and capacity tradeoffs.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>An optimizer can produce mathematically correct portfolios that are economically unreasonable. Constraints and penalties are not cosmetic; they encode robustness.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This is the formal version of the earlier factor-neutral alpha portfolio idea. Neutrality, concentration, turnover, leverage, and risk budgets all need explicit diagnostics.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Initial optimizer output should include exposures, turnover, marginal risk, expected cost, capacity, and sensitivity to alpha/covariance perturbations.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def optimizer_diagnostics(weights, alpha, cov, factor_model, previous_weights):
+    return {
+        "expected_return": float(alpha @ weights),
+        "predicted_vol": float(np.sqrt(weights @ cov @ weights)),
+        "turnover": float(np.abs(weights - previous_weights).sum()),
+        "factor_exposure": factor_model.exposure(weights).to_dict(),
+        "top_positions": largest_abs(weights, n=20),
+    }</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">execution-trade-management</div>
+      <h2>Market Impact Changes the Optimal Portfolio</h2>
+      <p class="finding-text"><strong>Finding:</strong> Trading costs are not an after-the-fact haircut. Temporary impact, participation, signal decay, and multi-period execution can change which portfolio is optimal.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A strategy with good paper alpha can be a bad strategy at realistic size. The optimizer should decide how much of the signal to trade after expected cost and impact.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This deepens the capacity concerns from Quantitative Momentum and the event/order concerns from Learn Algorithmic Trading.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Start with a simple square-root participation penalty and log it everywhere. The cost model can become richer after the research harness is stable.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def temporary_impact_cost(trade_value, adv_value, volatility, k=0.1, beta=0.5):
+    participation = abs(trade_value) / max(adv_value, 1.0)
+    return k * volatility * (participation ** beta) * abs(trade_value)
+
+def cost_adjusted_alpha(alpha, trade, adv, vol):
+    costs = [temporary_impact_cost(t, a, v) for t, a, v in zip(trade, adv, vol)]
+    return alpha - np.array(costs)</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">risk-management</div>
+      <h2>Hedging Is a Tradeoff, Not a Toggle</h2>
+      <p class="finding-text"><strong>Finding:</strong> Factor hedging can reduce unwanted systematic risk, but perfect neutrality is often not optimal because hedges have expected return, idiosyncratic risk, beta error, and trading cost.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Hedge only the risk that is not part of the thesis and only when the cost is justified. A hedge can lower volatility while also lowering expected return or adding hidden residual risk.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This extends the earlier Paleologo rule "invest in edge, hedge the rest" into a cost-aware optimizer problem.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>The hedge module should report residual exposure, expected cost, expected alpha given up, and hedge PnL separately from core strategy PnL.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def simple_factor_hedge(core_weights, loadings, hedge_basis, max_cost):
+    exposure = loadings.T @ core_weights
+    desired_hedge = solve_least_squares(hedge_basis.exposure, -exposure)
+    cost = estimate_trade_cost(desired_hedge)
+    if cost &gt; max_cost:
+        desired_hedge *= max_cost / cost
+    return desired_hedge</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">portfolio-construction</div>
+      <h2>Risk Allocation Is Intertemporal</h2>
+      <p class="finding-text"><strong>Finding:</strong> Kelly and optimal-growth logic show that single-period Sharpe is not the same as long-run capital growth. Fractional Kelly and drawdown control are the practical bridge.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Skill is not enough. The fund also needs a risk budget policy that adapts to capital, volatility, uncertainty, drawdown, and financing/trading costs.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This links sustainable leverage, stop-loss policy, and volatility targeting into one capital allocation discipline.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Use fractional Kelly as a conservative sizing reference, then cap it by drawdown state, liquidity, and model confidence.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def fractional_kelly(expected_return, variance, confidence=0.5, cap=0.25):
+    full_kelly = expected_return / max(variance, 1e-12)
+    return np.clip(confidence * full_kelly, -cap, cap)
+
+def drawdown_haircut(drawdown):
+    if drawdown &lt; -0.20:
+        return 0.25
+    if drawdown &lt; -0.10:
+        return 0.50
+    return 1.00</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">backtesting-evaluation</div>
+      <h2>Attribution Should Include Uncertainty</h2>
+      <p class="finding-text"><strong>Finding:</strong> Ex post attribution should split trading PnL, factor PnL, idiosyncratic PnL, selection, and sizing, while recognizing that factor/idiosyncratic attribution has estimation error.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A precise-looking attribution table can overstate certainty. The fund should know whether a result was intended skill, hidden factor exposure, sizing, trading, or model noise.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This is essential for momentum, factor-neutral alpha, lead-lag stat arb, and volatility sleeves because all can accidentally earn or lose from shared risk exposures.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Start with deterministic attribution, then add confidence intervals once the factor model exposes the needed estimation-error terms.</p>
+        </div>
+      </div>
+      <p class="application-label">Code application:</p>
+<pre><code>def pnl_attribution(weights, returns, factor_returns, loadings, fills):
+    factor_exp = loadings.T @ weights
+    factor_pnl = factor_exp @ factor_returns
+    position_pnl = weights @ returns
+    idio_pnl = position_pnl - factor_pnl
+    trading_pnl = fills.realized_pnl - position_pnl
+    return {"factor": factor_pnl, "idiosyncratic": idio_pnl, "trading": trading_pnl}</code></pre>
+    </article>
+  </section>
+
+  <footer>
+    Source: Giuseppe A. Paleologo, <em>The Elements of Quantitative Investing</em>. Local wiki lineage: <code>the-elements-of-quantitative-investing</code>, <code>risk-model-governed-alpha-allocation</code>, and <code>quant-investing-operating-model-from-elements</code>.
+  </footer>
+</main>
+</body>
+</html>
