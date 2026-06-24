@@ -62,6 +62,14 @@ p { color: var(--muted); margin: 0 0 14px; }
 .summary-list, .finding-stack { display: grid; gap: 18px; }
 .summary-card, .card, .intro-panel { padding: 22px; }
 .summary-card { display: grid; gap: 10px; }
+.scratchpad-entry { margin: 0 0 22px; }
+.scratchpad-link-card {
+  border: 1px solid rgba(251, 191, 36, .34);
+  background: linear-gradient(135deg, rgba(251, 191, 36, .12), rgba(56, 189, 248, .08));
+  border-radius: 8px;
+  padding: 22px;
+  box-shadow: var(--shadow);
+}
 .intro-panel { margin-bottom: 22px; }
 .intro-grid, .detail-grid {
   display: grid;
