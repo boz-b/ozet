@@ -3,18 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Virtual Hedge Fund development status, evidence boundaries, roadmap, owner decisions, and fresh-session handoff." />
+  <meta name="description" content="Private-safe Phase 6 Sharadar momentum pilot primer: v1-v8 algorithms, formulas, aggregate results, evidence boundaries, and remaining research gates." />
   <meta name="color-scheme" content="dark" />
-  <title>Virtual Hedge Fund — Development Scratchpad</title>
+  <title>Virtual Hedge Fund — Phase 6 Sharadar Pilot</title>
 
   <style>
-    /*
-      VHF scratchpad design system
-      ----------------------------
-      This page deliberately carries its complete visual system inline. That
-      keeps the handoff portable: no web font, JavaScript bundle, image, or
-      third-party CDN is required to understand the project state.
-    */
     :root {
       color-scheme: dark;
       --ink-0: #05070c;
@@ -27,40 +20,38 @@
       --line: rgba(199, 210, 226, .16);
       --line-strong: rgba(199, 210, 226, .31);
       --cyan: #49ddff;
-      --cyan-soft: rgba(73, 221, 255, .12);
+      --cyan-soft: rgba(73, 221, 255, .11);
       --lime: #b6f56f;
-      --lime-soft: rgba(182, 245, 111, .12);
+      --lime-soft: rgba(182, 245, 111, .11);
       --amber: #ffc766;
-      --amber-soft: rgba(255, 199, 102, .12);
+      --amber-soft: rgba(255, 199, 102, .11);
       --coral: #ff7e79;
-      --coral-soft: rgba(255, 126, 121, .12);
+      --coral-soft: rgba(255, 126, 121, .11);
       --violet: #b99cff;
-      --violet-soft: rgba(185, 156, 255, .13);
+      --violet-soft: rgba(185, 156, 255, .12);
       --radius: 18px;
       --radius-sm: 11px;
-      --shadow: 0 28px 90px rgba(0, 0, 0, .38);
+      --shadow: 0 28px 90px rgba(0, 0, 0, .34);
       --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
       --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
         "Segoe UI", sans-serif;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     html {
       scroll-behavior: smooth;
-      scroll-padding-top: 92px;
+      scroll-padding-top: 90px;
     }
 
     body {
       margin: 0;
       min-width: 280px;
       background:
-        radial-gradient(circle at 8% -6%, rgba(73, 221, 255, .15), transparent 27rem),
-        radial-gradient(circle at 94% 5%, rgba(185, 156, 255, .13), transparent 30rem),
-        radial-gradient(circle at 52% 54%, rgba(182, 245, 111, .035), transparent 36rem),
-        linear-gradient(180deg, var(--ink-0), var(--ink-1) 45%, #060910 100%);
+        radial-gradient(circle at 8% -4%, rgba(73, 221, 255, .15), transparent 28rem),
+        radial-gradient(circle at 95% 4%, rgba(185, 156, 255, .13), transparent 31rem),
+        radial-gradient(circle at 52% 48%, rgba(182, 245, 111, .035), transparent 38rem),
+        linear-gradient(180deg, var(--ink-0), var(--ink-1) 46%, #060910 100%);
       color: var(--paper);
       font-family: var(--sans);
       font-size: 16px;
@@ -68,7 +59,6 @@
       overflow-x: hidden;
     }
 
-    /* A quiet drafting-grid texture reinforces the “engineering scratchpad” idea. */
     body::before {
       position: fixed;
       inset: 0;
@@ -80,7 +70,7 @@
         linear-gradient(rgba(255, 255, 255, .022) 1px, transparent 1px),
         linear-gradient(90deg, rgba(255, 255, 255, .022) 1px, transparent 1px);
       background-size: 42px 42px;
-      mask-image: linear-gradient(to bottom, black, transparent 88%);
+      mask-image: linear-gradient(to bottom, black, transparent 90%);
     }
 
     a {
@@ -89,22 +79,32 @@
       text-underline-offset: 4px;
     }
 
-    a:hover {
-      color: #a9efff;
-    }
+    a:hover { color: #a9efff; }
 
-    a:focus-visible,
-    summary:focus-visible {
+    a:focus-visible {
       outline: 3px solid var(--amber);
       outline-offset: 4px;
       border-radius: 4px;
     }
 
+    p,
+    li { color: var(--soft); }
+
+    p { margin: 0 0 1rem; }
+
+    ul,
+    ol {
+      margin: .75rem 0 0;
+      padding-left: 1.2rem;
+    }
+
+    li + li { margin-top: .42rem; }
+
+    strong { color: var(--paper); }
+
     code,
     pre,
-    .mono {
-      font-family: var(--mono);
-    }
+    .mono { font-family: var(--mono); }
 
     code {
       padding: .12em .35em;
@@ -113,29 +113,7 @@
       background: rgba(73, 221, 255, .07);
       color: #d9f8ff;
       font-size: .9em;
-    }
-
-    p,
-    li {
-      color: var(--soft);
-    }
-
-    p {
-      margin: 0 0 1rem;
-    }
-
-    ul,
-    ol {
-      margin: .75rem 0 0;
-      padding-left: 1.2rem;
-    }
-
-    li + li {
-      margin-top: .42rem;
-    }
-
-    strong {
-      color: var(--paper);
+      overflow-wrap: anywhere;
     }
 
     .skip-link {
@@ -152,22 +130,19 @@
       transition: transform .18s ease;
     }
 
-    .skip-link:focus {
-      transform: translateY(0);
-    }
+    .skip-link:focus { transform: translateY(0); }
 
     .shell {
-      width: min(1240px, calc(100% - 38px));
+      width: min(1220px, calc(100% - 38px));
       margin: 0 auto;
     }
 
-    /* The compact sticky bar makes this long handoff easy to navigate. */
     .topbar {
       position: sticky;
       top: 0;
       z-index: 20;
       border-bottom: 1px solid var(--line);
-      background: rgba(5, 7, 12, .86);
+      background: rgba(5, 7, 12, .87);
       backdrop-filter: blur(18px);
     }
 
@@ -184,7 +159,7 @@
       align-items: center;
       gap: 11px;
       color: var(--paper);
-      font-size: .83rem;
+      font-size: .82rem;
       font-weight: 900;
       letter-spacing: .12em;
       text-decoration: none;
@@ -210,14 +185,14 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-end;
-      gap: 6px;
+      gap: 5px;
     }
 
     .nav-links a {
-      padding: 7px 10px;
+      padding: 7px 9px;
       border-radius: 999px;
       color: var(--muted);
-      font-size: .79rem;
+      font-size: .76rem;
       font-weight: 750;
       text-decoration: none;
     }
@@ -227,35 +202,30 @@
       color: var(--paper);
     }
 
-    main {
-      padding: 52px 0 90px;
+    main { padding: 44px 0 88px; }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin-top: 0;
+      color: var(--paper);
+      letter-spacing: -.025em;
     }
 
-    /* Hero --------------------------------------------------------------- */
-    .hero {
-      position: relative;
-      display: grid;
-      grid-template-columns: minmax(0, 1.22fr) minmax(320px, .78fr);
-      gap: 44px;
-      align-items: center;
-      min-height: 610px;
-      padding: 48px 0 64px;
-      border-bottom: 1px solid var(--line);
+    h1 {
+      max-width: 850px;
+      margin-bottom: 22px;
+      font-size: clamp(3.15rem, 7.8vw, 6.5rem);
+      font-weight: 900;
+      line-height: .91;
     }
 
-    .hero::after {
-      position: absolute;
-      right: -10%;
-      bottom: 12%;
-      width: 420px;
-      height: 420px;
-      border: 1px solid rgba(73, 221, 255, .09);
-      border-radius: 50%;
-      content: "";
-      pointer-events: none;
-      box-shadow:
-        0 0 0 50px rgba(73, 221, 255, .018),
-        0 0 0 110px rgba(185, 156, 255, .014);
+    .gradient-word {
+      color: transparent;
+      background: linear-gradient(90deg, var(--cyan), #c8f7ff 42%, var(--lime));
+      background-clip: text;
+      -webkit-background-clip: text;
     }
 
     .eyebrow {
@@ -265,7 +235,7 @@
       margin-bottom: 16px;
       color: var(--cyan);
       font-family: var(--mono);
-      font-size: .75rem;
+      font-size: .74rem;
       font-weight: 800;
       letter-spacing: .14em;
       text-transform: uppercase;
@@ -278,54 +248,65 @@
       content: "";
     }
 
-    h1,
-    h2,
-    h3 {
-      margin-top: 0;
-      color: var(--paper);
-      letter-spacing: -.025em;
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
+      gap: 44px;
+      align-items: center;
+      min-height: 590px;
+      padding: 46px 0 62px;
+      border-bottom: 1px solid var(--line);
     }
 
-    h1 {
-      max-width: 850px;
-      margin-bottom: 22px;
-      font-size: clamp(3.25rem, 8vw, 6.7rem);
-      font-weight: 900;
-      line-height: .91;
+    .hero::after {
+      position: absolute;
+      right: -9%;
+      bottom: 11%;
+      width: 410px;
+      height: 410px;
+      border: 1px solid rgba(73, 221, 255, .09);
+      border-radius: 50%;
+      content: "";
+      pointer-events: none;
+      box-shadow:
+        0 0 0 50px rgba(73, 221, 255, .018),
+        0 0 0 110px rgba(185, 156, 255, .014);
     }
 
-    .gradient-word {
-      color: transparent;
-      background: linear-gradient(90deg, var(--cyan), #c8f7ff 42%, var(--lime));
-      background-clip: text;
-      -webkit-background-clip: text;
+    .hero-copy,
+    .status-console {
+      position: relative;
+      z-index: 1;
+      min-width: 0;
     }
 
     .hero-lede {
-      max-width: 66ch;
+      max-width: 68ch;
       color: #d6dfeb;
-      font-size: clamp(1.05rem, 2vw, 1.27rem);
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
       line-height: 1.58;
     }
 
-    .hero-badges {
+    .badge-row {
       display: flex;
       flex-wrap: wrap;
       gap: 9px;
-      margin-top: 26px;
+      margin-top: 25px;
     }
 
-    .badge {
+    .badge,
+    .tag {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 8px 11px;
+      gap: 7px;
+      padding: 7px 10px;
       border: 1px solid var(--line-strong);
       border-radius: 999px;
       background: rgba(255, 255, 255, .035);
       color: var(--soft);
       font-family: var(--mono);
-      font-size: .73rem;
+      font-size: .7rem;
       font-weight: 800;
       letter-spacing: .04em;
     }
@@ -339,26 +320,43 @@
       box-shadow: 0 0 12px currentColor;
     }
 
-    .badge.current {
-      border-color: rgba(182, 245, 111, .35);
+    .badge.good,
+    .tag.floor {
+      border-color: rgba(182, 245, 111, .34);
       background: var(--lime-soft);
       color: var(--lime);
     }
 
-    .badge.locked {
+    .badge.warn,
+    .tag.bound {
       border-color: rgba(255, 199, 102, .34);
       background: var(--amber-soft);
       color: var(--amber);
     }
 
-    .status-console {
-      position: relative;
-      z-index: 1;
-      border: 1px solid var(--line-strong);
+    .badge.blocked,
+    .tag.sensitivity {
+      border-color: rgba(255, 126, 121, .34);
+      background: var(--coral-soft);
+      color: var(--coral);
+    }
+
+    .status-console,
+    .panel,
+    .card {
+      border: 1px solid var(--line);
       border-radius: var(--radius);
       background:
+        linear-gradient(155deg, rgba(255, 255, 255, .05), transparent 56%),
+        rgba(13, 20, 33, .78);
+      box-shadow: 0 18px 52px rgba(0, 0, 0, .2);
+    }
+
+    .status-console {
+      border-color: var(--line-strong);
+      background:
         linear-gradient(145deg, rgba(73, 221, 255, .075), transparent 44%),
-        rgba(9, 13, 22, .9);
+        rgba(9, 13, 22, .91);
       box-shadow: var(--shadow);
       overflow: hidden;
     }
@@ -371,7 +369,7 @@
       border-bottom: 1px solid var(--line);
       color: var(--muted);
       font-family: var(--mono);
-      font-size: .72rem;
+      font-size: .71rem;
       text-transform: uppercase;
     }
 
@@ -391,75 +389,31 @@
       content: "";
     }
 
-    .console-body {
-      display: grid;
-      gap: 0;
-      padding: 4px 18px 18px;
-    }
+    .console-body { padding: 4px 18px 18px; }
 
     .console-row {
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 18px;
-      padding: 15px 0;
+      padding: 14px 0;
       border-bottom: 1px dashed var(--line);
       align-items: baseline;
     }
 
-    .console-row:last-child {
-      border-bottom: 0;
-    }
-
-    .console-row span {
-      color: var(--muted);
-      font-size: .88rem;
-    }
+    .console-row:last-child { border-bottom: 0; }
+    .console-row span { color: var(--muted); font-size: .87rem; }
 
     .console-row strong {
-      color: var(--paper);
       font-family: var(--mono);
-      font-size: .83rem;
+      font-size: .8rem;
       text-align: right;
     }
 
     .console-row strong.good { color: var(--lime); }
     .console-row strong.warn { color: var(--amber); }
+    .console-row strong.blocked { color: var(--coral); }
 
-    /* Shared section and card primitives -------------------------------- */
-    .section {
-      padding: 78px 0 0;
-    }
-
-    .section-heading {
-      display: grid;
-      grid-template-columns: minmax(0, .82fr) minmax(320px, 1.18fr);
-      gap: 34px;
-      align-items: end;
-      margin-bottom: 28px;
-    }
-
-    .section-heading h2 {
-      margin-bottom: 0;
-      font-size: clamp(2rem, 4vw, 3.4rem);
-      line-height: 1.05;
-    }
-
-    .section-heading p {
-      max-width: 66ch;
-      margin: 0;
-    }
-
-    .panel,
-    .card {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background:
-        linear-gradient(155deg, rgba(255, 255, 255, .055), transparent 55%),
-        rgba(13, 20, 33, .76);
-      box-shadow: 0 18px 52px rgba(0, 0, 0, .2);
-    }
-
-    .truth-banner {
+    .guardrail {
       display: grid;
       grid-template-columns: auto 1fr;
       gap: 20px;
@@ -472,7 +426,7 @@
         rgba(13, 20, 33, .86);
     }
 
-    .truth-icon {
+    .guardrail-mark {
       width: 48px;
       height: 48px;
       display: grid;
@@ -485,28 +439,42 @@
       font-weight: 900;
     }
 
-    .truth-banner p {
-      margin: 0;
-      color: #e1d6bc;
-    }
+    .guardrail p { margin: 0; color: #e1d6bc; }
 
-    /* Source-to-evidence pipeline --------------------------------------- */
-    .pipeline {
+    .section { padding: 78px 0 0; }
+
+    .section-heading {
       display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 9px;
+      grid-template-columns: minmax(0, .84fr) minmax(320px, 1.16fr);
+      gap: 34px;
+      align-items: end;
+      margin-bottom: 28px;
     }
 
-    .pipeline-step {
+    .section-heading h2 {
+      margin-bottom: 0;
+      font-size: clamp(2rem, 4vw, 3.35rem);
+      line-height: 1.05;
+    }
+
+    .section-heading p { max-width: 68ch; margin: 0; }
+
+    .relationship-map {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .map-node {
       position: relative;
-      min-height: 178px;
-      padding: 17px 15px;
+      min-height: 160px;
+      padding: 16px 13px;
       border: 1px solid var(--line);
       border-radius: var(--radius-sm);
       background: rgba(13, 20, 33, .78);
     }
 
-    .pipeline-step::after {
+    .map-node::after {
       position: absolute;
       top: 50%;
       right: -10px;
@@ -524,235 +492,192 @@
       transform: translateY(-50%);
     }
 
-    .pipeline-step:last-child::after {
-      display: none;
-    }
+    .map-node:last-child::after { display: none; }
 
-    .pipeline-step .step-no {
+    .node-kicker {
       display: block;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       color: var(--cyan);
       font-family: var(--mono);
-      font-size: .72rem;
+      font-size: .66rem;
       font-weight: 800;
-    }
-
-    .pipeline-step h3 {
-      margin-bottom: 7px;
-      font-size: 1rem;
-    }
-
-    .pipeline-step p {
-      margin: 0;
-      color: var(--muted);
-      font-size: .82rem;
-      line-height: 1.52;
-    }
-
-    .mental-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 18px;
-    }
-
-    .mental-card {
-      padding: 22px;
-    }
-
-    .mental-card .label,
-    .module-card .label {
-      color: var(--cyan);
-      font-family: var(--mono);
-      font-size: .7rem;
-      font-weight: 800;
-      letter-spacing: .11em;
-      text-transform: uppercase;
-    }
-
-    .mental-card h3 {
-      margin: 8px 0 9px;
-      font-size: 1.12rem;
-    }
-
-    .mental-card p {
-      margin: 0;
-      font-size: .92rem;
-    }
-
-    /* Phase timeline ----------------------------------------------------- */
-    .phase-list {
-      display: grid;
-      gap: 12px;
-    }
-
-    .phase-row {
-      position: relative;
-      display: grid;
-      grid-template-columns: 72px minmax(0, 1fr) auto;
-      gap: 20px;
-      align-items: start;
-      padding: 22px 24px 22px 20px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(13, 20, 33, .66);
-      overflow: hidden;
-    }
-
-    .phase-row::before {
-      position: absolute;
-      inset: 0 auto 0 0;
-      width: 3px;
-      background: var(--lime);
-      content: "";
-    }
-
-    .phase-row.scaffold::before { background: var(--amber); }
-    .phase-row.pending::before { background: #536176; }
-
-    .phase-id {
-      width: 52px;
-      height: 52px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(182, 245, 111, .32);
-      border-radius: 15px;
-      background: var(--lime-soft);
-      color: var(--lime);
-      font-family: var(--mono);
-      font-size: 1.1rem;
-      font-weight: 900;
-    }
-
-    .scaffold .phase-id {
-      border-color: rgba(255, 199, 102, .34);
-      background: var(--amber-soft);
-      color: var(--amber);
-    }
-
-    .pending .phase-id {
-      border-color: var(--line);
-      background: rgba(255, 255, 255, .025);
-      color: var(--muted);
-    }
-
-    .phase-copy h3 {
-      margin-bottom: 7px;
-      font-size: 1.17rem;
-    }
-
-    .phase-copy p {
-      max-width: 78ch;
-      margin: 0;
-      font-size: .92rem;
-    }
-
-    .phase-copy ul {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: 32px;
-      margin-top: 13px;
-      font-size: .87rem;
-    }
-
-    .phase-status {
-      padding: 6px 9px;
-      border: 1px solid rgba(182, 245, 111, .28);
-      border-radius: 999px;
-      background: var(--lime-soft);
-      color: var(--lime);
-      font-family: var(--mono);
-      font-size: .68rem;
-      font-weight: 900;
       letter-spacing: .06em;
       text-transform: uppercase;
-      white-space: nowrap;
     }
 
-    .scaffold .phase-status {
-      border-color: rgba(255, 199, 102, .3);
-      background: var(--amber-soft);
-      color: var(--amber);
-    }
+    .map-node h3 { margin-bottom: 6px; font-size: .95rem; }
+    .map-node p { margin: 0; color: var(--muted); font-size: .77rem; line-height: 1.5; }
 
-    .pending .phase-status {
-      border-color: var(--line);
-      background: rgba(255, 255, 255, .025);
-      color: var(--muted);
-    }
-
-    /* Architecture map -------------------------------------------------- */
-    .module-grid {
+    .three-grid,
+    .glossary-grid,
+    .boundary-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
-    }
-
-    .module-card {
-      min-height: 206px;
-      padding: 20px;
-    }
-
-    .module-card h3 {
-      margin: 8px 0;
-      font-size: 1.07rem;
-    }
-
-    .module-card p {
-      margin-bottom: 12px;
-      font-size: .88rem;
-    }
-
-    .file-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: auto;
-    }
-
-    .file-list code {
-      font-size: .7rem;
-    }
-
-    .route-map {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr auto 1fr;
-      gap: 13px;
-      align-items: center;
       margin-top: 16px;
-      padding: 22px;
     }
 
-    .route-node {
-      padding: 17px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-sm);
-      background: rgba(5, 7, 12, .42);
+    .concept-card,
+    .glossary-card,
+    .boundary-card { padding: 21px; }
+
+    .card-label {
+      color: var(--cyan);
+      font-family: var(--mono);
+      font-size: .68rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
     }
 
-    .route-node strong,
-    .route-node span {
+    .concept-card h3,
+    .glossary-card h3,
+    .boundary-card h3 { margin: 8px 0 8px; font-size: 1.08rem; }
+
+    .concept-card p,
+    .glossary-card p,
+    .boundary-card p { margin: 0; font-size: .88rem; }
+
+    .subhead {
+      margin: 38px 0 15px;
+      color: var(--paper);
+      font-size: 1.3rem;
+    }
+
+    .algorithm-stack { display: grid; gap: 16px; }
+
+    .algorithm-card {
+      display: grid;
+      grid-template-columns: 72px minmax(0, .9fr) minmax(320px, 1.1fr);
+      gap: 22px;
+      padding: 24px;
+    }
+
+    .step-id {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(73, 221, 255, .35);
+      border-radius: 15px;
+      background: var(--cyan-soft);
+      color: var(--cyan);
+      font-family: var(--mono);
+      font-size: 1rem;
+      font-weight: 900;
+    }
+
+    .algorithm-copy h3 { margin-bottom: 8px; font-size: 1.18rem; }
+    .algorithm-copy p { margin-bottom: 9px; font-size: .9rem; }
+
+    .mini-label {
       display: block;
+      margin-top: 13px;
+      color: var(--amber);
+      font-family: var(--mono);
+      font-size: .65rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
     }
 
-    .route-node strong {
-      margin-bottom: 4px;
-      font-size: .92rem;
+    .formula-box {
+      min-width: 0;
+      padding: 17px 18px;
+      border: 1px solid rgba(73, 221, 255, .22);
+      border-radius: var(--radius-sm);
+      background: #03060b;
+      align-self: stretch;
     }
 
-    .route-node span {
+    .formula-box pre {
+      margin: 0;
+      color: #d9edf7;
+      font-size: .76rem;
+      line-height: 1.62;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .formula-note {
+      margin-top: 11px;
       color: var(--muted);
       font-size: .78rem;
     }
 
-    .route-arrow {
-      color: var(--cyan);
-      font-family: var(--mono);
-      font-size: 1.4rem;
-      font-weight: 900;
+    .version-note {
+      margin-bottom: 16px;
+      padding: 17px 19px;
+      border: 1px solid rgba(185, 156, 255, .3);
+      border-radius: var(--radius-sm);
+      background: var(--violet-soft);
+      color: #ddd4f5;
+      font-size: .9rem;
     }
 
-    /* Evidence and gate boundary ---------------------------------------- */
+    .version-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .version-card {
+      position: relative;
+      padding: 23px;
+      overflow: hidden;
+    }
+
+    .version-card::before {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 3px;
+      background: var(--cyan);
+      content: "";
+    }
+
+    .version-card.durable::before { background: var(--lime); }
+    .version-card.latest::before { background: var(--violet); }
+
+    .version-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 13px;
+    }
+
+    .version-number {
+      color: var(--cyan);
+      font-family: var(--mono);
+      font-size: 1.65rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .version-card.durable .version-number { color: var(--lime); }
+    .version-card.latest .version-number { color: var(--violet); }
+
+    .version-card h3 { margin: 0; font-size: 1.17rem; }
+    .version-card h4 { margin: 17px 0 6px; color: var(--cyan); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; }
+    .version-card p,
+    .version-card li { font-size: .87rem; }
+    .version-card p:last-child { margin-bottom: 0; }
+
+    .pseudo {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: rgba(3, 6, 11, .68);
+      color: #d8e7f7;
+      font-family: var(--mono);
+      font-size: .73rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
     .metric-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -760,109 +685,165 @@
     }
 
     .metric-card {
-      min-height: 154px;
+      min-height: 145px;
       padding: 19px;
     }
 
-    .metric-card .metric-value {
+    .metric-value {
       display: block;
       margin-bottom: 8px;
       color: var(--paper);
-      font-size: clamp(1.5rem, 3vw, 2.45rem);
+      font-size: clamp(1.45rem, 3vw, 2.35rem);
       font-weight: 900;
       line-height: 1;
     }
 
-    .metric-card .metric-label {
+    .metric-label {
       display: block;
       margin-bottom: 8px;
       color: var(--cyan);
       font-family: var(--mono);
-      font-size: .68rem;
+      font-size: .65rem;
       font-weight: 800;
       letter-spacing: .08em;
       text-transform: uppercase;
     }
 
-    .metric-card p {
-      margin: 0;
-      color: var(--muted);
-      font-size: .82rem;
+    .metric-card p { margin: 0; color: var(--muted); font-size: .8rem; }
+
+    .table-block { margin-top: 20px; }
+
+    .table-title {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr);
+      gap: 20px;
+      align-items: end;
+      margin-bottom: 10px;
     }
 
-    .hash-card {
-      margin-top: 14px;
-      padding: 21px 23px;
-      border-color: rgba(73, 221, 255, .28);
+    .table-title h3 { margin: 0; font-size: 1.25rem; }
+    .table-title p { margin: 0; color: var(--muted); font-size: .84rem; }
+
+    .table-wrap {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(9, 13, 22, .78);
+      overflow-x: auto;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, .17);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    caption {
+      padding: 13px 16px;
+      color: var(--muted);
+      font-size: .78rem;
+      text-align: left;
+    }
+
+    th,
+    td {
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    thead th {
+      background: rgba(73, 221, 255, .055);
+      color: #d8e6f2;
+      font-family: var(--mono);
+      font-size: .68rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    tbody th { color: var(--paper); font-size: .86rem; }
+    td { color: var(--soft); font-size: .84rem; }
+    td.num, th.num { text-align: right; white-space: nowrap; }
+    tbody tr:last-child th,
+    tbody tr:last-child td { border-bottom: 0; }
+    tbody tr:hover { background: rgba(255, 255, 255, .025); }
+
+    .result-callout {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 17px;
+      margin-top: 17px;
+      padding: 18px 20px;
+      border: 1px solid rgba(255, 126, 121, .28);
+      border-radius: var(--radius-sm);
+      background: linear-gradient(100deg, var(--coral-soft), transparent 72%);
+    }
+
+    .result-callout strong:first-child {
+      color: var(--coral);
+      font-family: var(--mono);
+      font-size: .76rem;
+    }
+
+    .result-callout p { margin: 0; font-size: .87rem; }
+
+    .boundary-card {
+      border-color: rgba(255, 199, 102, .2);
+    }
+
+    .boundary-card .card-label { color: var(--amber); }
+
+    .evidence-panel {
+      margin-top: 18px;
+      padding: 23px;
+      border-color: rgba(73, 221, 255, .27);
       background:
-        linear-gradient(110deg, var(--cyan-soft), transparent 64%),
+        linear-gradient(110deg, var(--cyan-soft), transparent 66%),
         rgba(13, 20, 33, .84);
     }
 
-    .hash-card h3 {
-      margin-bottom: 8px;
-      font-size: 1rem;
+    .verification-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
     }
 
-    .hash-value {
+    .verification-item {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: rgba(3, 6, 11, .44);
+    }
+
+    .verification-item strong {
       display: block;
+      margin-bottom: 5px;
       color: var(--cyan);
       font-family: var(--mono);
-      font-size: clamp(.7rem, 1.45vw, .95rem);
-      overflow-wrap: anywhere;
+      font-size: .82rem;
     }
 
-    .gate-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    .gate-column {
-      padding: 24px;
-    }
-
-    .gate-column.ready {
-      border-color: rgba(182, 245, 111, .27);
-      background:
-        linear-gradient(145deg, var(--lime-soft), transparent 55%),
-        rgba(13, 20, 33, .78);
-    }
-
-    .gate-column.blocked {
-      border-color: rgba(255, 126, 121, .27);
-      background:
-        linear-gradient(145deg, var(--coral-soft), transparent 55%),
-        rgba(13, 20, 33, .78);
-    }
-
-    .gate-column h3 {
-      font-size: 1.22rem;
-    }
-
-    .gate-column.ready h3 { color: var(--lime); }
-    .gate-column.blocked h3 { color: var(--coral); }
-
-    .gate-column li {
-      font-size: .91rem;
-    }
+    .verification-item p { margin: 0; color: var(--muted); font-size: .81rem; }
 
     .evidence-ladder {
       display: grid;
       grid-template-columns: repeat(6, minmax(0, 1fr));
       gap: 8px;
-      margin-top: 16px;
+      margin-top: 18px;
     }
 
     .evidence-rung {
-      min-height: 96px;
+      min-height: 95px;
       padding: 13px 10px;
       border: 1px solid var(--line);
       border-radius: var(--radius-sm);
       background: rgba(13, 20, 33, .7);
       color: var(--muted);
       font-family: var(--mono);
-      font-size: .66rem;
+      font-size: .64rem;
       line-height: 1.35;
       overflow-wrap: anywhere;
     }
@@ -877,229 +858,48 @@
       border-color: rgba(255, 199, 102, .48);
       background: var(--amber-soft);
       color: var(--amber);
-      box-shadow: 0 0 0 1px rgba(255, 199, 102, .1), 0 0 26px rgba(255, 199, 102, .08);
+      box-shadow: 0 0 26px rgba(255, 199, 102, .08);
     }
 
     .rung-state {
       display: block;
       margin-bottom: 8px;
       font-family: var(--sans);
-      font-size: .7rem;
+      font-size: .68rem;
       font-weight: 900;
       letter-spacing: .08em;
       text-transform: uppercase;
     }
 
-    /* Roadmap and owner controls ---------------------------------------- */
-    .road-grid {
+    .gate-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: .82fr 1.18fr;
       gap: 14px;
     }
 
-    .road-card {
-      position: relative;
-      min-height: 250px;
-      padding: 22px;
-      overflow: hidden;
-    }
+    .gate-card { padding: 24px; }
 
-    .road-card::after {
-      position: absolute;
-      right: -12px;
-      bottom: -34px;
-      color: rgba(255, 255, 255, .035);
-      content: attr(data-step);
-      font-family: var(--mono);
-      font-size: 8rem;
-      font-weight: 900;
-      line-height: 1;
-    }
-
-    .road-card h3 {
-      margin: 9px 0;
-      font-size: 1.08rem;
-    }
-
-    .road-card p,
-    .road-card li {
-      position: relative;
-      z-index: 1;
-      font-size: .87rem;
-    }
-
-    .owner-panel {
-      overflow: hidden;
-      border-color: rgba(185, 156, 255, .34);
+    .gate-card.ready {
+      border-color: rgba(182, 245, 111, .27);
       background:
-        linear-gradient(135deg, var(--violet-soft), transparent 48%),
-        rgba(13, 20, 33, .86);
+        linear-gradient(145deg, var(--lime-soft), transparent 58%),
+        rgba(13, 20, 33, .79);
     }
 
-    .owner-head {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 20px;
-      align-items: center;
-      padding: 24px 26px;
-      border-bottom: 1px solid var(--line);
+    .gate-card.blocked {
+      border-color: rgba(255, 126, 121, .27);
+      background:
+        linear-gradient(145deg, var(--coral-soft), transparent 58%),
+        rgba(13, 20, 33, .79);
     }
 
-    .owner-head h3 {
-      margin: 0 0 4px;
-      font-size: 1.4rem;
-    }
+    .gate-card h3 { font-size: 1.2rem; }
+    .gate-card.ready h3 { color: var(--lime); }
+    .gate-card.blocked h3 { color: var(--coral); }
+    .gate-card li { font-size: .88rem; }
 
-    .owner-head p {
-      margin: 0;
-    }
-
-    .owner-key {
-      padding: 9px 12px;
-      border: 1px solid rgba(185, 156, 255, .36);
-      border-radius: 999px;
-      background: var(--violet-soft);
-      color: #d9ccff;
-      font-family: var(--mono);
-      font-size: .72rem;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
-    .decision-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .decision-card {
-      min-height: 230px;
-      padding: 22px 26px;
-      border-right: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-    }
-
-    .decision-card:nth-child(even) { border-right: 0; }
-    .decision-card:nth-last-child(-n + 2) { border-bottom: 0; }
-
-    .decision-no {
-      display: inline-grid;
-      width: 29px;
-      height: 29px;
-      place-items: center;
-      margin-bottom: 12px;
-      border: 1px solid rgba(185, 156, 255, .36);
-      border-radius: 9px;
-      color: var(--violet);
-      font-family: var(--mono);
-      font-size: .77rem;
-      font-weight: 900;
-    }
-
-    .decision-card h3 {
-      margin-bottom: 7px;
-      font-size: 1.05rem;
-    }
-
-    .decision-card p,
-    .decision-card li {
-      font-size: .88rem;
-    }
-
-    .answer-box {
-      margin-top: 14px;
-      padding: 16px 18px;
-      border: 1px dashed rgba(255, 199, 102, .45);
-      border-radius: var(--radius-sm);
-      background: rgba(255, 199, 102, .055);
-      color: #eadbbd;
-      font-size: .9rem;
-    }
-
-    /* Fresh-session handoff --------------------------------------------- */
-    .handoff-grid {
-      display: grid;
-      grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
-      gap: 14px;
-    }
-
-    .handoff-card {
-      padding: 24px;
-    }
-
-    .handoff-card h3 {
-      font-size: 1.16rem;
-    }
-
-    .read-order {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      counter-reset: read-order;
-    }
-
-    .read-order li {
-      display: grid;
-      grid-template-columns: 31px 1fr;
-      gap: 11px;
-      align-items: start;
-      padding: 10px 0;
-      border-bottom: 1px dashed var(--line);
-      counter-increment: read-order;
-    }
-
-    .read-order li:last-child {
-      border-bottom: 0;
-    }
-
-    .read-order li::before {
-      width: 27px;
-      height: 27px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(73, 221, 255, .27);
-      border-radius: 8px;
-      background: var(--cyan-soft);
-      color: var(--cyan);
-      content: counter(read-order, decimal-leading-zero);
-      font-family: var(--mono);
-      font-size: .67rem;
-      font-weight: 900;
-    }
-
-    pre {
-      margin: 13px 0 0;
-      padding: 18px;
-      border: 1px solid var(--line-strong);
-      border-radius: var(--radius-sm);
-      background: #03060b;
-      color: #d8e7f7;
-      font-size: .78rem;
-      line-height: 1.55;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    details {
-      margin-top: 14px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-sm);
-      background: rgba(5, 7, 12, .35);
-    }
-
-    summary {
-      padding: 13px 15px;
-      color: var(--paper);
-      cursor: pointer;
-      font-weight: 800;
-    }
-
-    details pre {
-      margin: 0;
-      border: 0;
-      border-top: 1px solid var(--line);
-      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
-    }
+    .gate-table { margin-top: 18px; }
+    .gate-table table { min-width: 850px; }
 
     .footer {
       display: grid;
@@ -1111,183 +911,71 @@
       border-top: 1px solid var(--line);
     }
 
-    .footer p {
-      max-width: 76ch;
-      margin: 0;
-      color: var(--muted);
-      font-size: .82rem;
-    }
+    .footer p { max-width: 82ch; margin: 0; color: var(--muted); font-size: .81rem; }
 
     .footer-stamp {
       color: var(--cyan);
       font-family: var(--mono);
-      font-size: .72rem;
+      font-size: .7rem;
       text-align: right;
     }
 
-    /* Responsive rules: retain the visual hierarchy without horizontal UI. */
-    @media (max-width: 1060px) {
+    @media (max-width: 1100px) {
       .hero,
       .section-heading,
-      .handoff-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .hero {
-        gap: 28px;
-        min-height: auto;
-      }
-
-      .status-console {
-        max-width: 720px;
-      }
-
-      .pipeline {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .pipeline-step:nth-child(3)::after,
-      .pipeline-step:nth-child(6)::after {
-        display: none;
-      }
-
-      .module-grid,
-      .road-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .metric-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .evidence-ladder {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
+      .table-title { grid-template-columns: 1fr; }
+      .hero { gap: 28px; min-height: auto; }
+      .status-console { max-width: 720px; }
+      .relationship-map { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .map-node:nth-child(4)::after { display: none; }
+      .algorithm-card { grid-template-columns: 62px minmax(0, 1fr); }
+      .algorithm-card .formula-box { grid-column: 2; }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .evidence-ladder { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 
-    @media (max-width: 760px) {
-      html {
-        scroll-padding-top: 18px;
-      }
-
-      .shell {
-        width: min(100% - 24px, 1240px);
-      }
-
-      .topbar {
-        position: static;
-      }
-
-      .topbar-inner {
-        align-items: flex-start;
-        flex-direction: column;
-        padding: 14px 0;
-      }
-
-      .nav-links {
-        justify-content: flex-start;
-      }
-
-      main {
-        padding-top: 18px;
-      }
-
-      .hero {
-        padding-top: 28px;
-      }
-
+    @media (max-width: 820px) {
+      html { scroll-padding-top: 18px; }
+      .shell { width: min(100% - 24px, 1220px); }
+      .topbar { position: static; }
+      .topbar-inner { align-items: flex-start; flex-direction: column; padding: 14px 0; }
+      .nav-links { justify-content: flex-start; }
+      main { padding-top: 18px; }
+      .hero { padding-top: 28px; }
       h1 {
-        font-size: clamp(3rem, 18vw, 5.1rem);
+        max-width: 100%;
+        font-size: clamp(2.75rem, 14vw, 3.65rem);
       }
-
-      .truth-banner,
-      .phase-row,
-      .owner-head,
-      .footer {
-        grid-template-columns: 1fr;
-      }
-
-      .pipeline,
-      .mental-grid,
-      .module-grid,
-      .gate-grid,
-      .road-grid,
-      .decision-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .pipeline-step::after {
-        display: none;
-      }
-
-      .phase-copy ul {
-        grid-template-columns: 1fr;
-      }
-
-      .phase-status {
-        justify-self: start;
-      }
-
-      .route-map {
-        grid-template-columns: 1fr;
-      }
-
-      .route-arrow {
-        text-align: center;
-        transform: rotate(90deg);
-      }
-
-      .decision-card,
-      .decision-card:nth-child(even),
-      .decision-card:nth-last-child(-n + 2) {
-        border-right: 0;
-        border-bottom: 1px solid var(--line);
-      }
-
-      .decision-card:last-child {
-        border-bottom: 0;
-      }
-
-      .footer-stamp {
-        text-align: left;
-      }
+      .relationship-map,
+      .three-grid,
+      .glossary-grid,
+      .boundary-grid,
+      .version-grid,
+      .verification-grid,
+      .gate-grid { grid-template-columns: 1fr; }
+      .map-node::after { display: none; }
+      .algorithm-card { grid-template-columns: 1fr; }
+      .algorithm-card .formula-box { grid-column: auto; }
+      .guardrail,
+      .result-callout,
+      .footer { grid-template-columns: 1fr; }
+      .footer-stamp { text-align: left; }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 500px) {
       .metric-grid,
-      .evidence-ladder {
-        grid-template-columns: 1fr;
-      }
-
-      .console-row {
-        grid-template-columns: 1fr;
-        gap: 3px;
-      }
-
-      .console-row strong {
-        text-align: left;
-      }
-
-      .panel,
-      .card,
-      .phase-row,
-      .handoff-card,
-      .decision-card {
-        border-radius: 13px;
-      }
+      .evidence-ladder { grid-template-columns: 1fr; }
+      .console-row { grid-template-columns: 1fr; gap: 3px; }
+      .console-row strong { text-align: left; }
+      .algorithm-card,
+      .version-card,
+      .gate-card { padding: 19px; }
     }
 
-    /* Motion is decorative only and disappears for users who opt out. */
     @media (prefers-reduced-motion: no-preference) {
       .hero-copy,
-      .status-console {
-        animation: settle .55s ease-out both;
-      }
-
-      .status-console {
-        animation-delay: .1s;
-      }
-
+      .status-console { animation: settle .55s ease-out both; }
+      .status-console { animation-delay: .1s; }
       @keyframes settle {
         from { opacity: 0; transform: translateY(12px); }
         to { opacity: 1; transform: translateY(0); }
@@ -1295,9 +983,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
+      *, *::before, *::after {
         scroll-behavior: auto !important;
         animation-duration: .01ms !important;
         animation-iteration-count: 1 !important;
@@ -1309,9 +995,44 @@
       :root { color-scheme: light; }
       body { background: white; color: #111827; }
       body::before, .topbar { display: none; }
-      p, li, .phase-copy p { color: #334155; }
-      .panel, .card, .phase-row, .pipeline-step { box-shadow: none; background: white; }
-      h1, h2, h3, strong { color: #0f172a; }
+      p, li, td, caption, .console-row span, .formula-note, .hero-lede { color: #334155 !important; }
+      .panel, .card, .map-node, .table-wrap, .status-console,
+      .formula-box, .pseudo, .verification-item, .version-note,
+      .guardrail, .result-callout, .evidence-rung {
+        box-shadow: none;
+        background: white;
+      }
+      h1, h2, h3, h4, strong, tbody th { color: #0f172a; }
+      .gradient-word {
+        background: none;
+        color: #0f172a;
+        -webkit-text-fill-color: #0f172a;
+      }
+      .eyebrow, .card-label, .mini-label, .metric-label, .version-number,
+      .node-kicker, .footer-stamp, .tag, .badge, .evidence-rung,
+      .evidence-rung.done, .evidence-rung.current, .verification-item strong,
+      .gate-card.ready h3, .gate-card.blocked h3, thead th,
+      .formula-box pre, .pseudo, code {
+        color: #0f172a !important;
+      }
+      code { background: white; }
+      thead th { background: #f1f5f9; }
+      .table-wrap { overflow: visible; }
+      table, .gate-table table { min-width: 0; }
+      th, td { padding: 7px; font-size: .66rem; }
+      .skip-link, .hero::after { display: none; }
+      .hero {
+        display: block;
+        min-height: 0;
+        padding: 24px 0;
+      }
+      .hero-copy, .status-console {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+      .status-console { margin-top: 18px; }
+      .guardrail p, .result-callout p, .footer p { color: #334155; }
       main { padding-top: 0; }
       .section { break-inside: avoid; }
     }
@@ -1319,530 +1040,1013 @@
 </head>
 
 <body>
-  <a class="skip-link" href="#main-content">Skip to project status</a>
+  <a class="skip-link" href="#main-content">Skip to the pilot primer</a>
 
-  <!-- Primary navigation intentionally points only to local/static resources. -->
-  <nav class="topbar" aria-label="Scratchpad navigation">
+  <nav class="topbar" aria-label="Page navigation">
     <div class="shell topbar-inner">
-      <a class="brand" href="../index.html" aria-label="Return to the Ozet index">
+      <a class="brand" href="../index.html" aria-label="Return to the research summaries index">
         <span class="brand-mark" aria-hidden="true">V</span>
         Virtual Hedge Fund
       </a>
       <div class="nav-links">
         <a href="#model">Mental model</a>
-        <a href="#phases">Build log</a>
-        <a href="#architecture">Architecture</a>
-        <a href="#gate">Evidence gate</a>
-        <a href="#owner">Boz decisions</a>
-        <a href="#handoff">Fresh-session handoff</a>
+        <a href="#algorithm">Algorithm</a>
+        <a href="#versions">v1–v8</a>
+        <a href="#results">Results</a>
+        <a href="#boundaries">Boundaries</a>
+        <a href="#gates">Remaining gates</a>
       </div>
     </div>
   </nav>
 
-  <main id="main-content" class="shell">
-    <!-- Hero: a truth-first summary, not a marketing performance dashboard. -->
+  <main id="main-content" class="shell" tabindex="-1">
     <header class="hero">
       <div class="hero-copy">
-        <div class="eyebrow">Development scratchpad · 18 August 2026</div>
-        <h1>Built to earn<br /><span class="gradient-word">evidence.</span></h1>
+        <div class="eyebrow">Phase 6 Sharadar pilot · 26 August 2026</div>
+        <h1>Measured with<br /><span class="gradient-word">boundaries.</span></h1>
         <p class="hero-lede">
-          The Virtual Hedge Fund is becoming a broker-neutral, point-in-time
-          research system whose first obligation is reproducibility. Six phases
-          have established the contracts, controls, replay, accounting, risk,
-          portfolio, and momentum-experiment scaffolding. The system has not yet
-          crossed into provider-backed historical research.
+          Versions 1 through 8 turned one fixed momentum idea into a bounded,
+          provider-backed diagnostic: first the long-only engine, then missing-exit
+          classification, reviewed session timing, turnover and linear-cost
+          arithmetic, terminal-recovery bounds, capacity sensitivity, factor-target
+          feasibility, and two eligible-universe benchmarks. The work is detailed
+          enough to inspect—and deliberately too limited to promote.
         </p>
-        <div class="hero-badges" aria-label="Current evidence badges">
-          <span class="badge current">SYNTHETIC_INTEGRATED</span>
-          <span class="badge locked">PROVIDER_GATE_CLOSED</span>
-          <span class="badge">LOCAL_GIT_CHECKPOINT</span>
-          <span class="badge">NO_BROKER_CONNECTION</span>
+        <div class="badge-row" aria-label="Pilot status">
+          <span class="badge warn">CURRENT-VINTAGE DESCRIPTIVE</span>
+          <span class="badge good">V8 FOCUSED 21 / 21</span>
+          <span class="badge blocked">PROMOTION BLOCKED</span>
+          <span class="badge">NO EXECUTION AUTHORITY</span>
         </div>
       </div>
 
-      <aside class="status-console" aria-label="Current build status">
+      <aside class="status-console" aria-label="Current pilot status">
         <div class="console-head">
-          <span>vhf / status</span>
-          <span class="console-light">verified</span>
+          <span>phase 6 / v8</span>
+          <span class="console-light">aggregate verified</span>
         </div>
         <div class="console-body">
           <div class="console-row">
-            <span>Phases 1–5</span>
-            <strong class="good">COMPLETE</strong>
+            <span>Monthly decisions</span>
+            <strong>48</strong>
           </div>
           <div class="console-row">
-            <span>Phase 6 contracts</span>
-            <strong class="good">COMPLETE</strong>
+            <span>Long-only holdings</span>
+            <strong>50 / decision</strong>
           </div>
           <div class="console-row">
-            <span>Phase 6 history</span>
-            <strong class="warn">NOT RUN</strong>
+            <span>Factor-target feasibility</span>
+            <strong class="good">48 / 48</strong>
           </div>
           <div class="console-row">
-            <span>Full regression</span>
-            <strong>174 / 174</strong>
+            <span>Selected exits unresolved</span>
+            <strong class="warn">3</strong>
           </div>
           <div class="console-row">
-            <span>Data provider</span>
-            <strong class="warn">UNASSESSED</strong>
+            <span>Fold / holdout feasibility</span>
+            <strong class="blocked">NOT RUN</strong>
           </div>
           <div class="console-row">
-            <span>Paper / live evidence</span>
-            <strong>NONE</strong>
+            <span>Formal promotion stage</span>
+            <strong class="warn">SYNTHETIC_INTEGRATED</strong>
           </div>
         </div>
       </aside>
     </header>
 
-    <div class="panel truth-banner" role="note" aria-label="Evidence boundary">
-      <div class="truth-icon" aria-hidden="true">!</div>
+    <div class="panel guardrail" role="note" aria-label="Publication and evidence boundary">
+      <div class="guardrail-mark" aria-hidden="true">!</div>
       <p>
-        <strong>Read every result in its proper domain.</strong> Current tests
-        prove deterministic software behavior on controlled synthetic fixtures.
-        They do not prove investment performance, historical robustness,
-        execution quality, paper readiness, or live safety. No provider has been
-        selected and no strategy has been promoted.
+        <strong>This page publishes aggregate research evidence, not licensed source
+        detail.</strong> Security identifiers, holdings, action codes, counterparties,
+        transaction terms, evidence locations, source links, and content fingerprints
+        are intentionally absent. Every return below is a gross current-vintage
+        descriptive path or an explicitly labeled sensitivity—not a canonical
+        point-in-time backtest, estimate, winner, or investment claim.
+        <br />Exact pilot label: <code>SHARADAR_5Y_CURRENT_VINTAGE_DESCRIPTIVE_PILOT</code>.
+        The canonical provider gate remains <code>PROVIDER_GATE_CLOSED</code>.
       </p>
     </div>
 
-    <!-- Mental model ---------------------------------------------------- -->
     <section id="model" class="section" aria-labelledby="model-title">
       <div class="section-heading">
         <div>
-          <div class="eyebrow">01 · Mental model</div>
-          <h2 id="model-title">An evidence machine, not an algorithm in a box.</h2>
+          <div class="eyebrow">01 · Core mental model</div>
+          <h2 id="model-title">One signal, several layers of uncertainty.</h2>
         </div>
         <p>
-          VHF separates knowledge, research declarations, calculations, and
-          promotion authority. A good idea cannot bypass timing rules, data
-          lineage, risk controls, reproducible replay, or human review simply
-          because a backtest looks attractive.
+          The pilot does not ask only “what did the selected portfolio return?”
+          It asks what was selected, when it could first trade, whether entry and
+          exit prices exist, which terminal outcomes are documented, how trading
+          assumptions change the arithmetic, whether the book fits a liquidity
+          guardrail, and whether factor-neutral targets can even be formed.
         </p>
       </div>
 
-      <!-- The project’s mandated source → evidence lineage. -->
-      <div class="pipeline" aria-label="Source to promotion lineage">
-        <article class="pipeline-step">
-          <span class="step-no">01 / RAW</span>
-          <h3>Source</h3>
-          <p>Immutable books, papers, and later approved data bytes. Originals are never silently rewritten.</p>
+      <div class="relationship-map" aria-label="Pilot relationship map">
+        <article class="map-node">
+          <span class="node-kicker">01 · Inputs</span>
+          <h3>Bound archives</h3>
+          <p>Current-vintage metadata, prices, capitalization, and action classifications.</p>
         </article>
-        <article class="pipeline-step">
-          <span class="step-no">02 / WIKI</span>
-          <h3>Concept</h3>
-          <p>Compiled definitions, assumptions, contradictions, citations, and implementation lenses.</p>
+        <article class="map-node">
+          <span class="node-kicker">02 · Screen</span>
+          <h3>Eligible universe</h3>
+          <p>Common shares, history, size, liquidity, and complete signal evidence.</p>
         </article>
-        <article class="pipeline-step">
-          <span class="step-no">03 / SPEC</span>
-          <h3>Strategy</h3>
-          <p>A preregistered signal, universe, timing, benchmark, costs, trial family, and evaluation plan.</p>
+        <article class="map-node">
+          <span class="node-kicker">03 · Rank</span>
+          <h3>Momentum quality</h3>
+          <p>12-minus-2 momentum, path discreteness, and signed recent MAX.</p>
         </article>
-        <article class="pipeline-step">
-          <span class="step-no">04 / CODE</span>
-          <h3>Implementation</h3>
-          <p>Typed, versioned, defensive contracts with explicit timestamps, hashes, and failure modes.</p>
+        <article class="map-node">
+          <span class="node-kicker">04 · Target</span>
+          <h3>Top 50</h3>
+          <p>Two percent per name; any unavailable entry remains cash.</p>
         </article>
-        <article class="pipeline-step">
-          <span class="step-no">05 / PROOF</span>
-          <h3>Evaluation</h3>
-          <p>Replayable artifacts, reconciled results, out-of-sample tests, diagnostics, and limitations.</p>
+        <article class="map-node">
+          <span class="node-kicker">05 · Route</span>
+          <h3>Next open</h3>
+          <p>Decision information dated T first affects the next reviewed session.</p>
         </article>
-        <article class="pipeline-step">
-          <span class="step-no">06 / GATE</span>
-          <h3>Promotion</h3>
-          <p>A future human-governed decision. Evidence stages cannot promote themselves.</p>
+        <article class="map-node">
+          <span class="node-kicker">06 · Bound</span>
+          <h3>Three exit paths</h3>
+          <p>Total loss, documented lower recovery, and full-principal sensitivity.</p>
+        </article>
+        <article class="map-node">
+          <span class="node-kicker">07 · Diagnose</span>
+          <h3>Compare and gate</h3>
+          <p>Benchmarks, turnover, costs, capacity, factors, and promotion blockers.</p>
         </article>
       </div>
 
-      <div class="mental-grid">
-        <article class="card mental-card">
-          <span class="label">Truth plane</span>
-          <h3>Time is part of every value.</h3>
+      <div class="three-grid">
+        <article class="card concept-card">
+          <span class="card-label">What “current-vintage” means</span>
+          <h3>Today’s adjusted history can contain later knowledge.</h3>
           <p>
-            Security identity, effective date, availability time, revision, and
-            immutable source identity travel with data. “What was knowable at
-            the decision close?” is enforced rather than assumed.
+            The calculation uses a bound five-year snapshot and respects a
+            one-session trading lag, but it cannot reconstruct every historical
+            revision or classification as it appeared at each decision date.
           </p>
         </article>
-        <article class="card mental-card">
-          <span class="label">Decision plane</span>
-          <h3>Research intent is frozen first.</h3>
+        <article class="card concept-card">
+          <span class="card-label">How to read terminal paths</span>
+          <h3>Bounds are not point estimates.</h3>
           <p>
-            Run specifications bind the universe, signal, schedule, trial
-            family, costs, benchmark, and evaluation protocol before results can
-            tempt the system into changing the question.
+            Total loss is the rigorous nonnegative-recovery floor. The reviewed
+            path is a tighter gross lower bound. Full-principal recovery is only a
+            sensitivity and is not an upper bound.
           </p>
         </article>
-        <article class="card mental-card">
-          <span class="label">Control plane</span>
-          <h3>Failure is named and replayable.</h3>
+        <article class="card concept-card">
+          <span class="card-label">How to read factor control</span>
+          <h3>A feasible target is not a realized portfolio.</h3>
           <p>
-            Risk rejection, stale evidence, infeasibility, incomplete history,
-            lifecycle conflicts, and unresolved accounting states fail closed
-            with stable reasons instead of producing a convenient estimate.
+            The solver can construct neutral weights at every decision, but missing
+            long/short routes, unknown short terminal value, borrow, financing, and
+            state propagation prevent a performance calculation.
           </p>
+        </article>
+      </div>
+
+      <h3 class="subhead">Terminology map</h3>
+      <div class="glossary-grid">
+        <article class="card glossary-card">
+          <span class="card-label">Decision T</span>
+          <h3>Economic date, not instant availability</h3>
+          <p>Information dated to session T can first influence the next reviewed regular-session open.</p>
+        </article>
+        <article class="card glossary-card">
+          <span class="card-label">Adjusted / raw route</span>
+          <h3>Research return versus execution diagnostic</h3>
+          <p>Adjusted opens carry total-return research economics; reconstructed raw opens remain routing diagnostics, not executable quotes.</p>
+        </article>
+        <article class="card glossary-card">
+          <span class="card-label">Missing entry</span>
+          <h3>Uninvested weight stays cash</h3>
+          <p>The intended allocation earns zero for that holding period and is never redistributed to names that happened to have data.</p>
+        </article>
+        <article class="card glossary-card">
+          <span class="card-label">One-way turnover</span>
+          <h3>Half the risky-weight L1 change</h3>
+          <p>Cash reconciles the state but is excluded from the sum so deployment is not counted twice.</p>
+        </article>
+        <article class="card glossary-card">
+          <span class="card-label">Capacity limit</span>
+          <h3>The first 5%-ADV bottleneck</h3>
+          <p>A rounded constant-AUM sensitivity determined by the most restrictive private trade leg—not an executable fund size.</p>
+        </article>
+        <article class="card glossary-card">
+          <span class="card-label">Formal evidence stage</span>
+          <h3>Still synthetic-integrated</h3>
+          <p>The provider-backed diagnostic is a separate smoke pilot and does not promote the canonical research system by itself.</p>
         </article>
       </div>
     </section>
 
-    <!-- Phase build log ------------------------------------------------- -->
-    <section id="phases" class="section" aria-labelledby="phases-title">
+    <section id="algorithm" class="section" aria-labelledby="algorithm-title">
       <div class="section-heading">
         <div>
-          <div class="eyebrow">02 · Build log</div>
-          <h2 id="phases-title">What has been built, phase by phase.</h2>
+          <div class="eyebrow">02 · Fixed algorithm</div>
+          <h2 id="algorithm-title">The complete monthly calculation.</h2>
         </div>
         <p>
-          Phases 1–5 are complete within their declared synthetic boundaries.
-          Phase 6 has complete provider-neutral contracts and fixtures, but its
-          title—“first historical momentum experiment”—is intentionally not yet
-          satisfied.
+          The formulas below are the stable public-safe specification that the
+          v8 aggregate implements. They expose units, timing, signs, and failure
+          rules while withholding licensed rows and identities.
         </p>
       </div>
 
-      <div class="phase-list">
-        <article class="phase-row">
-          <div class="phase-id">01</div>
-          <div class="phase-copy">
-            <h3>Frozen synthetic vertical slice</h3>
+      <div class="algorithm-stack">
+        <article class="card algorithm-card">
+          <div class="step-id">01</div>
+          <div class="algorithm-copy">
+            <h3>Reconstruct research and liquidity routes</h3>
             <p>
-              Hardened a complete daily-equity path from synthetic point-in-time
-              prices through quality momentum, factor risk, factor-neutral
-              targets, named risk decisions, next-open fills, and reconciled
-              accounting. Public records validate inputs, copy mutable data, and
-              serialize deterministically.
+              A provider-supplied split-adjusted close acts as the denominator
+              that maps the reported open into adjusted and raw domains. Raw
+              notional then supports a complete trailing liquidity filter.
             </p>
-            <ul>
-              <li>650-session, 12-asset deterministic fixture.</li>
-              <li>Beginner walkthrough traces one rebalance end to end.</li>
-              <li>Timing, QLIKE labels, PSD bounds, drawdown, RSI, and configuration defects fixed.</li>
-              <li>Full-result digest frozen as the non-regression anchor.</li>
-            </ul>
+            <span class="mini-label">Implementation lens</span>
+            <p>Require positive finite price levels, permit zero but not negative volume/notional, and never bridge a missing day.</p>
           </div>
-          <span class="phase-status">Complete</span>
+          <div class="formula-box" aria-label="Price and volume route formulas">
+            <pre>adjusted_open = reported_open × total_return_close / split_adjusted_close
+raw_open      = reported_open × raw_close / split_adjusted_close
+raw_volume    = reported_volume × raw_close / split_adjusted_close
+raw_notional  = raw_close × raw_volume
+
+ADV60 = mean(raw_notional over 60 complete sessions)</pre>
+            <div class="formula-note">Adjusted opens measure the research path. Raw opens and notional remain routing and liquidity diagnostics.</div>
+          </div>
         </article>
 
-        <article class="phase-row">
-          <div class="phase-id">02</div>
-          <div class="phase-copy">
-            <h3>Orchestration, events, artifacts, and replay</h3>
+        <article class="card algorithm-card">
+          <div class="step-id">02</div>
+          <div class="algorithm-copy">
+            <h3>Build the eligible universe at each decision</h3>
             <p>
-              Separated strategy, risk model, portfolio policy, risk policy,
-              execution venue, and event sink behind injected interfaces. A
-              mandatory immutable run specification and canonical manifest now
-              determine identities and block leakage.
+              Start with active USD domestic common shares, require thirteen
+              complete observed month ends and positive capitalization, then form
+              a linear 40th-percentile size breakpoint over that complete reference
+              set. Historical primary-venue evidence is unavailable, so this is an
+              all-eligible substitute rather than the canonical NYSE breakpoint.
             </p>
-            <ul>
-              <li>Hash-chained, append-only events with UTC and exchange-local time.</li>
-              <li>Deterministic run, decision, proposal, fill, state, and artifact IDs.</li>
-              <li>Exactly five persisted files with SHA-256 inventory.</li>
-              <li>Component-free replay reconstructs cash, holdings, P&amp;L, costs, and decisions.</li>
-            </ul>
+            <span class="mini-label">Fail-closed rule</span>
+            <p>Incomplete 60-session ADV or signal history excludes the name; it is not imputed.</p>
           </div>
-          <span class="phase-status">Complete</span>
+          <div class="formula-box" aria-label="Eligibility formula">
+            <pre>b_t = linear_quantile_40%(market_cap_i,t in complete reference set)
+
+eligible_i,t = active_i,t
+            ∧ 13_complete_month_ends_i,t
+            ∧ market_cap_i,t &gt; b_t
+            ∧ complete(ADV60_i,t)
+            ∧ ADV60_i,t ≥ $1,000,000
+            ∧ complete(signal_history_i,t)</pre>
+          </div>
         </article>
 
-        <article class="phase-row">
-          <div class="phase-id">03</div>
-          <div class="phase-copy">
-            <h3>Point-in-time US-equity data foundation</h3>
+        <article class="card algorithm-card">
+          <div class="step-id">03</div>
+          <div class="algorithm-copy">
+            <h3>Measure 12-minus-2 momentum and path quality</h3>
             <p>
-              Added a provider-neutral, long-form data contract built around
-              permanent identities, exact availability cutoffs, contiguous
-              revisions, immutable source files, and deterministic
-              materialization. It is ready to assess a real provider, not to
-              pretend one already exists.
+              Momentum ends one month before the decision, deliberately skipping
+              the recent month. Information discreteness measures whether the
+              formation path arrived through many small moves or fewer jumps.
+              Zero-return days stay in the 252-day denominator. MAX is signed,
+              never converted into an absolute jump.
             </p>
-            <ul>
-              <li>Twelve exact source tables cover identity, sessions, prices, actions, membership, liquidity, benchmarks, and factors.</li>
-              <li>Raw prices and total-return levels remain separate by design.</li>
-              <li>Raw-only execution-open snapshots prevent adjusted-price fills.</li>
-              <li>Provider scorecard exists; every provider result remains unassessed.</li>
-            </ul>
+            <span class="mini-label">How it connects</span>
+            <p>Raw momentum chooses the tail; FIP and MAX order names only inside that high-momentum tail.</p>
           </div>
-          <span class="phase-status">Foundation complete</span>
+          <div class="formula-box" aria-label="Momentum and quality formulas">
+            <pre>M_i,t  = P_TR(i, formation_end) / P_TR(i, formation_start) − 1
+
+ID_i,t = sign(M_i,t) × (n_negative / 252 − n_positive / 252)
+MAX_i,t = max(signed daily return in the skipped recent month)
+
+n_tail = max(1, ceil(0.10 × N_eligible))
+q_ID   = percentile_rank(−ID) within the high-momentum tail
+q_MAX  = percentile_rank(−MAX) within the high-momentum tail
+quality = 0.5 × q_ID + 0.5 × q_MAX</pre>
+          </div>
         </article>
 
-        <article class="phase-row">
-          <div class="phase-id">04</div>
-          <div class="phase-copy">
-            <h3>Execution, accounting, and operational risk</h3>
+        <article class="card algorithm-card">
+          <div class="step-id">04</div>
+          <div class="algorithm-copy">
+            <h3>Select, size, and route the monthly holding</h3>
             <p>
-              Added a separate operational journal for next-regular-open
-              routing, whole-lot partial fills, transaction-cost assumptions,
-              immutable lifecycle evidence, corporate actions, delistings,
-              borrow, and persistent halts.
+              Sort the top momentum decile by quality, use a stable identity only
+              as a deterministic tie-break, and select at most fifty names. Each
+              selected name receives 2%; any unfilled allocation stays cash.
             </p>
-            <ul>
-              <li>Atomic batch risk with universal blockers, limits, and warnings.</li>
-              <li>Signed cash, position, realized/unrealized P&amp;L, and cost ledgers.</li>
-              <li>Exact short-exposure intervals preserve financing history.</li>
-              <li>Idempotent operational events replay without strategy or venue components.</li>
-            </ul>
+            <span class="mini-label">Timing boundary</span>
+            <p>Decision T enters at the next reviewed open and exits at the next monthly rebalance’s reviewed open.</p>
           </div>
-          <span class="phase-status">Complete</span>
+          <div class="formula-box" aria-label="Selection and portfolio return formulas">
+            <pre>S_t = first min(50, n_tail) names by descending quality
+w_i,t = 0.02 if i ∈ S_t, otherwise 0
+w_cash,t = 1 − Σ_i w_i,t
+
+r_i,t = adjusted_open_i,exit / adjusted_open_i,entry − 1
+r_portfolio,t = Σ_i invested_weight_i,t × r_i,t
+
+missing entry → allocation remains cash</pre>
+          </div>
         </article>
 
-        <article class="phase-row">
-          <div class="phase-id">05</div>
-          <div class="phase-copy">
-            <h3>Dated risk models and portfolio construction</h3>
+        <article class="card algorithm-card">
+          <div class="step-id">05</div>
+          <div class="algorithm-copy">
+            <h3>Carry three terminal-recovery paths</h3>
             <p>
-              Added decision-dated beta, sector, and size exposures; five
-              covariance candidates; strict later-window comparison; explicit
-              alpha sizing; and a transparent one-dimensional convex-path
-              optimizer with complete postchecks.
+              A missing exit is never silently treated as a normal zero. The
+              total-loss path is the unconditional floor. Reviewed positive cash
+              can tighten that floor only when every omitted leg was checked as
+              additive and nonnegative. Complete evidence can establish an exact
+              outcome; unresolved cases stay unresolved.
             </p>
-            <ul>
-              <li>Fundamental ridge, sample, EWMA, shrinkage, and rolling PCA candidates.</li>
-              <li>PSD, label, vintage, loading, calibration, and turnover diagnostics.</li>
-              <li>Tolerance-neutral and bounded-factor portfolio declarations.</li>
-              <li>Costs and uncertainty can only reduce—not enlarge—the fixed-path trade.</li>
-            </ul>
+            <span class="mini-label">Evidence boundary</span>
+            <p>Full-principal recovery is a sensitivity, not an upper bound; acquisition value can exceed entry value.</p>
           </div>
-          <span class="phase-status">Complete</span>
+          <div class="formula-box" aria-label="Terminal recovery formulas">
+            <pre>anchor = last valid target raw+adjusted open on/before effectiveness and before exit
+adjustment_scale = adjusted_open_at_anchor / raw_open_at_anchor
+adjusted_cash    = reviewed_cash_per_unit × adjustment_scale
+successor_start  = explicit first-held session for the supported successor
+successor_raw_exit = fixed_shares × raw_start × adjusted_exit / adjusted_start
+adjusted_stock   = successor_raw_exit × adjustment_scale
+documented_multiple = reviewed_adjusted_value_at_exit / adjusted_entry
+r_documented    = documented_multiple − 1
+
+unresolved total-loss path       → r = −1
+unresolved full-principal path   → r = 0
+reviewed documented-lower path   → substitute only admitted lower return</pre>
+          </div>
         </article>
 
-        <article class="phase-row scaffold">
-          <div class="phase-id">06</div>
-          <div class="phase-copy">
-            <h3>Momentum experiment preregistration and synthetic scaffold</h3>
+        <article class="card algorithm-card">
+          <div class="step-id">06</div>
+          <div class="algorithm-copy">
+            <h3>Chain monthly metrics without hiding path semantics</h3>
             <p>
-              Encoded the future historical experiment before choosing a data
-              source: exact universe rules, signal definitions, decision
-              calendars, candidate audits, portfolio seeds, trial registry,
-              robustness schedules, and evaluation protocol. No performance or
-              winner field exists in this boundary.
+              Metrics are calculated from one contiguous monthly series. Sharpe
+              uses a zero reference rate and sample standard deviation. Drawdown
+              begins from an explicit wealth origin of one.
             </p>
-            <ul>
-              <li>Exact 12-minus-2 total-return momentum with path-quality and signed-MAX evidence.</li>
-              <li>Top-50 long-only seed and membership-only long/short seed under 2% name caps.</li>
-              <li>Ten-trial family plus preregistered block/Rademacher maximum-Sharpe procedure.</li>
-              <li>Five integrated acceptance scenarios; provider and history remain blocked.</li>
-            </ul>
+            <span class="mini-label">Reading note</span>
+            <p>Changing a terminal path changes the entire chained wealth path; the columns are scenarios, not confidence intervals.</p>
           </div>
-          <span class="phase-status">Scaffold complete</span>
-        </article>
-
-        <article class="phase-row pending">
-          <div class="phase-id">07</div>
-          <div class="phase-copy">
-            <h3>Attribution and promotion governance</h3>
-            <p>
-              Planned: reconcile market, factor, idiosyncratic, selection,
-              sizing, spread, impact, commission, hedge, corporate-action, and
-              residual contributions; then enforce evidence-stage promotion with
-              explicit human approval.
-            </p>
+          <div class="formula-box" aria-label="Portfolio metric formulas">
+            <pre>W_T       = Π_t (1 + r_t)
+cumulative = W_T − 1
+annualized = W_T^(12 / T) − 1
+volatility = sample_sd(r_t) × √12
+Sharpe_0   = mean(r_t) / sample_sd(r_t) × √12
+drawdown_t = W_t / max_{s≤t}(W_s) − 1
+MDD        = min_t(drawdown_t)</pre>
           </div>
-          <span class="phase-status">Pending</span>
-        </article>
-
-        <article class="phase-row pending">
-          <div class="phase-id">08</div>
-          <div class="phase-copy">
-            <h3>Remaining research sleeves</h3>
-            <p>
-              Planned sequence: lead-lag/statistical arbitrage, technical
-              features, value, then only later alternative data and machine
-              learning. Instrument-grade volatility and options work stays
-              deferred until its data and simulator exist.
-            </p>
-          </div>
-          <span class="phase-status">Pending</span>
-        </article>
-
-        <article class="phase-row pending">
-          <div class="phase-id">09</div>
-          <div class="phase-copy">
-            <h3>Separate IBKR adapter boundary</h3>
-            <p>
-              Planned only under separate approval: transform versioned order
-              proposal batches into broker intents with reconciliation,
-              idempotency, process locking, journaled state, and a persistent
-              stop-trading control. Strategy code never receives credentials or
-              constructs a broker client.
-            </p>
-          </div>
-          <span class="phase-status">Blocked by design</span>
         </article>
       </div>
     </section>
 
-    <!-- Architecture ---------------------------------------------------- -->
-    <section id="architecture" class="section" aria-labelledby="architecture-title">
+    <section id="versions" class="section" aria-labelledby="versions-title">
       <div class="section-heading">
         <div>
-          <div class="eyebrow">03 · Architecture</div>
-          <h2 id="architecture-title">Separate boundaries, one traceable research path.</h2>
+          <div class="eyebrow">03 · Version ledger</div>
+          <h2 id="versions-title">What v1 through v8 actually added.</h2>
         </div>
         <p>
-          Later phases were built beside the frozen Phase 1/2 economics instead
-          of silently rewriting them. This makes each boundary reviewable and
-          lets the golden regression expose accidental cross-phase changes.
+          Each version narrowed a specific uncertainty without retroactively
+          upgrading the evidence stage. Later versions preserve earlier public
+          aggregates unless the ledger explicitly says a provisional value was
+          corrected.
         </p>
       </div>
 
-      <div class="module-grid">
-        <article class="card module-card">
-          <span class="label">Frozen core · Phase 1</span>
-          <h3>Signal to reconciled result</h3>
-          <p>Validated records, features, risk, portfolio, fills, synthetic fixtures, and the compatibility backtest.</p>
-          <div class="file-list">
-            <code>types.py</code><code>signals.py</code><code>factor_model.py</code>
-            <code>portfolio.py</code><code>risk.py</code><code>execution.py</code><code>backtest.py</code>
-          </div>
-        </article>
-        <article class="card module-card">
-          <span class="label">Research runtime · Phase 2</span>
-          <h3>Declare, orchestrate, persist, replay</h3>
-          <p>Immutable run intent, injected seams, event contracts, canonical artifacts, and component-free replay.</p>
-          <div class="file-list">
-            <code>research_protocol.py</code><code>orchestration.py</code>
-            <code>events.py</code><code>persistence.py</code>
-          </div>
-        </article>
-        <article class="card module-card">
-          <span class="label">Truth boundary · Phase 3</span>
-          <h3>Point-in-time data</h3>
-          <p>Twelve long-form tables, availability and revision semantics, dataset manifests, and raw-open routing.</p>
-          <div class="file-list"><code>point_in_time.py</code></div>
-        </article>
-        <article class="card module-card">
-          <span class="label">Operational boundary · Phase 4</span>
-          <h3>Lifecycle and accounting</h3>
-          <p>Session rules, partial fills, costs, borrow, actions, halts, journal state, and deterministic ledger replay.</p>
-          <div class="file-list"><code>operations.py</code></div>
-        </article>
-        <article class="card module-card">
-          <span class="label">Research boundary · Phase 5</span>
-          <h3>Dated risk and portfolio</h3>
-          <p>Exposures, covariance candidates, evaluation diagnostics, alpha sizing, constraints, and postverified solutions.</p>
-          <div class="file-list"><code>risk_portfolio.py</code></div>
-        </article>
-        <article class="card module-card">
-          <span class="label">Preregistration · Phase 6</span>
-          <h3>Momentum experiment scaffold</h3>
-          <p>Universe, signals, schedules, audit, trial family, provisional weights, hashes, and future evaluation declarations.</p>
-          <div class="file-list"><code>momentum_experiment.py</code></div>
-        </article>
+      <div class="version-note">
+        <strong>Chronology note:</strong> the v1–v3 sequence is reconstructed from
+        contemporaneous implementation evidence; the durable project record keeps
+        their cumulative early-pilot result and begins dedicated version narratives
+        at v4. That v4 record consolidates the earlier capabilities and does not
+        independently corroborate their internal split. The cards below do not
+        imply separate durable v1, v2, and v3 reports.
       </div>
 
-      <div class="panel route-map" aria-label="Daily decision and execution price routing">
-        <div class="route-node">
-          <strong>Total-return history</strong>
-          <span>Signal calculation through the eligible decision close</span>
-        </div>
-        <span class="route-arrow" aria-hidden="true">→</span>
-        <div class="route-node">
-          <strong>Decision at close</strong>
-          <span>Only rows available by the declared UTC cutoff</span>
-        </div>
-        <span class="route-arrow" aria-hidden="true">→</span>
-        <div class="route-node">
-          <strong>Raw next open</strong>
-          <span>Execution route only; no adjusted fill and no Phase 6 fill yet</span>
-        </div>
+      <div class="version-grid">
+        <article class="card version-card">
+          <div class="version-head">
+            <div>
+              <div class="version-number">v1</div>
+              <h3>Core descriptive engine</h3>
+            </div>
+            <span class="tag">RECONSTRUCTED</span>
+          </div>
+          <h4>What changed</h4>
+          <p>
+            Built the three-input, disk-backed long-only engine: bounded current-
+            vintage history, size and liquidity screens, 12-minus-2/FIP/signed-MAX
+            selection, top-50 equal targets, one-session-lag opens, and two missing-
+            exit treatments. Input content and the economic specification were bound
+            before calculation and checked again after streaming.
+          </p>
+          <h4>What it established</h4>
+          <p>Forty-eight monthly decisions, nine missing entries, thirty missing exits, and a deliberately wide terminal-recovery spread.</p>
+          <div class="pseudo">screen → rank → top 50 × 2% → next-open path
+missing entry = cash
+missing exit ∈ {total loss, full-principal sensitivity}</div>
+        </article>
+
+        <article class="card version-card">
+          <div class="version-head">
+            <div>
+              <div class="version-number">v2</div>
+              <h3>Missing-exit classification</h3>
+            </div>
+            <span class="tag">RECONSTRUCTED</span>
+          </div>
+          <h4>What changed</h4>
+          <p>
+            Added a separate action-classification input and strict observed-row,
+            binding, and date-window checks. All thirty selected missing exits were
+            associated with acquisition or merger events, but no exact proceeds or
+            availability time were manufactured.
+          </p>
+          <h4>How it connects</h4>
+          <p>Classification explained the gap; it did not value it. The v1 scenario returns therefore remained unchanged.</p>
+          <div class="pseudo">if the exit row is invalid or a later row exists: classify as a data gap
+else if same binding + event inside holding window: classify the event
+classification ≠ terminal proceeds</div>
+        </article>
+
+        <article class="card version-card">
+          <div class="version-head">
+            <div>
+              <div class="version-number">v3</div>
+              <h3>Reviewed timing and first benchmark</h3>
+            </div>
+            <span class="tag">RECONSTRUCTED</span>
+          </div>
+          <h4>What changed</h4>
+          <p>
+            Replaced next-observed-date inference with a pinned, reviewed XNYS
+            trading-session axis; added the complete eligible-universe
+            equal-weight benchmark and return-drift-aware turnover.
+          </p>
+          <h4>Evidence boundary</h4>
+          <p>
+            Strategy returns did not change. v3 turnover figures were provisional
+            and are intentionally omitted here because v4 corrected them to the
+            established risky-only half-L1 convention.
+          </p>
+          <div class="pseudo">decision T → immediate next reviewed session open
+benchmark_weight_i = 1 / N_eligible
+missing benchmark entry = cash, never redistributed</div>
+        </article>
+
+        <article class="card version-card durable">
+          <div class="version-head">
+            <div>
+              <div class="version-number">v4</div>
+              <h3>First durable consolidation and corrected costs</h3>
+            </div>
+            <span class="tag floor">DURABLE</span>
+          </div>
+          <h4>What changed</h4>
+          <p>
+            The first dedicated durable version record consolidates the reviewed
+            calendar, missing-exit classification, eligible equal-weight benchmark,
+            and drift-aware turnover. It also corrects turnover to half the L1
+            change across risky weights only, then adds the existing illustrative
+            half-spread-plus-commission model and deducts its drag exactly once from
+            gross monthly return.
+          </p>
+          <h4>Formula</h4>
+          <div class="pseudo">full-principal unresolved exit → remove risky position; add principal weight to cash
+position_value_i = w_prev,i(1+r_i) for positions that remain risky
+W_path = path_specific_cash + Σ_j position_value_j
+w_pre,i = position_value_i / W_path
+TO = 0.5 Σ_i |w_target,i − w_pre,i|
+linear drag = 2 × TO × (full spread/2 + commission) / 10,000</div>
+        </article>
+
+        <article class="card version-card durable">
+          <div class="version-head">
+            <div>
+              <div class="version-number">v5</div>
+              <h3>Reviewed terminal lower bound</h3>
+            </div>
+            <span class="tag floor">DURABLE</span>
+          </div>
+          <h4>What changed</h4>
+          <p>
+            Added private primary-evidence review and a strict terminal-economics
+            sidecar. Twenty-two selected outcomes are exact; five more contribute
+            only positive fixed-cash floors; three stay unresolved. The cash bridge
+            translates reviewed value into the target’s adjusted research unit.
+          </p>
+          <h4>What it means</h4>
+          <p>The new 83.7535% cumulative path is a rigorous gross lower bound—not a midpoint—and the three unresolved exits leave no finite upper bound.</p>
+        </article>
+
+        <article class="card version-card durable">
+          <div class="version-head">
+            <div>
+              <div class="version-number">v6</div>
+              <h3>Capacity and square-root impact</h3>
+            </div>
+            <span class="tag floor">DURABLE</span>
+          </div>
+          <h4>What changed</h4>
+          <p>
+            Formed the full nonzero buy/sell union from drifted pretrade weights to
+            invested targets. Every leg requires complete 60-session raw-notional
+            ADV, a raw next-open route, and 252 returns for EWMA20 volatility. One
+            missing input withholds the whole history.
+          </p>
+          <h4>Implementation lens</h4>
+          <div class="pseudo">α = 1 − exp(log(0.5) / 20)
+σ²_1 = r²_1
+σ²_t = αr²_t + (1−α)σ²_(t−1), t = 2…252
+participation_i(A) = A|Δw_i| / ADV_i
+A_limit = min_i [0.05 × ADV_i / |Δw_i|]
+impact = k√A Σ_i σ_i|Δw_i|√(|Δw_i|/ADV_i)</div>
+        </article>
+
+        <article class="card version-card durable">
+          <div class="version-head">
+            <div>
+              <div class="version-number">v7</div>
+              <h3>Factor-target feasibility</h3>
+            </div>
+            <span class="tag floor">DURABLE</span>
+          </div>
+          <h4>What changed</h4>
+          <p>
+            Added a current-vintage target-only sensitivity: 252-return beta to an
+            eligible-universe equal-weight proxy, standardized log capitalization,
+            static current sector indicators, and a sign-preserving least-change
+            projection of the raw top/bottom-decile seed.
+          </p>
+          <h4>Optimization</h4>
+          <div class="pseudo">r_proxy = mean eligible-universe daily return
+β_i = Σ(R_i−mean R_i)(r_proxy−mean r_proxy) / Σ(r_proxy−mean r_proxy)²
+size_i = zscore(log market_cap_i)
+
+minimize ||w − w_seed||²
+subject to long = +0.50, short = −0.50
+net = beta = size = every sector = 0
+fixed signs, |w_i| ≤ 0.02, residual ≤ 1e−10</div>
+        </article>
+
+        <article class="card version-card latest">
+          <div class="version-head">
+            <div>
+              <div class="version-number">v8</div>
+              <h3>Decision-close cap-weight benchmark</h3>
+            </div>
+            <span class="tag bound">LATEST</span>
+          </div>
+          <h4>What changed</h4>
+          <p>
+            Added the registered eligible-universe cap-weight comparison. Positive
+            weights are fixed from decision-close capitalization before next-open
+            availability is inspected. Missing-entry allocation stays cash and is
+            never redistributed to surviving names.
+          </p>
+          <h4>Formula and boundary</h4>
+          <div class="pseudo">w_i,t = market_cap_i,t / Σ_j market_cap_j,t
+r_benchmark,t = Σ_i w_i,t r_i,t
+
+gross current-vintage benchmark only
+no benchmark turnover, cost, capacity, or terminal liquidation</div>
+        </article>
       </div>
     </section>
 
-    <!-- Verification ---------------------------------------------------- -->
-    <section id="verification" class="section" aria-labelledby="verification-title">
+    <section id="results" class="section" aria-labelledby="results-title">
       <div class="section-heading">
         <div>
-          <div class="eyebrow">04 · Verification</div>
-          <h2 id="verification-title">The non-negotiable invariants still hold.</h2>
+          <div class="eyebrow">04 · Aggregate results</div>
+          <h2 id="results-title">What v8 measured—and what each number means.</h2>
         </div>
         <p>
-          Verification is proportionate and deterministic: the full local suite,
-          compile pass, dependency integrity, examples, wiki lint, and whitespace
-          checks were green after the Phase 6 scaffold. These are engineering
-          assurances, not market evidence.
+          Results are shown as the key public aggregate record, without security-
+          level holdings or a monthly time-series chart. The existing verification
+          evidence is sufficient for these tables; no licensed-data rerun was needed.
         </p>
       </div>
 
       <div class="metric-grid">
         <article class="card metric-card">
-          <span class="metric-label">Full regression</span>
-          <span class="metric-value">174 / 174</span>
-          <p>All Phase 1–6 tests passed in the project-local virtual environment.</p>
+          <h3 class="metric-label">Window coverage</h3>
+          <span class="metric-value">6,397</span>
+          <p>Security identities overlapping the fixed five-year source window.</p>
         </article>
         <article class="card metric-card">
-          <span class="metric-label">Persisted run</span>
-          <span class="metric-value">5 files</span>
-          <p>Manifest, event log, compressed equity curve, metrics, and digest inventory.</p>
+          <h3 class="metric-label">Decision count</h3>
+          <span class="metric-value">48</span>
+          <p>Contiguous monthly decisions from July 2022 through June 2026.</p>
         </article>
         <article class="card metric-card">
-          <span class="metric-label">Point-in-time source</span>
-          <span class="metric-value">12 tables</span>
-          <p>Exact long-form schemas with availability, revisions, and immutable identities.</p>
+          <h3 class="metric-label">Mean eligible</h3>
+          <span class="metric-value">2,497.71</span>
+          <p>Mean names surviving the fixed size, liquidity, and history screens.</p>
         </article>
         <article class="card metric-card">
-          <span class="metric-label">Phase 6 family</span>
-          <span class="metric-value">10 trials</span>
-          <p>Frozen registrations without a selected winner or calculated performance statistic.</p>
+          <h3 class="metric-label">Selected per decision</h3>
+          <span class="metric-value">50</span>
+          <p>Two percent per name in the source-faithful long-only target.</p>
+        </article>
+        <article class="card metric-card">
+          <h3 class="metric-label">Missing entries</h3>
+          <span class="metric-value">9</span>
+          <p>Target allocations retained as cash rather than redistributed.</p>
+        </article>
+        <article class="card metric-card">
+          <h3 class="metric-label">Missing exits</h3>
+          <span class="metric-value">30</span>
+          <p>Thirty occurrences across thirty different selected securities.</p>
+        </article>
+        <article class="card metric-card">
+          <h3 class="metric-label">Reviewed floors / exact</h3>
+          <span class="metric-value">27 / 22</span>
+          <p>Five records supply a lower floor without claiming complete value.</p>
+        </article>
+        <article class="card metric-card">
+          <h3 class="metric-label">Still unresolved</h3>
+          <span class="metric-value">3</span>
+          <p>The selected strategy therefore has no finite terminal-recovery upper bound.</p>
         </article>
       </div>
 
-      <article class="panel hash-card">
-        <h3>Phase 1 golden full-result digest</h3>
-        <span class="hash-value">e54db5dc7b3e9ac4b61a289c582a30defbe9ad5bda87b8ec14d00cc78dca8db5</span>
+      <div class="table-block">
+        <div class="table-title">
+          <h3>Long-only gross strategy paths</h3>
+          <p>Total loss is a floor; the documented path is a tighter lower bound; full principal is only a sensitivity.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <caption>Current-vintage adjusted-open monthly path; zero-rate Sharpe.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Missing-exit treatment</th>
+                <th scope="col">Meaning</th>
+                <th class="num" scope="col">Cumulative</th>
+                <th class="num" scope="col">Annualized</th>
+                <th class="num" scope="col">Sharpe</th>
+                <th class="num" scope="col">Max drawdown</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Total loss</th>
+                <td><span class="tag floor">UNCONDITIONAL FLOOR</span></td>
+                <td class="num">11.1287%</td>
+                <td class="num">2.6731%</td>
+                <td class="num">0.227053</td>
+                <td class="num">−22.9616%</td>
+              </tr>
+              <tr>
+                <th scope="row">Documented terminal path</th>
+                <td><span class="tag bound">GROSS LOWER BOUND</span></td>
+                <td class="num">83.7535%</td>
+                <td class="num">16.4284%</td>
+                <td class="num">0.847628</td>
+                <td class="num">−18.8376%</td>
+              </tr>
+              <tr>
+                <th scope="row">Full principal</th>
+                <td><span class="tag sensitivity">SENSITIVITY, NOT UPPER</span></td>
+                <td class="num">101.7210%</td>
+                <td class="num">19.1757%</td>
+                <td class="num">0.968946</td>
+                <td class="num">−17.2066%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="table-block">
+        <div class="table-title">
+          <h3>Eligible-universe benchmarks</h3>
+          <p>Both benchmarks use the same constituents and terminal rules; neither is a canonical index.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <caption>Equal weight and decision-close cap weight; missing-entry weight stays cash.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Benchmark</th>
+                <th scope="col">Terminal path</th>
+                <th class="num" scope="col">Cumulative</th>
+                <th class="num" scope="col">Annualized</th>
+                <th class="num" scope="col">Sharpe</th>
+                <th class="num" scope="col">Max drawdown</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Equal weight</th>
+                <td>Total loss</td>
+                <td class="num">33.0926%</td>
+                <td class="num">—</td>
+                <td class="num">0.495779</td>
+                <td class="num">—</td>
+              </tr>
+              <tr>
+                <th scope="row">Equal weight</th>
+                <td>Documented lower</td>
+                <td class="num">34.4410%</td>
+                <td class="num">—</td>
+                <td class="num">0.510086</td>
+                <td class="num">—</td>
+              </tr>
+              <tr>
+                <th scope="row">Equal weight</th>
+                <td>Full-principal sensitivity</td>
+                <td class="num">65.9495%</td>
+                <td class="num">—</td>
+                <td class="num">0.813162</td>
+                <td class="num">—</td>
+              </tr>
+              <tr>
+                <th scope="row">Cap weight</th>
+                <td>Total loss</td>
+                <td class="num">83.1388%</td>
+                <td class="num">16.3309%</td>
+                <td class="num">1.160488</td>
+                <td class="num">−11.2669%</td>
+              </tr>
+              <tr>
+                <th scope="row">Cap weight</th>
+                <td>Documented lower</td>
+                <td class="num">83.4231%</td>
+                <td class="num">16.3760%</td>
+                <td class="num">1.163495</td>
+                <td class="num">−11.2464%</td>
+              </tr>
+              <tr>
+                <th scope="row">Cap weight</th>
+                <td>Full-principal sensitivity</td>
+                <td class="num">90.2406%</td>
+                <td class="num">17.4426%</td>
+                <td class="num">1.226611</td>
+                <td class="num">−11.0971%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="result-callout">
+        <strong>BENCHMARK COVERAGE</strong>
         <p>
-          This checksum anchors the original synthetic economics. Phases 2–6
-          were required to preserve it, which prevents a refactor or new boundary
-          from quietly changing the established result.
+          The benchmarks contain 559 missing-exit occurrences. Only 27 have a
+          reviewed floor and 22 are exact, leaving 532 without a documented floor.
+          Their apparent terminal-path stability must not be read as complete
+          terminal economics.
         </p>
-      </article>
+      </div>
+
+      <div class="table-block">
+        <div class="table-title">
+          <h3>Turnover and base linear-cost sensitivity</h3>
+          <p>The established risky-only half-L1 convention excludes cash from the turnover sum.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <caption>The base model uses an illustrative 5 bp full spread and 1 bp commission; it is not calibrated.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Measure</th>
+                <th class="num" scope="col">Mean one-way turnover</th>
+                <th class="num" scope="col">Cost-deducted cumulative</th>
+                <th class="num" scope="col">Cost-deducted Sharpe</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Target risky weights, before drift</th>
+                <td class="num">61.6667%</td>
+                <td class="num">—</td>
+                <td class="num">—</td>
+              </tr>
+              <tr>
+                <th scope="row">Drifted total-loss state</th>
+                <td class="num">62.9137%</td>
+                <td class="num">8.8088%</td>
+                <td class="num">0.201259</td>
+              </tr>
+              <tr>
+                <th scope="row">Drifted full-principal-cash sensitivity</th>
+                <td class="num">62.5017%</td>
+                <td class="num">97.5868%</td>
+                <td class="num">0.943207</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="table-block">
+        <div class="table-title">
+          <h3>5%-ADV capacity and impact sensitivity</h3>
+          <p>All 3,812 modeled risky-weight legs and all 48 decisions are complete on both state paths.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <caption>Constant AUM is rebased monthly; costs do not feed later holdings. Capacity is rounded to protect the private bottleneck identity.</caption>
+            <thead>
+              <tr>
+                <th scope="col">State path</th>
+                <th class="num" scope="col">History limit</th>
+                <th class="num" scope="col">Decision p10</th>
+                <th class="num" scope="col">Median</th>
+                <th class="num" scope="col">p90</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Total loss</th>
+                <td class="num">$2.4m</td>
+                <td class="num">$2.7m</td>
+                <td class="num">$4.2m</td>
+                <td class="num">$8.9m</td>
+              </tr>
+              <tr>
+                <th scope="row">Full-principal-cash sensitivity</th>
+                <td class="num">$2.4m</td>
+                <td class="num">$2.7m</td>
+                <td class="num">$4.2m</td>
+                <td class="num">$8.9m</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-wrap" style="margin-top: 12px;">
+          <table>
+            <caption>At each state path’s own underlying unrounded history limit: (full spread bp, commission bp, square-root coefficient) are LOW (2, 0.5, 0.05), BASE (5, 1, 0.10), HIGH (10, 2, 0.20).</caption>
+            <thead>
+              <tr>
+                <th scope="col">State path</th>
+                <th scope="col">Scenario</th>
+                <th class="num" scope="col">Mean drag / rebalance</th>
+                <th class="num" scope="col">Cumulative after drag</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Total loss</th><td>LOW</td><td class="num">2.513 bp</td><td class="num">9.7993%</td></tr>
+              <tr><th scope="row">Total loss</th><td>BASE</td><td class="num">5.655 bp</td><td class="num">8.1588%</td></tr>
+              <tr><th scope="row">Total loss</th><td>HIGH</td><td class="num">11.310 bp</td><td class="num">5.2666%</td></tr>
+              <tr><th scope="row">Full principal</th><td>LOW</td><td class="num">2.495 bp</td><td class="num">99.3536%</td></tr>
+              <tr><th scope="row">Full principal</th><td>BASE</td><td class="num">5.614 bp</td><td class="num">96.4314%</td></tr>
+              <tr><th scope="row">Full principal</th><td>HIGH</td><td class="num">11.229 bp</td><td class="num">91.2776%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="result-callout">
+        <strong>CAPACITY BOUNDARY</strong>
+        <p>
+          This is an analytic, monthly rebased sensitivity—not self-financing NAV,
+          calibrated market impact, or executable capacity. It omits shares, lots,
+          partial fills, intraday volume, taxes, financing, terminal liquidation,
+          and documented-recovery state propagation.
+        </p>
+      </div>
+
+      <div class="table-block">
+        <div class="table-title">
+          <h3>v7 factor-target feasibility</h3>
+          <p>The controlled solution is feasible on 48/48 decisions, with median 470 nonzero names.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <caption>Median current-vintage target exposures; sector is static current metadata, not historical classification.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Target</th>
+                <th class="num" scope="col">Beta</th>
+                <th class="num" scope="col">Standardized size</th>
+                <th class="num" scope="col">Max sector exposure</th>
+                <th scope="col">Interpretation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Long-only top 50</th>
+                <td class="num">0.869026</td>
+                <td class="num">0.429128</td>
+                <td class="num">26.0%</td>
+                <td>Material factor concentration</td>
+              </tr>
+              <tr>
+                <th scope="row">Raw 50/50 decile seed</th>
+                <td class="num">−0.081301</td>
+                <td class="num">0.238203</td>
+                <td class="num">6.6528%</td>
+                <td>Closer, but not neutral</td>
+              </tr>
+              <tr>
+                <th scope="row">Least-change controlled target</th>
+                <td class="num">&lt; 1e−10</td>
+                <td class="num">&lt; 1e−10</td>
+                <td class="num">&lt; 1e−10</td>
+                <td>Target-only numerical feasibility</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="result-callout">
+        <strong>NO FACTOR RETURN</strong>
+        <p>
+          Candidate membership totals 12,008 occurrences per side, but adjusted-
+          return routes are missing for 13 long and 1 short entries and for 96 long
+          and 15 short exits. Unknown short terminal value has no conservative
+          total-loss analogue. Quality-magnitude sizing, signed state propagation,
+          borrow, financing, costs, and capacity remain unresolved.
+        </p>
+      </div>
     </section>
 
-    <!-- Evidence gate --------------------------------------------------- -->
-    <section id="gate" class="section" aria-labelledby="gate-title">
+    <section id="boundaries" class="section" aria-labelledby="boundaries-title">
       <div class="section-heading">
         <div>
-          <div class="eyebrow">05 · Phase 6 gate</div>
-          <h2 id="gate-title">The experiment is specified. The experiment is not run.</h2>
+          <div class="eyebrow">05 · Evidence boundaries</div>
+          <h2 id="boundaries-title">What the pilot can and cannot support.</h2>
         </div>
         <p>
-          This distinction is the most important current project fact. The
-          scaffold can audit approved point-in-time inputs and produce synthetic
-          formation evidence; it cannot manufacture the licensed historical data,
-          folds, costs, borrow, capacity, or human decision required for promotion.
+          The most useful result is not a single return number. It is a map of
+          which conclusions survive each evidence limitation and which attractive
+          interpretations still fail closed.
         </p>
       </div>
 
-      <div class="gate-grid">
-        <article class="card gate-column ready">
-          <h3>Built and synthetic-tested</h3>
-          <ul>
-            <li>USD ordinary common shares on XNYS, XNAS, or XASE.</li>
-            <li>NYSE 40th-percentile market-cap breakpoint and positive 60-session ADV floor.</li>
-            <li>Thirteen declared month ends for exact 12-minus-2 total-return momentum.</li>
-            <li>Information discreteness from 252 daily returns and signed skipped-month MAX.</li>
-            <li>Source-faithful top-50 long-only seed under an exact 2% name cap.</li>
-            <li>Long/short decile membership seed, with final Phase 5 sizing and neutralization blocked.</li>
-            <li>Monthly and three robustness rebalance schedules.</li>
-            <li>Ten-trial family, four benchmarks, five covariance candidates, and future test protocol.</li>
-            <li>Hash-bound decision-calendar prefixes and raw-next-open route declaration.</li>
-          </ul>
+      <div class="boundary-grid">
+        <article class="card boundary-card">
+          <span class="card-label">Data vintage</span>
+          <h3>Bound and reproducible locally</h3>
+          <p>Source content is checked before calculation and again after all streaming passes, but current-vintage backward adjustments do not reconstruct historical correction vintages or open the canonical provider gate.</p>
         </article>
-        <article class="card gate-column blocked">
-          <h3>Missing—and therefore blocked</h3>
-          <ul>
-            <li>No evaluated or selected point-in-time provider.</li>
-            <li>No approved license, budget, credentials, dependency, storage, or export policy.</li>
-            <li>No immutable provider source bytes or historical materialization.</li>
-            <li>No materialized expanding folds and no locked final three-year holdout.</li>
-            <li>No historical gross/net returns, Sharpe ratio, drawdown, turnover, costs, capacity, or attribution.</li>
-            <li>No multiple-testing statistic and no winning or canonical trial.</li>
-            <li>No verified borrow availability or short cost for short export.</li>
-            <li>No paper proposal export, broker adapter, broker connection, or live evidence.</li>
-          </ul>
+        <article class="card boundary-card">
+          <span class="card-label">Calendar</span>
+          <h3>Reviewed only for this slice</h3>
+          <p>The session axis matches the bounded five-year window, including a special closure, but this is not broader calendar authority.</p>
+        </article>
+        <article class="card boundary-card">
+          <span class="card-label">Terminal evidence</span>
+          <h3>Classification is not valuation</h3>
+          <p>All selected gaps are event-associated, yet exact terminal value remains incomplete for three selected exits and most benchmark exits.</p>
+        </article>
+        <article class="card boundary-card">
+          <span class="card-label">Turnover and cost</span>
+          <h3>Arithmetic, not calibration</h3>
+          <p>Turnover follows the established accounting convention. Spread, commission, and impact inputs remain illustrative and do not constitute net performance.</p>
+        </article>
+        <article class="card boundary-card">
+          <span class="card-label">Factor control</span>
+          <h3>Target feasibility only</h3>
+          <p>Static sector metadata and incomplete long/short routes prevent historical neutral performance, attribution, or borrow-aware implementation.</p>
+        </article>
+        <article class="card boundary-card">
+          <span class="card-label">Coverage horizon</span>
+          <h3>Five years cannot answer long-horizon questions</h3>
+          <p>The source window cannot satisfy the preregistered long-horizon evaluation or the 2008 stress requirement.</p>
         </article>
       </div>
 
-      <div class="evidence-ladder" aria-label="Evidence promotion ladder">
+      <article class="panel evidence-panel">
+        <h3>Verification scope</h3>
+        <div class="verification-grid">
+          <div class="verification-item">
+            <strong>21 / 21 · rerun</strong>
+            <p>Focused v8 pilot tests, including cap arithmetic, cash retention, all terminal paths, metric chaining, and invalid-normalization failure.</p>
+          </div>
+          <div class="verification-item">
+            <strong>3 / 3 and 9 / 9 · retained</strong>
+            <p>Terminal-evidence and bulk-input suites were previously green; v8 did not touch those contracts, so they were not rerun.</p>
+          </div>
+          <div class="verification-item">
+            <strong>373 / 373 · earlier broad suite</strong>
+            <p>The latest recorded broad project suite predates the later pilot increments and was not rerun. Focused green evidence is not presented as a new broad regression.</p>
+          </div>
+        </div>
+      </article>
+
+      <div class="evidence-ladder" aria-label="Formal evidence promotion ladder">
         <div class="evidence-rung done"><span class="rung-state">Passed</span>UNIT_<wbr />VALIDATED</div>
-        <div class="evidence-rung current"><span class="rung-state">Current</span>SYNTHETIC_<wbr />INTEGRATED</div>
+        <div class="evidence-rung current"><span class="rung-state">Formal current</span>SYNTHETIC_<wbr />INTEGRATED</div>
         <div class="evidence-rung"><span class="rung-state">Locked</span>HISTORICAL_<wbr />RESEARCH</div>
         <div class="evidence-rung"><span class="rung-state">Locked</span>WALK_<wbr />FORWARD_<wbr />CANDIDATE</div>
         <div class="evidence-rung"><span class="rung-state">Locked</span>STRESS_<wbr />CAPACITY_<wbr />APPROVED</div>
@@ -1850,209 +2054,119 @@
       </div>
     </section>
 
-    <!-- Road ahead ------------------------------------------------------ -->
-    <section id="road" class="section" aria-labelledby="road-title">
+    <section id="gates" class="section" aria-labelledby="gates-title">
       <div class="section-heading">
         <div>
-          <div class="eyebrow">06 · Road ahead</div>
-          <h2 id="road-title">Four gates stand between scaffolding and execution.</h2>
+          <div class="eyebrow">06 · Remaining gates</div>
+          <h2 id="gates-title">The next work is feasibility—not promotion.</h2>
         </div>
         <p>
-          The shortest honest route forward is sequential. A later gate does not
-          retroactively authorize an earlier one, and a good historical chart
-          cannot waive missing data rights, leakage controls, costs, attribution,
-          or broker safeguards.
+          v8 completes the registered cap-weight comparison. Materialized fold and
+          holdout feasibility is the next quantitative handoff, but it has not been
+          run for this update. Every other gate below remains independently open.
         </p>
       </div>
 
-      <div class="road-grid">
-        <article class="card road-card" data-step="1">
-          <span class="badge locked">Next decision</span>
-          <h3>Assess providers</h3>
-          <p>Complete the blank scorecard across:</p>
+      <div class="gate-grid">
+        <article class="card gate-card ready">
+          <h3>Complete inside the pilot</h3>
           <ul>
-            <li>point-in-time identity and delistings;</li>
-            <li>survivorship and revision behavior;</li>
-            <li>2008, 2020, and 2022 coverage;</li>
-            <li>license, cost, storage, export, and reproducibility;</li>
-            <li>required credentials and dependencies.</li>
+            <li>Fixed long-only universe, signal, ranking, sizing, and next-session timing.</li>
+            <li>Reviewed five-year session axis and bound current-vintage inputs.</li>
+            <li>Missing-entry cash and three explicit terminal paths.</li>
+            <li>Selected-exit classification plus 27 reviewed floors, 22 exact.</li>
+            <li>Eligible equal- and cap-weight benchmark arithmetic.</li>
+            <li>Corrected risky-only turnover and illustrative linear costs.</li>
+            <li>Complete 5%-ADV capacity/impact sensitivity for the two modeled state paths.</li>
+            <li>Factor-target feasibility on all 48 decisions.</li>
           </ul>
         </article>
-        <article class="card road-card" data-step="2">
-          <span class="badge">Phase 6 history</span>
-          <h3>Freeze and run</h3>
-          <p>After explicit approval:</p>
+        <article class="card gate-card blocked">
+          <h3>Still blocked</h3>
           <ul>
-            <li>inventory immutable source files;</li>
-            <li>materialize point-in-time folds;</li>
-            <li>lock the final three-year holdout before inspection;</li>
-            <li>run every registered trial on one common no-fill axis;</li>
-            <li>report risk, costs, capacity, calendar, and parameter sensitivity.</li>
+            <li>Canonical point-in-time revision and historical venue evidence.</li>
+            <li>Exact terminal economics for three selected exits and 532 benchmark occurrences without a floor.</li>
+            <li>Provider-calibrated spread, commission, impact, and executable liquidity.</li>
+            <li>Documented-recovery state propagation into later weights, turnover, and cost.</li>
+            <li>Quality-sized factor-controlled returns, signed terminal state, borrow, short costs, and attribution.</li>
+            <li>Remaining registered raw-momentum and cash comparisons.</li>
+            <li>Materialized folds, locked holdout, and registered-family multiple-testing result.</li>
+            <li>Long-horizon and 2008 stress coverage.</li>
           </ul>
         </article>
-        <article class="card road-card" data-step="3">
-          <span class="badge">Phases 7–8</span>
-          <h3>Explain, govern, expand</h3>
-          <p>
-            Recombine full attribution, measure signal health, enforce promotion
-            gates, and present unresolved risk for human review. Only after the
-            shared foundation earns trust should additional strategy sleeves be
-            implemented.
-          </p>
-        </article>
-        <article class="card road-card" data-step="4">
-          <span class="badge locked">Separate approval</span>
-          <h3>Build the broker boundary</h3>
-          <p>
-            Phase 9 is an adapter project, not a research shortcut. Paper export,
-            account mapping, intent IDs, broker reconciliation, ambiguous-submit
-            handling, persistent stop state, and eventually any live action each
-            need their own review and authority.
-          </p>
-        </article>
       </div>
-    </section>
 
-    <!-- Boz decision panel --------------------------------------------- -->
-    <section id="owner" class="section" aria-labelledby="owner-title">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow">07 · Owner controls</div>
-          <h2 id="owner-title">What the project expects from Boz.</h2>
-        </div>
+      <div class="table-wrap gate-table">
+        <table>
+          <caption>Each gate needs its own evidence; none is waived by an attractive descriptive result.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Gate</th>
+              <th scope="col">Why it is open</th>
+              <th scope="col">What would close it</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Point-in-time data</th>
+              <td>Current-vintage adjustments, correction history, and venue history remain incomplete.</td>
+              <td>A materialized canonical decision-vintage dataset with approved provenance, availability, revision, and venue rules.</td>
+            </tr>
+            <tr>
+              <th scope="row">Terminal economics</th>
+              <td>Three selected exits and most benchmark exits lack a complete admitted value.</td>
+              <td>Exact outcomes—or an explicit approved protocol decision accepting named bounds—plus state propagation through later decisions.</td>
+            </tr>
+            <tr>
+              <th scope="row">Costs and capacity</th>
+              <td>Current assumptions are illustrative, monthly rebased, and non-executable.</td>
+              <td>Calibrated execution evidence, self-financing state, and terminal liquidation.</td>
+            </tr>
+            <tr>
+              <th scope="row">Factor performance</th>
+              <td>Target math works; signed returns/state, drift, turnover, capacity, terminal economics, borrow, and financing are absent.</td>
+              <td>Final sizing and complete signed state/return/cost/borrow evidence.</td>
+            </tr>
+            <tr>
+              <th scope="row">Walk-forward / holdout</th>
+              <td>The current five-year window cannot contain the preregistered 5-year train, 1-year test, and final 3-year holdout; folds are unmaterialized and the holdout is unlocked.</td>
+              <td>Longer approved coverage or an explicit protocol revision; then materialized folds, 21-session purge/embargo, and a locked holdout.</td>
+            </tr>
+            <tr>
+              <th scope="row">Multiple testing</th>
+              <td>No registered-family maximum-Sharpe statistic or winning trial exists.</td>
+              <td>Common return axis, deterministic block sign-flips, and owner review of the full family.</td>
+            </tr>
+            <tr>
+              <th scope="row">Promotion</th>
+              <td>No canonical historical, stress, capacity, attribution, or holdout decision exists.</td>
+              <td>All prior prerequisites, an implemented adjacent historical-stage transition, and independent owner review; rejection remains a valid outcome.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel guardrail" role="note" aria-label="Current handoff boundary">
+        <div class="guardrail-mark" aria-hidden="true">→</div>
         <p>
-          The system is intentionally waiting at a human decision boundary.
-          Boz does not need to choose a provider immediately; he needs to decide
-          whether provider assessment should begin and define the constraints
-          under which it may proceed.
+          <strong>Current handoff:</strong> assess materialized fold/holdout
+          feasibility without inspecting a holdout and without changing the v8
+          interpretation. That work was explicitly not run for this page. Paper
+          export, broker integration, and live execution remain later, separately
+          authorized boundaries.
         </p>
-      </div>
-
-      <div class="panel owner-panel">
-        <div class="owner-head">
-          <div>
-            <h3>Owner decision queue</h3>
-            <p>Each approval is discrete. Saying yes to one item does not authorize the next.</p>
-          </div>
-          <span class="owner-key">HUMAN_APPROVAL_REQUIRED</span>
-        </div>
-        <div class="decision-grid">
-          <article class="decision-card">
-            <span class="decision-no">01</span>
-            <h3>Authorize provider evaluation—or keep the gate closed.</h3>
-            <p>
-              A useful next instruction is simply one of: “evaluate provider
-              options against the scorecard” or “leave the provider gate closed.”
-              Evaluation is research only; it is not permission to buy, install,
-              authenticate, download, or select.
-            </p>
-          </article>
-          <article class="decision-card">
-            <span class="decision-no">02</span>
-            <h3>Set provider constraints before comparison.</h3>
-            <p>For a meaningful scorecard, specify or approve:</p>
-            <ul>
-              <li>budget ceiling and acceptable billing model;</li>
-              <li>research-use, storage, export, and retention requirements;</li>
-              <li>minimum date range and coverage quality;</li>
-              <li>whether credentials and a new pinned dependency are acceptable.</li>
-            </ul>
-          </article>
-          <article class="decision-card">
-            <span class="decision-no">03</span>
-            <h3>Approve a provider and ingestion plan separately.</h3>
-            <p>
-              After reviewing a completed scorecard, explicitly approve—or reject—the
-              provider, license/cost, immutable storage location, credential path,
-              adapter dependency, and bounded initial download. No choice should be
-              inferred from technical convenience.
-            </p>
-          </article>
-          <article class="decision-card">
-            <span class="decision-no">04</span>
-            <h3>Authorize historical execution, then review—not rubber-stamp—the result.</h3>
-            <p>
-              Approve fold materialization and holdout locking before the run.
-              Later, review walk-forward, holdout, factor, drawdown, cost,
-              capacity, attribution, and multiple-testing evidence. The valid
-              outcome may be to reject every trial.
-            </p>
-          </article>
-        </div>
-      </div>
-
-      <div class="answer-box">
-        <strong>Nothing else is silently expected.</strong> Broker credentials,
-        IBKR changes, paper orders, live orders, data purchases, public code
-        publication, dependency changes, and evidence-stage promotion remain
-        outside the current authority unless Boz asks for them explicitly.
-      </div>
-    </section>
-
-    <!-- Fresh-session handoff ------------------------------------------ -->
-    <section id="handoff" class="section" aria-labelledby="handoff-title">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow">08 · Fresh-session handoff</div>
-          <h2 id="handoff-title">A new Codex session can resume without guessing.</h2>
-        </div>
-        <p>
-          The implementation is checkpointed in local Git; the VHF repository
-          is not directly connected to GitHub. This page lives in the separate
-          Ozet publication repository. The canonical project memory and worklog
-          carry the durable narrative between sessions.
-        </p>
-      </div>
-
-      <div class="handoff-grid">
-        <article class="card handoff-card">
-          <h3>Mandatory reading order</h3>
-          <ol class="read-order">
-            <li><span>Read the repository’s <code>AGENTS.md</code> completely.</span></li>
-            <li><span>Use the project-context workflow to refresh and read canonical VHF <code>MEMORY.md</code> and <code>WORKLOG.md</code>.</span></li>
-            <li><span>Read <code>ROADMAP.md</code> top to bottom, especially the Phase 6 gate and standing approvals.</span></li>
-            <li><span>Read <code>prototype_trading_system/README.md</code> and <code>BEGINNER_WALKTHROUGH.md</code>.</span></li>
-            <li><span>Read the Phase 3 implementation/provider scorecard and Phase 6 synthetic evaluation wiki pages.</span></li>
-            <li><span>Inspect <code>git status</code>, <code>git log</code>, and <code>git remote -v</code>; do not infer authority from repository state.</span></li>
-            <li><span>Run the existing local verification gate before changing a financial contract.</span></li>
-            <li><span>State the current evidence stage and ask which gated decision Boz authorizes next.</span></li>
-          </ol>
-        </article>
-
-        <article class="card handoff-card">
-          <h3>Copy-ready opening prompt</h3>
-          <p>
-            This prompt deliberately asks the next session to inspect first and
-            stops it from treating the roadmap as blanket authorization.
-          </p>
-          <pre>Resume VHF. Use the project-context workflow, read AGENTS.md, canonical VHF MEMORY.md and WORKLOG.md, ROADMAP.md, and the prototype README. Inspect local git status/log/remotes and verify the Phase 1 golden digest is preserved. Summarize the exact current gate before changing code. Do not select or access a provider, install dependencies, touch IBKR, run historical research, promote evidence, or push anywhere without my explicit approval.</pre>
-
-          <details>
-            <summary>Local verification commands</summary>
-            <pre>cd prototype_trading_system
-PYTHONDONTWRITEBYTECODE=1 PYTHONHASHSEED=0 \
-  ./.venv/bin/python -m unittest discover -s tests -v
-PYTHONDONTWRITEBYTECODE=1 \
-  ./.venv/bin/python -m compileall -q vhf_prototype tests examples
-./.venv/bin/python -m pip check
-./.venv/bin/python -m examples.synthetic_demo
-./.venv/bin/python -m examples.first_rebalance_walkthrough
-
-cd ..
-./prototype_trading_system/.venv/bin/python scripts/lint_wiki.py
-git diff --check</pre>
-          </details>
-        </article>
       </div>
     </section>
 
     <footer class="footer">
       <p>
-        Project status page for engineering orientation. It is not investment
-        advice, a historical result, a performance claim, a provider approval,
-        a paper-trading authorization, or a live-trading instruction.
+        Private-safe engineering primer for the VHF Phase 6 Sharadar five-year
+        current-vintage descriptive pilot. It does not constitute investment advice,
+        a canonical point-in-time backtest, a net-performance claim, canonical
+        provider acceptance, an executable capacity estimate, a paper-trading
+        authorization, or a live-trading instruction.
       </p>
-      <div class="footer-stamp">VHF / SYNTHETIC_INTEGRATED / 2026-08-18</div>
+      <div class="footer-stamp">VHF / PHASE 6 / V8 / 2026-08-26</div>
     </footer>
   </main>
 </body>
