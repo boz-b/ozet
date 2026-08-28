@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="A plain-language quantitative field guide to the concepts, algorithms, and evidence boundaries implemented in the Virtual Hedge Fund project." />
+  <meta name="description" content="A plain-language quantitative field guide to the Virtual Hedge Fund, including the maximum-history Phase 6 walk-forward study and its evidence boundaries." />
   <meta name="color-scheme" content="dark" />
   <title>Virtual Hedge Fund — Quantitative Field Guide</title>
 
@@ -840,6 +840,100 @@
       text-align: right;
     }
 
+    .study-strip {
+      display: flex;
+      gap: 5px;
+      margin: 22px 0;
+      padding: 7px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .018);
+    }
+
+    .study-segment {
+      min-height: 105px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--panel);
+    }
+
+    .study-segment.train { flex: 5; border-color: rgba(99, 217, 255, .28); }
+    .study-segment.gap { flex: 1; border-color: rgba(255, 201, 107, .32); }
+    .study-segment.holdout { flex: 3; border-color: rgba(183, 239, 120, .32); background: var(--green-soft); }
+    .study-segment.quarantine { flex: 2; border-color: rgba(255, 140, 134, .32); background: var(--red-soft); }
+
+    .study-segment b,
+    .study-segment span {
+      display: block;
+    }
+
+    .study-segment b {
+      margin-bottom: 6px;
+      color: var(--paper);
+      font-size: .78rem;
+    }
+
+    .study-segment span {
+      color: var(--muted);
+      font-size: .69rem;
+      line-height: 1.4;
+    }
+
+    .return-chart {
+      display: grid;
+      gap: 12px;
+      margin: 22px 0;
+    }
+
+    .return-row {
+      display: grid;
+      grid-template-columns: minmax(135px, .7fr) minmax(240px, 2fr) 82px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .return-name {
+      color: var(--soft);
+      font-size: .8rem;
+    }
+
+    .return-track {
+      display: grid;
+      grid-template-columns: 78fr 22fr;
+      height: 22px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: rgba(255, 255, 255, .025);
+      overflow: hidden;
+    }
+
+    .return-half {
+      position: relative;
+      display: flex;
+      align-items: stretch;
+    }
+
+    .return-half.negative {
+      justify-content: flex-end;
+      border-right: 1px solid rgba(243, 246, 250, .48);
+    }
+
+    .return-bar {
+      height: 100%;
+      min-width: 2px;
+    }
+
+    .return-bar.negative { background: linear-gradient(90deg, #8c3f48, var(--red)); }
+    .return-bar.positive { background: linear-gradient(90deg, var(--blue), var(--green)); }
+
+    .return-number {
+      color: var(--paper);
+      font-family: var(--mono);
+      font-size: .74rem;
+      text-align: right;
+    }
+
     .ladder {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
@@ -1003,6 +1097,9 @@
       .time-point { padding: 0 0 0 42px; text-align: left; }
       .time-point::before { top: 5px; left: 12px; }
       .bar-row { grid-template-columns: 120px 1fr 76px; gap: 8px; }
+      .return-row { grid-template-columns: 105px 1fr 72px; gap: 8px; }
+      .study-strip { display: grid; grid-template-columns: 1fr; }
+      .study-segment { min-height: 0; }
       .ladder { grid-template-columns: repeat(6, 125px); }
     }
 
@@ -1019,8 +1116,10 @@
       .page-grid { grid-template-columns: 1fr; padding: 0; }
       .chapter { break-inside: avoid; }
       p, .card p, .card li, .term dd, td { color: #333; }
-      h1, h2, h3, h4, strong, th, .bar-value { color: #111; }
-      .card, .formula, .callout, .table-block, .pipe-node, .ladder-step, .term { background: #fff; box-shadow: none; }
+      h1, h2, h3, h4, strong, th, .bar-value, .bar-name,
+      .return-number, .return-name, .study-segment b, .study-segment span { color: #111 !important; }
+      .card, .formula, .callout, .table-block, .pipe-node, .ladder-step,
+      .term, .study-segment { background: #fff; box-shadow: none; }
     }
   </style>
 </head>
@@ -1036,6 +1135,7 @@
       <a href="#signal">Momentum</a>
       <a href="#risk">Risk</a>
       <a href="#execution">Execution</a>
+      <a href="#history">Longer-history study</a>
       <a href="#research">Research lab</a>
       <a href="#state">Current state</a>
       <a href="scratchpad.html">Pilot primer</a>
@@ -1066,8 +1166,9 @@
         </div>
         <div class="status-strip" aria-label="Current evidence summary">
           <span class="pill green">Core contracts built</span>
-          <span class="pill amber">Five-year pilot descriptive</span>
-          <span class="pill red">Paper and live closed</span>
+          <span class="pill green">12 folds + holdout materialized</span>
+          <span class="pill amber">Benchmark paths are lower bounds</span>
+          <span class="pill red">Promotion, paper and live closed</span>
         </div>
       </aside>
     </section>
@@ -1082,10 +1183,11 @@
         <a href="#portfolio">5 · Portfolio construction</a>
         <a href="#execution">6 · Execution and accounting</a>
         <a href="#evidence">7 · Backtest integrity</a>
-        <a href="#research">8 · Research laboratory</a>
-        <a href="#state">9 · What exists now</a>
-        <a href="#lineage">10 · Knowledge lineage</a>
-        <a href="#glossary">11 · Glossary</a>
+        <a href="#history">8 · Longer-history study</a>
+        <a href="#research">9 · Research laboratory</a>
+        <a href="#state">10 · What exists now</a>
+        <a href="#lineage">11 · Knowledge lineage</a>
+        <a href="#glossary">12 · Glossary</a>
       </nav>
 
       <div>
@@ -1515,7 +1617,7 @@ test window:        1 year
 purge:              21 sessions
 embargo:            21 sessions
 final holdout:      3 years, locked before inspection</div>
-            <p>The purge removes training observations whose labels overlap the test boundary. The embargo leaves a buffer after the test. The final holdout is opened only after all model and trial choices are frozen. This protocol is registered but not yet materialized on suitable history.</p>
+            <p>The purge removes training observations whose returns overlap the test boundary. The embargo leaves a buffer after the test. With maximum history now available, this geometry has been materialized as 12 expanding folds and a separately locked historical holdout. The holdout has not been opened.</p>
           </div>
 
           <div class="section-block">
@@ -1531,15 +1633,99 @@ final holdout:      3 years, locked before inspection</div>
               <div class="ladder-step done"><b>Unit validated</b><span>Individual mechanics behave as declared.</span></div>
               <div class="ladder-step done"><b>Synthetic integrated</b><span>The full synthetic path works and replays.</span></div>
               <div class="ladder-step next"><b>Historical research</b><span>Point-in-time provider evidence and results.</span></div>
-              <div class="ladder-step locked"><b>Walk-forward candidate</b><span>Materialized folds and locked holdout.</span></div>
+              <div class="ladder-step next"><b>Walk-forward candidate</b><span>Geometry and historical holdout are ready; promotion evidence is not.</span></div>
               <div class="ladder-step locked"><b>Stress & capacity</b><span>Costs, capacity, attribution and stress.</span></div>
               <div class="ladder-step locked"><b>Paper export ready</b><span>Separate operational approval boundary.</span></div>
             </div>
           </div>
         </section>
 
+        <section class="chapter" id="history" aria-labelledby="history-title">
+          <div class="chapter-number">Chapter 08 · The longer-history experiment</div>
+          <h2 id="history-title">More history changed what could be tested—not what could be claimed.</h2>
+          <p class="chapter-intro">The original five-year slice contained too little time to separate learning, testing, and a final untouched examination. Extending Sharadar to its maximum history crossed that mathematical threshold and allowed the approved Phase 6 experiment to be built honestly.</p>
+
+          <div class="section-block">
+            <h3>Why 108 months was the hard minimum</h3>
+            <p>The frozen design needs at least five years to learn, one year to test, and three final years to hold back. That is <strong>60 + 12 + 36 = 108 monthly outcomes</strong> before allowing for the 21-session safety gaps. The first slice supplied only 48. The maximum-history calendar supplies 330 completed monthly routes.</p>
+            <div class="bar-chart" aria-label="Completed monthly outcomes compared with the minimum study requirement">
+              <div class="bar-row"><div class="bar-name">Original five-year slice</div><div class="bar-track"><div class="bar-fill amber" style="width: 14.5%"></div></div><div class="bar-value">48</div></div>
+              <div class="bar-row"><div class="bar-name">No-gap minimum</div><div class="bar-track"><div class="bar-fill violet" style="width: 32.7%"></div></div><div class="bar-value">108</div></div>
+              <div class="bar-row"><div class="bar-name">Maximum-history routes</div><div class="bar-track"><div class="bar-fill" style="width: 100%"></div></div><div class="bar-value">330</div></div>
+            </div>
+            <p>The larger archive therefore adds 222 monthly routes beyond the bare minimum. Length is no longer the blocking issue.</p>
+          </div>
+
+          <div class="section-block">
+            <h3>How the past was divided without borrowing from the future</h3>
+            <p>Boz approved the exact split rules before the newly available return values were read. The study stops at the April 2021 decision, enters on 3 May, and exits on 1 June. Data from 30 June 2021 onward had already appeared in the earlier pilot, so it is quarantined rather than relabeled as unseen.</p>
+            <div class="study-strip" role="img" aria-label="Study sequence: expanding development and tests, purge and embargo gaps, locked historical holdout, then quarantined previously inspected data">
+              <div class="study-segment train"><b>12 expanding folds</b><span>At least five years of training, then one-year tests. Label-aware 21-session purge and embargo keep adjacent returns apart.</span></div>
+              <div class="study-segment gap"><b>Safety gaps</b><span>No overlapping return labels.</span></div>
+              <div class="study-segment holdout"><b>36-month holdout</b><span>Starts with the May 2018 entry. Physically excluded from development archives and still unread.</span></div>
+              <div class="study-segment quarantine"><b>Quarantine</b><span>30 June 2021 onward was previously inspected. It cannot become a fresh holdout.</span></div>
+            </div>
+            <div class="callout green">
+              <h3>A historically locked holdout is useful, but it is not live-forward evidence</h3>
+              <p>The final 36 months are the untouched end of a deliberately capped historical study. This protects the experiment from researcher choice, but it does not imitate waiting three future years in real time.</p>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h3>Every comparison must stand on the same dates</h3>
+            <p>The approved raw-momentum benchmark owns the 50 strongest eligible stocks by ordinary 12-minus-2 total-return momentum and gives each a 2% weight. Cash is represented by BIL using exact, no-fill Sharadar fund-price returns; this is an approved Treasury-bill ETF proxy, not literal risk-free cash. Because BIL begins in May 2007, the fair common comparison uses folds 4 through 12: <strong>9 folds, 108 monthly decisions, and 2,268 daily returns</strong>.</p>
+            <div class="grid-3">
+              <article class="card blue"><span class="mini-label">Equity comparison</span><h3>Eligible equal weight</h3><p>Every eligible stock receives the same target weight.</p></article>
+              <article class="card violet"><span class="mini-label">Equity comparison</span><h3>Eligible cap weight</h3><p>Larger decision-close companies receive more weight.</p></article>
+              <article class="card amber"><span class="mini-label">Signal comparison</span><h3>Raw momentum</h3><p>Top 50 by unfiltered 12-minus-2 momentum, equal weighted.</p></article>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h3>What the development-only benchmark paths showed</h3>
+            <p>The chart shows cumulative return across the common nine-fold development axis. The vertical divider is zero. These are gross research paths; the three equity rows apply a total loss whenever a scheduled exit is missing.</p>
+            <div class="return-chart" role="img" aria-label="Cumulative returns: eligible equal weight minus 3.6376 percent, eligible cap weight plus 20.0552 percent, raw momentum minus 85.3386 percent, BIL cash plus 4.5493 percent">
+              <div class="return-row"><div class="return-name">Eligible equal weight</div><div class="return-track"><div class="return-half negative"><div class="return-bar negative" style="width: 4.04%"></div></div><div class="return-half positive"></div></div><div class="return-number">−3.64%</div></div>
+              <div class="return-row"><div class="return-name">Eligible cap weight</div><div class="return-track"><div class="return-half negative"></div><div class="return-half positive"><div class="return-bar positive" style="width: 91.16%"></div></div></div><div class="return-number">+20.06%</div></div>
+              <div class="return-row"><div class="return-name">Raw momentum</div><div class="return-track"><div class="return-half negative"><div class="return-bar negative" style="width: 94.82%"></div></div><div class="return-half positive"></div></div><div class="return-number">−85.34%</div></div>
+              <div class="return-row"><div class="return-name">BIL cash</div><div class="return-track"><div class="return-half negative"></div><div class="return-half positive"><div class="return-bar positive" style="width: 20.68%"></div></div></div><div class="return-number">+4.55%</div></div>
+            </div>
+
+            <div class="table-block"><div class="table-wrap"><table>
+              <thead><tr><th>Development path</th><th>Cumulative</th><th>Annualized</th><th>Volatility</th><th>Sharpe over cash</th><th>Max drawdown</th><th>Missing exits</th></tr></thead>
+              <tbody>
+                <tr><td>Eligible equal weight</td><td>−3.6376%</td><td>−0.4109%</td><td>21.0517%</td><td>0.063218</td><td>−61.1147%</td><td>1,134</td></tr>
+                <tr><td>Eligible cap weight</td><td>+20.0552%</td><td>+2.0517%</td><td>16.3522%</td><td>0.176239</td><td>−52.8405%</td><td>1,134</td></tr>
+                <tr><td>Raw momentum</td><td>−85.3386%</td><td>−19.2109%</td><td>27.3416%</td><td>−0.646718</td><td>−86.3373%</td><td>78</td></tr>
+                <tr><td>BIL cash</td><td>+4.5493%</td><td>+0.4955%</td><td>0.6405%</td><td>—</td><td>−0.5477%</td><td>0</td></tr>
+              </tbody>
+            </table></div></div>
+
+            <div class="callout red">
+              <h3>Do not read the raw-momentum loss as a verdict on momentum</h3>
+              <p>Its path includes 78 missing exits, each charged as a complete loss. The result is therefore a conservative lower-bound sensitivity, not an exact strategy return. It is useful because it exposes the data problem; it is not a winner-selection result.</p>
+            </div>
+            <p><strong>One metric subtlety:</strong> equal weight can finish below cash while showing a slightly positive arithmetic daily Sharpe over cash. Sharpe averages daily excess returns; cumulative wealth compounds them, so volatility drag can make the two summaries point in different directions.</p>
+          </div>
+
+          <div class="section-block">
+            <h3>What became possible, and what remains unfinished</h3>
+            <div class="table-block"><div class="table-wrap"><table>
+              <thead><tr><th>Now completed</th><th>Still required before promotion</th></tr></thead>
+              <tbody>
+                <tr><td>Exact reviewed 7,207-session XNYS calendar and 330 monthly routes</td><td>Canonical point-in-time prices, metadata, venue history and revision history</td></tr>
+                <tr><td>12 label-aware expanding folds with 21-session purge and embargo</td><td>Exact terminal value instead of total-loss treatment for missing exits</td></tr>
+                <tr><td>Physically separated 36-month historical holdout, still unread</td><td>Factor-controlled signed returns, borrow availability, financing and short costs</td></tr>
+                <tr><td>Common nine-fold equity, raw-momentum and BIL cash comparison</td><td>Provider-calibrated execution costs and market impact</td></tr>
+                <tr><td>Frozen maximum-Sharpe sign-flip engine and typed split identities</td><td>One complete ten-trial return matrix, the sign-flip result, owner review, then any holdout opening</td></tr>
+              </tbody>
+            </table></div></div>
+            <p>In short: the extra history enabled promotion-grade <em>experimental machinery</em>. It did not itself promote a strategy.</p>
+          </div>
+        </section>
+
         <section class="chapter" id="research" aria-labelledby="research-title">
-          <div class="chapter-number">Chapter 08 · The wider research laboratory</div>
+          <div class="chapter-number">Chapter 09 · The wider research laboratory</div>
           <h2 id="research-title">The core engine now hosts several controlled research families.</h2>
           <p class="chapter-intro">These Phase 8 modules freeze definitions and timing before real testing. They are prerequisites and diagnostics—not competing performance claims.</p>
 
@@ -1603,7 +1789,7 @@ idiosyncratic IR = selection IR × diversification ratio + sizing IR</div>
         </section>
 
         <section class="chapter" id="state" aria-labelledby="state-title">
-          <div class="chapter-number">Chapter 09 · Current implementation</div>
+          <div class="chapter-number">Chapter 10 · Current implementation</div>
           <h2 id="state-title">What exists now—and what each part proves.</h2>
           <p class="chapter-intro">The project is broad in contract coverage but deliberately narrow in empirical authority. The table below is the shortest accurate map.</p>
 
@@ -1615,7 +1801,7 @@ idiosyncratic IR = selection IR × diversification ratio + sizing IR</div>
               <tr><td>3</td><td>Twelve-table point-in-time contract plus Sharadar capture, transforms and bounded bulk inputs</td><td><span class="tag synthetic">Mixed</span> canonical layer synthetic; pilot inputs provider-backed</td></tr>
               <tr><td>4</td><td>Whole lots, ticks, partials, cancellations, borrow, actions, halts and reference ledger</td><td><span class="tag synthetic">Synthetic</span> operational boundary</td></tr>
               <tr><td>5</td><td>Five covariance models, dated exposures, alpha sizing and constrained optimizer</td><td><span class="tag synthetic">Synthetic</span> not wired into a canonical historical run</td></tr>
-              <tr><td>6</td><td>Frozen momentum family and five-year Sharadar descriptive pilot v8</td><td><span class="tag descriptive">Descriptive</span> 48 decisions; no promotion</td></tr>
+              <tr><td>6</td><td>Frozen momentum family, five-year diagnostics, maximum-history folds, locked historical holdout, and registered benchmark family</td><td><span class="tag descriptive">Research only</span> 12 folds; common nine-fold lower-bound benchmark paths; no promotion</td></tr>
               <tr><td>7</td><td>Attribution, health checks and promotion governance</td><td><span class="tag synthetic">Synthetic</span> only first evidence transition available</td></tr>
               <tr><td>8</td><td>Lead-lag, technical, value/composite, alternative/ML and variance contracts</td><td><span class="tag synthetic">Synthetic</span> definitions and integrity, no performance</td></tr>
               <tr><td>9</td><td>Replay-only whole-share broker-handoff fixtures</td><td><span class="tag blocked">Blocked</span> no export, connection or order authority</td></tr>
@@ -1623,8 +1809,8 @@ idiosyncratic IR = selection IR × diversification ratio + sizing IR</div>
           </table></div></div>
 
           <div class="section-block">
-            <h3>How to read the five-year momentum pilot</h3>
-            <p>The v8 pilot contains 48 monthly decisions over a five-year current-vintage Sharadar slice. Its main lesson is not one return number; it is how strongly missing terminal economics can change the answer.</p>
+            <h3>The earlier five-year pilot remains an important diagnostic</h3>
+            <p>The v8 pilot contains 48 monthly decisions over a five-year current-vintage Sharadar slice. It could not support the approved walk-forward geometry, but it showed how strongly missing terminal economics can change an apparent return.</p>
             <div class="bar-chart" aria-label="Long-only momentum cumulative return sensitivities">
               <div class="bar-row"><div class="bar-name">All unresolved exits lose everything</div><div class="bar-track"><div class="bar-fill amber" style="width: 10.9%"></div></div><div class="bar-value">11.13%</div></div>
               <div class="bar-row"><div class="bar-name">Reviewed documented lower path</div><div class="bar-track"><div class="bar-fill" style="width: 82.3%"></div></div><div class="bar-value">83.75%</div></div>
@@ -1641,15 +1827,15 @@ idiosyncratic IR = selection IR × diversification ratio + sizing IR</div>
           </div>
 
           <div class="callout amber">
-            <h3>The next quantitative gate</h3>
-            <p>Materialize walk-forward folds and establish whether the final holdout can be locked honestly. Canonical point-in-time adaptation, three unresolved selected exits, factor-controlled return accounting, provider-calibrated costs, and multiple-testing results still block promotion.</p>
+            <h3>The next quantitative gate is the complete registered trial panel</h3>
+            <p>The split geometry, holdout lock, raw-momentum construction, cash proxy, and sign-flip engine are now frozen. Promotion still requires canonical point-in-time evidence, exact terminal accounting, factor-controlled signed returns, borrow and financing, provider-calibrated costs, the complete ten-trial common return panel, and its maximum-Sharpe multiple-testing result.</p>
           </div>
 
-          <a class="book-link" href="scratchpad.html">Open the detailed Phase 6 pilot primer</a>
+          <a class="book-link" href="scratchpad.html">Open the detailed Phase 6 research notebook</a>
         </section>
 
         <section class="chapter" id="lineage" aria-labelledby="lineage-title">
-          <div class="chapter-number">Chapter 10 · Knowledge lineage</div>
+          <div class="chapter-number">Chapter 11 · Knowledge lineage</div>
           <h2 id="lineage-title">Where the implemented ideas came from.</h2>
           <p class="chapter-intro">The wiki supplies the conceptual ancestry; engineering chooses exact, testable versions without pretending those choices were calibrated by the books.</p>
 
@@ -1676,7 +1862,7 @@ idiosyncratic IR = selection IR × diversification ratio + sizing IR</div>
         </section>
 
         <section class="chapter" id="glossary" aria-labelledby="glossary-title">
-          <div class="chapter-number">Chapter 11 · Compact glossary</div>
+          <div class="chapter-number">Chapter 12 · Compact glossary</div>
           <h2 id="glossary-title">The terms worth keeping.</h2>
           <p class="chapter-intro">A small vocabulary carries most of the project.</p>
 

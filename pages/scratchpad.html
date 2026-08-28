@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Private-safe Phase 6 Sharadar momentum pilot primer: v1-v8 algorithms, formulas, aggregate results, evidence boundaries, and remaining research gates." />
+  <meta name="description" content="Private-safe Phase 6 momentum research record: five-year diagnostics, maximum-history walk-forward geometry, registered benchmarks, aggregate results, and promotion boundaries." />
   <meta name="color-scheme" content="dark" />
-  <title>Virtual Hedge Fund — Phase 6 Sharadar Pilot</title>
+  <title>Virtual Hedge Fund — Phase 6 Historical Study</title>
 
   <style>
     :root {
@@ -711,6 +711,97 @@
 
     .metric-card p { margin: 0; color: var(--muted); font-size: .8rem; }
 
+    .scope-chart,
+    .return-chart {
+      display: grid;
+      gap: 13px;
+      margin: 20px 0;
+    }
+
+    .scope-row,
+    .return-row {
+      display: grid;
+      grid-template-columns: minmax(150px, .72fr) minmax(240px, 2fr) 90px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .chart-name {
+      color: var(--soft);
+      font-size: .8rem;
+      line-height: 1.3;
+    }
+
+    .scope-track,
+    .return-track {
+      height: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .025);
+      overflow: hidden;
+    }
+
+    .scope-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--cyan), var(--lime));
+    }
+
+    .scope-fill.amber { background: linear-gradient(90deg, #cb842d, var(--amber)); }
+    .scope-fill.violet { background: linear-gradient(90deg, #735bc5, var(--violet)); }
+
+    .chart-value {
+      color: var(--paper);
+      font-family: var(--mono);
+      font-size: .75rem;
+      text-align: right;
+    }
+
+    .return-track {
+      display: grid;
+      grid-template-columns: 78fr 22fr;
+    }
+
+    .return-half {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .return-half.negative {
+      justify-content: flex-end;
+      border-right: 1px solid rgba(244, 247, 251, .48);
+    }
+
+    .return-fill { height: 100%; min-width: 2px; }
+    .return-fill.negative { background: linear-gradient(90deg, #913e45, var(--coral)); }
+    .return-fill.positive { background: linear-gradient(90deg, var(--cyan), var(--lime)); }
+
+    .study-strip {
+      display: flex;
+      gap: 5px;
+      margin: 20px 0;
+      padding: 7px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .018);
+    }
+
+    .study-segment {
+      min-height: 105px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: rgba(13, 20, 33, .9);
+    }
+
+    .study-segment.train { flex: 5; border-color: rgba(73, 221, 255, .30); }
+    .study-segment.gap { flex: 1; border-color: rgba(255, 199, 102, .34); }
+    .study-segment.holdout { flex: 3; border-color: rgba(182, 245, 111, .34); background: var(--lime-soft); }
+    .study-segment.quarantine { flex: 2; border-color: rgba(255, 126, 121, .34); background: var(--coral-soft); }
+    .study-segment b, .study-segment span { display: block; }
+    .study-segment b { margin-bottom: 6px; color: var(--paper); font-size: .78rem; }
+    .study-segment span { color: var(--muted); font-size: .69rem; line-height: 1.4; }
+
     .table-block { margin-top: 20px; }
 
     .table-title {
@@ -959,6 +1050,10 @@
       .guardrail,
       .result-callout,
       .footer { grid-template-columns: 1fr; }
+      .scope-row,
+      .return-row { grid-template-columns: 110px 1fr 76px; gap: 8px; }
+      .study-strip { display: grid; grid-template-columns: 1fr; }
+      .study-segment { min-height: 0; }
       .footer-stamp { text-align: left; }
     }
 
@@ -1002,7 +1097,8 @@
         box-shadow: none;
         background: white;
       }
-      h1, h2, h3, h4, strong, tbody th { color: #0f172a; }
+      h1, h2, h3, h4, strong, tbody th, .metric-value, .chart-name,
+      .chart-value, .study-segment b, .study-segment span { color: #0f172a !important; }
       .gradient-word {
         background: none;
         color: #0f172a;
@@ -1052,8 +1148,9 @@
         <a href="explain.html">Field guide</a>
         <a href="#model">Mental model</a>
         <a href="#algorithm">Algorithm</a>
-        <a href="#versions">v1–v8</a>
-        <a href="#results">Results</a>
+        <a href="#versions">Version ledger</a>
+        <a href="#results">Five-year results</a>
+        <a href="#maximum-history">Maximum history</a>
         <a href="#boundaries">Boundaries</a>
         <a href="#gates">Remaining gates</a>
       </div>
@@ -1063,19 +1160,21 @@
   <main id="main-content" class="shell" tabindex="-1">
     <header class="hero">
       <div class="hero-copy">
-        <div class="eyebrow">Phase 6 Sharadar pilot · 26 August 2026</div>
-        <h1>Measured with<br /><span class="gradient-word">boundaries.</span></h1>
+        <div class="eyebrow">Phase 6 historical study · 28 August 2026</div>
+        <h1>More time.<br /><span class="gradient-word">Stronger boundaries.</span></h1>
         <p class="hero-lede">
-          Versions 1 through 8 turned one fixed momentum idea into a bounded,
-          provider-backed diagnostic: first the long-only engine, then missing-exit
-          classification, reviewed session timing, turnover and linear-cost
-          arithmetic, terminal-recovery bounds, capacity sensitivity, factor-target
-          feasibility, and two eligible-universe benchmarks. The work is detailed
-          enough to inspect—and deliberately too limited to promote.
+          The original five-year pilot exposed data and accounting limits but could
+          not fit the frozen evaluation design. Maximum Sharadar history now provides
+          330 completed monthly routes: enough to materialize 12 expanding folds,
+          isolate a still-unread 36-month historical holdout, and run the registered
+          equal-weight, cap-weight, raw-momentum, and cash comparisons on one common
+          development axis. The machinery is promotion-grade; the evidence is not
+          yet promotion-ready.
         </p>
         <div class="badge-row" aria-label="Pilot status">
-          <span class="badge warn">CURRENT-VINTAGE DESCRIPTIVE</span>
-          <span class="badge good">V8 FOCUSED 21 / 21</span>
+          <span class="badge good">12 FOLDS MATERIALIZED</span>
+          <span class="badge good">HOLDOUT LOCKED + UNREAD</span>
+          <span class="badge warn">LOWER-BOUND EQUITY PATHS</span>
           <span class="badge blocked">PROMOTION BLOCKED</span>
           <span class="badge">NO EXECUTION AUTHORITY</span>
         </div>
@@ -1083,29 +1182,29 @@
 
       <aside class="status-console" aria-label="Current pilot status">
         <div class="console-head">
-          <span>phase 6 / v8</span>
+          <span>phase 6 / maximum history</span>
           <span class="console-light">aggregate verified</span>
         </div>
         <div class="console-body">
           <div class="console-row">
-            <span>Monthly decisions</span>
-            <strong>48</strong>
+            <span>Reviewed XNYS sessions</span>
+            <strong>7,207</strong>
           </div>
           <div class="console-row">
-            <span>Long-only holdings</span>
-            <strong>50 / decision</strong>
+            <span>Completed monthly routes</span>
+            <strong>330</strong>
           </div>
           <div class="console-row">
-            <span>Factor-target feasibility</span>
-            <strong class="good">48 / 48</strong>
+            <span>Expanding walk-forward folds</span>
+            <strong class="good">12</strong>
           </div>
           <div class="console-row">
-            <span>Selected exits unresolved</span>
-            <strong class="warn">3</strong>
+            <span>Common benchmark decisions</span>
+            <strong>108</strong>
           </div>
           <div class="console-row">
-            <span>Fold / holdout feasibility</span>
-            <strong class="blocked">NOT RUN</strong>
+            <span>Historical holdout values</span>
+            <strong class="good">UNREAD</strong>
           </div>
           <div class="console-row">
             <span>Formal promotion stage</span>
@@ -1121,11 +1220,11 @@
         <strong>This page publishes aggregate research evidence, not licensed source
         detail.</strong> Security identifiers, holdings, action codes, counterparties,
         transaction terms, evidence locations, source links, and content fingerprints
-        are intentionally absent. Every return below is a gross current-vintage
-        descriptive path or an explicitly labeled sensitivity—not a canonical
-        point-in-time backtest, estimate, winner, or investment claim.
-        <br />Exact pilot label: <code>SHARADAR_5Y_CURRENT_VINTAGE_DESCRIPTIVE_PILOT</code>.
-        The canonical provider gate remains <code>PROVIDER_GATE_CLOSED</code>.
+        are intentionally absent. Every equity return below is a gross current-vintage,
+        total-loss lower-bound path—not a canonical point-in-time backtest, winner,
+        holdout result, or investment claim. The earlier five-year results remain
+        historical diagnostics; the maximum-history study adds stronger evaluation
+        geometry without erasing their limitations.
       </p>
     </div>
 
@@ -1420,7 +1519,7 @@ MDD        = min_t(drawdown_t)</pre>
       <div class="section-heading">
         <div>
           <div class="eyebrow">03 · Version ledger</div>
-          <h2 id="versions-title">What v1 through v8 actually added.</h2>
+          <h2 id="versions-title">How the study reached maximum history.</h2>
         </div>
         <p>
           Each version narrowed a specific uncertainty without retroactively
@@ -1605,13 +1704,13 @@ net = beta = size = every sector = 0
 fixed signs, |w_i| ≤ 0.02, residual ≤ 1e−10</div>
         </article>
 
-        <article class="card version-card latest">
+        <article class="card version-card durable">
           <div class="version-head">
             <div>
               <div class="version-number">v8</div>
               <h3>Decision-close cap-weight benchmark</h3>
             </div>
-            <span class="tag bound">LATEST</span>
+            <span class="tag floor">DURABLE</span>
           </div>
           <h4>What changed</h4>
           <p>
@@ -1626,6 +1725,62 @@ r_benchmark,t = Σ_i w_i,t r_i,t
 
 gross current-vintage benchmark only
 no benchmark turnover, cost, capacity, or terminal liquidation</div>
+        </article>
+
+        <article class="card version-card durable">
+          <div class="version-head">
+            <div>
+              <div class="version-number">v9</div>
+              <h3>Fold and holdout feasibility audit</h3>
+            </div>
+            <span class="tag floor">FAIL-CLOSED</span>
+          </div>
+          <h4>What changed</h4>
+          <p>
+            Added a label-only audit against the frozen 5-year train, 1-year test,
+            21-session purge, 21-session embargo, and final 3-year holdout. The
+            five-year slice had 48 completed monthly outcomes against a 108-month
+            no-gap minimum, so it materialized zero folds and locked no holdout.
+          </p>
+          <h4>Why it mattered</h4>
+          <p>It converted “we need more history” into an exact 60-month shortfall without inventing positive split semantics.</p>
+        </article>
+
+        <article class="card version-card durable">
+          <div class="version-head">
+            <div>
+              <div class="version-number">v10</div>
+              <h3>Factor-target route and capacity census</h3>
+            </div>
+            <span class="tag floor">DIAGNOSTIC</span>
+          </div>
+          <h4>What changed</h4>
+          <p>
+            Kept constituent identities private while auditing scheduled raw and
+            adjusted entry/exit routes, theoretical target-to-target turnover, and
+            60-session raw-notional ADV capacity for the signed neutral targets.
+          </p>
+          <h4>What it established</h4>
+          <p>All 48 targets exist, but only 7 decisions have complete scheduled routes and only 8 have complete capacity inputs. Signed performance remains intentionally unrun.</p>
+        </article>
+
+        <article class="card version-card latest">
+          <div class="version-head">
+            <div>
+              <div class="version-number">MAX</div>
+              <h3>Approved historical evaluation protocol</h3>
+            </div>
+            <span class="tag bound">CURRENT</span>
+          </div>
+          <h4>What changed</h4>
+          <p>
+            Captured separate maximum-history archives, pinned the reviewed XNYS
+            calendar, froze the positive fold boundaries, physically separated the
+            development rows from the historical holdout, and completed the four
+            registered benchmark paths on their exact shared dates.
+          </p>
+          <h4>Current boundary</h4>
+          <p>The development calculation is complete and reproducible. Holdout values remain unread; no winner or promotion decision exists.</p>
         </article>
       </div>
     </section>
@@ -1981,10 +2136,176 @@ no benchmark turnover, cost, capacity, or terminal liquidation</div>
       </div>
     </section>
 
+    <section id="maximum-history" class="section" aria-labelledby="maximum-history-title">
+      <div class="section-heading">
+        <div>
+          <div class="eyebrow">05 · Maximum-history evaluation</div>
+          <h2 id="maximum-history-title">The length gate is closed. The evidence gates are not.</h2>
+        </div>
+        <p>
+          The expanded archives make the frozen Phase 6 geometry feasible and add
+          the two missing registered benchmarks. This section records exactly what
+          was calculated on development data and why it is still not a promotion result.
+        </p>
+      </div>
+
+      <div class="metric-grid">
+        <article class="card metric-card">
+          <h3 class="metric-label">Reviewed sessions</h3>
+          <span class="metric-value">7,207</span>
+          <p>Exact XNYS axis from 31 December 1997 through 26 August 2026.</p>
+        </article>
+        <article class="card metric-card">
+          <h3 class="metric-label">Observed month ends</h3>
+          <span class="metric-value">345</span>
+          <p>Reviewed calendar endpoints, including only completed source months.</p>
+        </article>
+        <article class="card metric-card">
+          <h3 class="metric-label">Completed routes</h3>
+          <span class="metric-value">330</span>
+          <p>Decision month end → next open → following rebalance open.</p>
+        </article>
+        <article class="card metric-card">
+          <h3 class="metric-label">No-gap minimum</h3>
+          <span class="metric-value">108</span>
+          <p>60 training + 12 testing + 36 final-holdout monthly outcomes.</p>
+        </article>
+        <article class="card metric-card">
+          <h3 class="metric-label">Materialized folds</h3>
+          <span class="metric-value">12</span>
+          <p>Expanding training with label-aware 21-session purge and embargo.</p>
+        </article>
+        <article class="card metric-card">
+          <h3 class="metric-label">All-fold test axis</h3>
+          <span class="metric-value">3,021</span>
+          <p>Daily test-only returns before applying the cash-coverage suffix.</p>
+        </article>
+        <article class="card metric-card">
+          <h3 class="metric-label">Common benchmark axis</h3>
+          <span class="metric-value">2,268</span>
+          <p>Daily returns across folds 04–12, where all four benchmarks coexist.</p>
+        </article>
+        <article class="card metric-card">
+          <h3 class="metric-label">Holdout status</h3>
+          <span class="metric-value">UNREAD</span>
+          <p>Thirty-six monthly outcomes physically excluded from development archives.</p>
+        </article>
+      </div>
+
+      <h3 class="subhead">Coverage changed from impossible to comfortably feasible</h3>
+      <div class="scope-chart" aria-label="Monthly route coverage: original slice 48, minimum 108, maximum history 330">
+        <div class="scope-row"><div class="chart-name">Original five-year slice</div><div class="scope-track"><div class="scope-fill amber" style="width: 14.5%"></div></div><div class="chart-value">48</div></div>
+        <div class="scope-row"><div class="chart-name">Frozen no-gap minimum</div><div class="scope-track"><div class="scope-fill violet" style="width: 32.7%"></div></div><div class="chart-value">108</div></div>
+        <div class="scope-row"><div class="chart-name">Maximum-history routes</div><div class="scope-track"><div class="scope-fill" style="width: 100%"></div></div><div class="chart-value">330</div></div>
+      </div>
+
+      <div class="study-strip" role="img" aria-label="Approved study sequence: expanding folds and tests, safety gaps, locked historical holdout, quarantined previously inspected window">
+        <div class="study-segment train"><b>Development · 12 folds</b><span>Expanding ≥5-year training and 1-year tests. Each boundary removes overlapping labels, then counts 21 reviewed sessions for purge and embargo.</span></div>
+        <div class="study-segment gap"><b>Gaps</b><span>21 + 21 sessions, label-aware.</span></div>
+        <div class="study-segment holdout"><b>Locked holdout · 36 months</b><span>First decision 31 May 2018; first entry 1 June 2018. Rows are absent from the development archives.</span></div>
+        <div class="study-segment quarantine"><b>Quarantined</b><span>30 June 2021 onward was already inspected by the earlier pilot and cannot be called fresh.</span></div>
+      </div>
+
+      <div class="table-block">
+        <div class="table-title">
+          <h3>Approved positive-case protocol</h3>
+          <p>These rules were frozen before newly available maximum-history return values were read.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <caption>The cap preserves a final historical holdout without pretending the previously inspected recent window is unseen.</caption>
+            <thead>
+              <tr><th scope="col">Rule</th><th scope="col">Frozen implementation</th><th scope="col">Reason</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Study cap</th><td>Decision 30 Apr 2021 → entry 3 May → exit 1 Jun</td><td>Keeps 30 Jun 2021 onward quarantined as previously inspected.</td></tr>
+              <tr><th scope="row">Fold geometry</th><td>Expanding ≥5 years train; 1 year test; label-aware 21-session purge and embargo</td><td>Preserves chronology and removes overlapping return information.</td></tr>
+              <tr><th scope="row">Final holdout</th><td>Last 36 completed outcomes of the capped study; physically absent from development sources</td><td>Locks a historical final test before development calculations.</td></tr>
+              <tr><th scope="row">Raw momentum</th><td>Top 50 eligible names by unfiltered 12-minus-2 total-return momentum; 2% each</td><td>Completes the registered benchmark family without post-result weighting choices.</td></tr>
+              <tr><th scope="row">Cash</th><td>BIL current-vintage Sharadar fund prices; adjusted open = open × closeadj ÷ close; exact no-fill returns</td><td>Implements a dated Treasury-bill ETF proxy—not literal risk-free cash—instead of assuming zero return.</td></tr>
+              <tr><th scope="row">Common axis</th><td>Exact intersection, folds 04–12 only; no alignment fills</td><td>BIL begins 30 May 2007, so earlier fold returns cannot be compared honestly.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel guardrail" role="note" aria-label="Holdout isolation">
+        <div class="guardrail-mark" aria-hidden="true">L</div>
+        <p>
+          <strong>Holdout isolation is structural, not a promise in prose.</strong>
+          The development projection ends before the holdout, never parses later
+          value fields, and rechecks the pinned source bytes after streaming. The
+          licensed replay reported <code>holdout_values_read=false</code>. The holdout
+          has not been used in any table or chart on this page.
+        </p>
+      </div>
+
+      <h3 class="subhead">Registered benchmark family · development folds 04–12</h3>
+      <p>
+        The vertical divider in each bar is zero. Equity paths use the frozen
+        total-loss treatment for missing scheduled exits; BIL is exact and no-fill.
+      </p>
+      <div class="return-chart" role="img" aria-label="Cumulative benchmark returns: eligible equal weight minus 3.6376 percent, eligible cap weight plus 20.0552 percent, raw momentum minus 85.3386 percent, BIL cash plus 4.5493 percent">
+        <div class="return-row"><div class="chart-name">Eligible equal weight</div><div class="return-track"><div class="return-half negative"><div class="return-fill negative" style="width: 4.04%"></div></div><div class="return-half positive"></div></div><div class="chart-value">−3.64%</div></div>
+        <div class="return-row"><div class="chart-name">Eligible cap weight</div><div class="return-track"><div class="return-half negative"></div><div class="return-half positive"><div class="return-fill positive" style="width: 91.16%"></div></div></div><div class="chart-value">+20.06%</div></div>
+        <div class="return-row"><div class="chart-name">Raw momentum</div><div class="return-track"><div class="return-half negative"><div class="return-fill negative" style="width: 94.82%"></div></div><div class="return-half positive"></div></div><div class="chart-value">−85.34%</div></div>
+        <div class="return-row"><div class="chart-name">BIL cash</div><div class="return-track"><div class="return-half negative"></div><div class="return-half positive"><div class="return-fill positive" style="width: 20.68%"></div></div></div><div class="chart-value">+4.55%</div></div>
+      </div>
+
+      <div class="table-block">
+        <div class="table-title">
+          <h3>Exact aggregate result</h3>
+          <p>All rows share 108 monthly decisions and 2,268 daily returns.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <caption>Annualized volatility and Sharpe use the shared daily axis; equity Sharpe is measured over BIL cash.</caption>
+            <thead>
+              <tr><th scope="col">Path</th><th class="num" scope="col">Cumulative</th><th class="num" scope="col">Annualized</th><th class="num" scope="col">Volatility</th><th class="num" scope="col">Sharpe over cash</th><th class="num" scope="col">Max drawdown</th><th class="num" scope="col">Missing entry / exit</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Eligible equal weight</th><td class="num">−3.6376%</td><td class="num">−0.4109%</td><td class="num">21.0517%</td><td class="num">0.063218</td><td class="num">−61.1147%</td><td class="num">142 / 1,134</td></tr>
+              <tr><th scope="row">Eligible cap weight</th><td class="num">+20.0552%</td><td class="num">+2.0517%</td><td class="num">16.3522%</td><td class="num">0.176239</td><td class="num">−52.8405%</td><td class="num">142 / 1,134</td></tr>
+              <tr><th scope="row">Raw momentum · top 50 EW</th><td class="num">−85.3386%</td><td class="num">−19.2109%</td><td class="num">27.3416%</td><td class="num">−0.646718</td><td class="num">−86.3373%</td><td class="num">9 / 78</td></tr>
+              <tr><th scope="row">BIL cash</th><td class="num">+4.5493%</td><td class="num">+0.4955%</td><td class="num">0.6405%</td><td class="num">—</td><td class="num">−0.5477%</td><td class="num">0 / 0</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="result-callout">
+        <strong>LOWER-BOUND WARNING</strong>
+        <p>
+          The three equity paths are not exact returns: every missing scheduled exit
+          is charged as a complete loss. Raw momentum’s −85.34% path includes 78 such
+          exits. It demonstrates the importance of terminal-economic evidence; it
+          does not establish that momentum “lost,” select a winner, or authorize the holdout.
+        </p>
+      </div>
+
+      <article class="panel evidence-panel">
+        <h3>Verification scope</h3>
+        <div class="verification-grid">
+          <div class="verification-item">
+            <strong>25 / 25 · focused</strong>
+            <p>Maximum-history split, source isolation, benchmark construction, cash coverage, and aggregate invariants.</p>
+          </div>
+          <div class="verification-item">
+            <strong>482 / 482 · broad</strong>
+            <p>Full project regression passed in 344.604 seconds after the Phase 6 additions.</p>
+          </div>
+          <div class="verification-item">
+            <strong>Licensed replay · exact</strong>
+            <p>The 108-period development result reproduced after source rehash; holdout values remained unread.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
     <section id="boundaries" class="section" aria-labelledby="boundaries-title">
       <div class="section-heading">
         <div>
-          <div class="eyebrow">05 · Evidence boundaries</div>
+          <div class="eyebrow">06 · Evidence boundaries</div>
           <h2 id="boundaries-title">What the pilot can and cannot support.</h2>
         </div>
         <p>
@@ -2002,8 +2323,8 @@ no benchmark turnover, cost, capacity, or terminal liquidation</div>
         </article>
         <article class="card boundary-card">
           <span class="card-label">Calendar</span>
-          <h3>Reviewed only for this slice</h3>
-          <p>The session axis matches the bounded five-year window, including a special closure, but this is not broader calendar authority.</p>
+          <h3>Reviewed across maximum history</h3>
+          <p>The exact 7,207-session XNYS axis is pinned from 1997 through the source end, including regular observances and extraordinary closures. Calendar authority does not imply price or metadata authority.</p>
         </article>
         <article class="card boundary-card">
           <span class="card-label">Terminal evidence</span>
@@ -2022,25 +2343,25 @@ no benchmark turnover, cost, capacity, or terminal liquidation</div>
         </article>
         <article class="card boundary-card">
           <span class="card-label">Coverage horizon</span>
-          <h3>Five years cannot answer long-horizon questions</h3>
-          <p>The source window cannot satisfy the preregistered long-horizon evaluation or the 2008 stress requirement.</p>
+          <h3>Time length is now sufficient</h3>
+          <p>The common development suffix covers 2008 and exceeds the frozen train/test/holdout minimum. Exact terminal values, point-in-time provenance, and calibrated implementation remain independent gates.</p>
         </article>
       </div>
 
       <article class="panel evidence-panel">
-        <h3>Verification scope</h3>
+        <h3>Current verification scope</h3>
         <div class="verification-grid">
           <div class="verification-item">
-            <strong>21 / 21 · rerun</strong>
-            <p>Focused v8 pilot tests, including cap arithmetic, cash retention, all terminal paths, metric chaining, and invalid-normalization failure.</p>
+            <strong>25 / 25 · Phase 6 focused</strong>
+            <p>Split materialization, holdout isolation, exact common-axis benchmarks, and replay invariants are green.</p>
           </div>
           <div class="verification-item">
-            <strong>3 / 3 and 9 / 9 · retained</strong>
-            <p>Terminal-evidence and bulk-input suites were previously green; v8 did not touch those contracts, so they were not rerun.</p>
+            <strong>11 / 11 · sign-flip engine</strong>
+            <p>The frozen 10,000-repetition maximum-Sharpe numerical procedure passes synthetic and adversarial checks; the real ten-trial panel is absent.</p>
           </div>
           <div class="verification-item">
-            <strong>373 / 373 · earlier broad suite</strong>
-            <p>The latest recorded broad project suite predates the later pilot increments and was not rerun. Focused green evidence is not presented as a new broad regression.</p>
+            <strong>482 / 482 · broad suite</strong>
+            <p>The full regression passed in 344.604 seconds. Green code evidence does not elevate incomplete historical evidence.</p>
           </div>
         </div>
       </article>
@@ -2058,28 +2379,31 @@ no benchmark turnover, cost, capacity, or terminal liquidation</div>
     <section id="gates" class="section" aria-labelledby="gates-title">
       <div class="section-heading">
         <div>
-          <div class="eyebrow">06 · Remaining gates</div>
-          <h2 id="gates-title">The next work is feasibility—not promotion.</h2>
+          <div class="eyebrow">07 · Remaining gates</div>
+          <h2 id="gates-title">Geometry is ready. Promotion still needs evidence.</h2>
         </div>
         <p>
-          v8 completes the registered cap-weight comparison. Materialized fold and
-          holdout feasibility is the next quantitative handoff, but it has not been
-          run for this update. Every other gate below remains independently open.
+          The length, positive split, holdout-lock, raw-momentum, cash-proxy, and
+          common-axis questions are now resolved. The remaining work concerns the
+          quality and completeness of the return evidence—not the number of years.
         </p>
       </div>
 
       <div class="gate-grid">
         <article class="card gate-card ready">
-          <h3>Complete inside the pilot</h3>
+          <h3>Complete inside Phase 6 research</h3>
           <ul>
             <li>Fixed long-only universe, signal, ranking, sizing, and next-session timing.</li>
-            <li>Reviewed five-year session axis and bound current-vintage inputs.</li>
+            <li>Reviewed maximum-history XNYS axis and separately bound archives.</li>
             <li>Missing-entry cash and three explicit terminal paths.</li>
             <li>Selected-exit classification plus 27 reviewed floors, 22 exact.</li>
-            <li>Eligible equal- and cap-weight benchmark arithmetic.</li>
+            <li>Eligible equal-, eligible cap-, raw-momentum, and BIL cash benchmarks.</li>
             <li>Corrected risky-only turnover and illustrative linear costs.</li>
             <li>Complete 5%-ADV capacity/impact sensitivity for the two modeled state paths.</li>
             <li>Factor-target feasibility on all 48 decisions.</li>
+            <li>Twelve expanding folds with label-aware purge and embargo.</li>
+            <li>Physically isolated, unread 36-month historical holdout.</li>
+            <li>Frozen, verified maximum-Sharpe sign-flip calculation engine.</li>
           </ul>
         </article>
         <article class="card gate-card blocked">
@@ -2090,9 +2414,9 @@ no benchmark turnover, cost, capacity, or terminal liquidation</div>
             <li>Provider-calibrated spread, commission, impact, and executable liquidity.</li>
             <li>Documented-recovery state propagation into later weights, turnover, and cost.</li>
             <li>Quality-sized factor-controlled returns, signed terminal state, borrow, short costs, and attribution.</li>
-            <li>Remaining registered raw-momentum and cash comparisons.</li>
-            <li>Materialized folds, locked holdout, and registered-family multiple-testing result.</li>
-            <li>Long-horizon and 2008 stress coverage.</li>
+            <li>Complete ten-trial return matrix on one exact test-only axis.</li>
+            <li>Registered-family maximum-Sharpe result and owner review.</li>
+            <li>Holdout opening and decision, which remain unauthorized until all development gates close.</li>
           </ul>
         </article>
       </div>
@@ -2130,13 +2454,13 @@ no benchmark turnover, cost, capacity, or terminal liquidation</div>
             </tr>
             <tr>
               <th scope="row">Walk-forward / holdout</th>
-              <td>The current five-year window cannot contain the preregistered 5-year train, 1-year test, and final 3-year holdout; folds are unmaterialized and the holdout is unlocked.</td>
-              <td>Longer approved coverage or an explicit protocol revision; then materialized folds, 21-session purge/embargo, and a locked holdout.</td>
+              <td>Geometry is materialized and the historical holdout is locked, but development returns are current-vintage lower bounds and the holdout remains unopened.</td>
+              <td>Close all development evidence gates, obtain owner authorization, then evaluate the frozen holdout exactly once.</td>
             </tr>
             <tr>
               <th scope="row">Multiple testing</th>
-              <td>No registered-family maximum-Sharpe statistic or winning trial exists.</td>
-              <td>Common return axis, deterministic block sign-flips, and owner review of the full family.</td>
+              <td>The numerical engine is frozen, but the complete ten-trial common return panel does not exist; no family statistic or winner exists.</td>
+              <td>Materialize every registered trial on the exact test-only axis, verify the panel identity, run deterministic block sign-flips, and obtain owner review.</td>
             </tr>
             <tr>
               <th scope="row">Promotion</th>
@@ -2150,24 +2474,25 @@ no benchmark turnover, cost, capacity, or terminal liquidation</div>
       <div class="panel guardrail" role="note" aria-label="Current handoff boundary">
         <div class="guardrail-mark" aria-hidden="true">→</div>
         <p>
-          <strong>Current handoff:</strong> assess materialized fold/holdout
-          feasibility without inspecting a holdout and without changing the v8
-          interpretation. That work was explicitly not run for this page. Paper
-          export, broker integration, and live execution remain later, separately
-          authorized boundaries.
+          <strong>Current handoff:</strong> complete the registered ten-trial return
+          panel and the factor-controlled signed performance path without reading
+          the holdout. Exact terminal economics, canonical point-in-time provenance,
+          borrow/financing, and calibrated execution assumptions remain prerequisites.
+          Paper export, broker integration, and live execution remain separate,
+          later authorization boundaries.
         </p>
       </div>
     </section>
 
     <footer class="footer">
       <p>
-        Private-safe engineering primer for the VHF Phase 6 Sharadar five-year
-        current-vintage descriptive pilot. It does not constitute investment advice,
-        a canonical point-in-time backtest, a net-performance claim, canonical
+        Private-safe engineering primer for the VHF Phase 6 Sharadar historical
+        research program. It does not constitute investment advice, a canonical
+        point-in-time backtest, a winner or holdout claim, a net-performance claim,
         provider acceptance, an executable capacity estimate, a paper-trading
         authorization, or a live-trading instruction.
       </p>
-      <div class="footer-stamp">VHF / PHASE 6 / V8 / 2026-08-26</div>
+      <div class="footer-stamp">VHF / PHASE 6 / MAXIMUM HISTORY / 2026-08-28</div>
     </footer>
   </main>
 </body>
