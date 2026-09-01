@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quantopian Lecture Series - Research Discipline and Portfolio Controls</title>
+  <link rel="stylesheet" href="../assets/styles.css" />
+</head>
+<body>
+<main>
+  <nav class="site-nav" aria-label="Site navigation">
+    <a class="brand" href="../index.html">Virtual Hedge Fund summaries</a>
+    <div class="nav-links">
+      <a href="quantopian-lecture-series.html" aria-current="page">Quantopian Lectures</a>
+      <a href="elements-quantitative-investing.html">Elements of Quant Investing</a>
+      <a href="learn-algorithmic-trading.html">Learn Algorithmic Trading</a>
+      <a href="quantitative-momentum.html">Quantitative Momentum</a>
+      <a href="trading-volatility-correlation-term-structure-skew.html">Trading Volatility</a>
+      <a href="advanced-portfolio-management.html">Advanced Portfolio Management</a>
+    </div>
+  </nav>
+
+  <header class="page-header">
+    <div class="eyebrow">Research discipline · Portfolio controls · Execution reality</div>
+    <h1>Quantopian Lecture Series</h1>
+    <p class="lede">Quantopian's public notebooks are most valuable as connective tissue, not as a catalogue of ready-made strategies. They join statistical discipline, factor analysis, portfolio risk, execution, and post-trade diagnosis into one research-control loop—and show where simple rules such as “long-short means neutral” need qualification.</p>
+  </header>
+
+  <section class="intro-panel" aria-label="Concept introduction">
+    <div class="eyebrow">Read this first</div>
+    <h2>Core mental model</h2>
+    <div class="intro-grid">
+      <article class="intro-box">
+        <h3>Research before results</h3>
+        <p>Start with an economic prior, a point-in-time sample, a declared model family, and a trial budget. An inspected holdout cannot later be presented as untouched evidence.</p>
+      </article>
+      <article class="intro-box">
+        <h3>Portfolio before performance</h3>
+        <p>Translate the signal through uncertain exposures, covariance, concentration, hedges, turnover, borrow, and liquidity. Dollar balance alone does not establish diversified risk.</p>
+      </article>
+      <article class="intro-box">
+        <h3>Diagnosis after trading</h3>
+        <p>Separate signal quality from portfolio mechanics and implementation shortfall. Inspect whether results survive across time, regimes, positions, sectors, and round trips.</p>
+      </article>
+    </div>
+    <p class="finding-text"><strong>Relationship map:</strong> economic prior → point-in-time sample → estimate plus uncertainty → trial-aware validation → factor and risk decomposition → constrained portfolio → execution-cost test → rolling diagnosis.</p>
+
+    <h2>Terminology</h2>
+    <dl class="term-list">
+      <div class="term"><dt>Trial family</dt><dd>Related hypotheses, features, pairs, windows, or models whose collective search breadth affects false-discovery risk.</dd></div>
+      <div class="term"><dt>Untouched evaluation</dt><dd>Data that has not influenced feature, model, parameter, threshold, or portfolio selection.</dd></div>
+      <div class="term"><dt>Estimate stability</dt><dd>How a mean, beta, covariance, hedge ratio, Sharpe, or risk statistic changes across windows, samples, and regimes.</dd></div>
+      <div class="term"><dt>Effective breadth</dt><dd>The number of economically independent bets after common factor exposure and correlation are considered.</dd></div>
+      <div class="term"><dt>Factor neutrality</dt><dd>A measured constraint on beta, sector, style, or other common exposure; it is distinct from equal long and short dollars.</dd></div>
+      <div class="term"><dt>Shrinkage</dt><dd>Regularizing a noisy sample covariance estimate toward a more stable target.</dd></div>
+      <div class="term"><dt>Cointegration</dt><dd>A stationary relative relationship between nonstationary series; high correlation alone does not establish it.</dd></div>
+      <div class="term"><dt>Implementation shortfall</dt><dd>The cost between the decision-time portfolio and realized execution, including spread, timing, impact, and incomplete fills.</dd></div>
+      <div class="term"><dt>Structural break</dt><dd>A change in the data-generating relationship that makes an earlier estimate or model unreliable.</dd></div>
+    </dl>
+    <p class="meta"><strong>Reading note:</strong> The notebooks are legacy educational material, mostly Python 2 and tied to retired Quantopian APIs. Read the code as an explanation of calculations and research contracts, not as current implementation or validation evidence.</p>
+  </section>
+
+  <section class="finding-stack" aria-label="Expanded findings">
+    <article class="card">
+      <div class="role">backtesting-evaluation</div>
+      <h2>One Trial Ledger Must Cover the Whole Search</h2>
+      <p class="finding-text"><strong>Finding:</strong> Factor screens, pair searches, feature sets, model families, windows, and thresholds all consume evidence—even when they are spread across different notebooks or researchers.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A low p-value or attractive Sharpe is weak evidence after a broad search. Failed and abandoned variants must remain visible, and validation data becomes discovery data once it affects a choice.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This strengthens the existing VHF backtest protocol, machine-learning validation, alternative-data evaluation, factor research, and relative-value research with one shared governance rule.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Give every research run a hypothesis timestamp, family identifier, parameter fingerprint, data boundary, result, and selection decision. Preserve failures as part of the denominator.</p>
+        </div>
+      </div>
+      <p class="application-label">Research pseudocode:</p>
+<pre><code>def register_trial(ledger, spec):
+    assert spec.hypothesis_declared_before_test
+    assert spec.untouched_end &gt; spec.discovery_end
+    ledger.append({
+        "family": spec.family,
+        "features": fingerprint(spec.features),
+        "parameters": fingerprint(spec.parameters),
+        "data_boundary": spec.discovery_end,
+        "status": "attempted",
+    })</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">risk-management</div>
+      <h2>Point Estimates Need Stability Views</h2>
+      <p class="finding-text"><strong>Finding:</strong> Means, Sharpe ratios, betas, regression coefficients, covariance, hedge ratios, and VaR are estimates of changing processes—not fixed properties of an asset or strategy.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A precise full-period estimate can hide unstable subperiods, structural breaks, autocorrelated errors, heteroskedasticity, omitted variables, or regime mixing.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This joins signal validation to risk management: unstable parameters should change risk limits, hedge confidence, sizing, or the decision to trade.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Report rolling and expanding estimates, resampling bands, window sensitivity, residual diagnostics, and break tests alongside the headline number.</p>
+        </div>
+      </div>
+      <p class="application-label">Research pseudocode:</p>
+<pre><code>def stability_report(estimator, data, windows=(63, 126, 252)):
+    paths = {w: rolling_apply(data, w, estimator) for w in windows}
+    return {
+        "full_sample": estimator(data),
+        "rolling_paths": paths,
+        "window_range": range_across(paths),
+        "break_flags": structural_break_checks(data),
+        "residual_checks": diagnose_residuals(data, estimator),
+    }</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">signal-generation</div>
+      <h2>Factor Analysis and Portfolio Backtesting Are Different Tests</h2>
+      <p class="finding-text"><strong>Finding:</strong> Forward-return ranks, quantile spreads, information coefficients, sector decomposition, turnover, and stability test a factor's predictive structure before portfolio mechanics are introduced.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A promising factor diagnostic is not yet a tradable strategy. Holdings, rebalance rules, concentration, borrow, leverage, and costs can preserve, reshape, or erase the apparent edge.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This adds a disciplined intermediate stage to momentum, quality, alternative-data, and machine-learning signals while keeping portfolio evidence separate.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Freeze the signal definition after diagnostic research, then evaluate portfolio construction and execution without silently retuning the signal from portfolio results.</p>
+        </div>
+      </div>
+      <p class="application-label">Research pseudocode:</p>
+<pre><code>def factor_diagnostics(scores, forward_returns, sectors):
+    return {
+        "rank_ic": spearman_by_date(scores, forward_returns),
+        "quantile_spread": top_minus_bottom(scores, forward_returns),
+        "sector_results": by_group(scores, forward_returns, sectors),
+        "rank_turnover": quantile_turnover(scores),
+        "stability": subperiod_report(scores, forward_returns),
+    }</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">portfolio-construction</div>
+      <h2>Dollar Neutrality Is Not Risk Neutrality</h2>
+      <p class="finding-text"><strong>Finding:</strong> Equal long and short dollars remove net dollar exposure, but beta, sector, style, and other common-factor exposures can remain and collapse effective breadth.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Many positions can still be one crowded bet. Neutrality must be named, measured, constrained, and monitored; it cannot be inferred from the gross and net dollar totals.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This qualifies introductory long-short intuition and strengthens the existing factor-neutral portfolio, factor-risk, hedging, concentration, and attribution knowledge.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Report exposure ranges, common versus specific risk, and effective breadth before and after constraints, together with the alpha, turnover, and cost paid for neutrality.</p>
+        </div>
+      </div>
+      <p class="application-label">Research pseudocode:</p>
+<pre><code>def neutrality_report(weights, loadings, covariance):
+    factor_exposure = loadings.T @ weights
+    return {
+        "net_dollars": weights.sum(),
+        "gross_dollars": abs(weights).sum(),
+        "factor_exposure": factor_exposure,
+        "common_risk_share": common_risk_fraction(weights, loadings, covariance),
+        "effective_breadth": effective_number_of_bets(weights, covariance),
+    }</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">risk-management</div>
+      <h2>Covariance Shrinkage Is a Stabilizer, Not a Verdict</h2>
+      <p class="finding-text"><strong>Finding:</strong> Sample covariance becomes unreliable when the asset dimension is large relative to history or when the sample mixes regimes. Shrinkage can reduce noise, but it does not prove forecast quality.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Optimizers amplify unstable covariance modes. A visually sensible matrix or principal component can still produce brittle weights, exposures, and hedge decisions.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This deepens the shared VHF factor-risk and statistical-factor foundation used by alpha portfolios, risk allocation, hedging, and strategy diversification.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Compare sample, shrinkage, and factor-model covariance out of sample in the exact task they serve: risk forecasting, optimization, hedging, or attribution.</p>
+        </div>
+      </div>
+      <p class="application-label">Research pseudocode:</p>
+<pre><code>def compare_covariance_models(train, test, portfolio_generator):
+    candidates = {
+        "sample": sample_covariance(train),
+        "shrinkage": shrinkage_covariance(train),
+        "factor": factor_covariance(train),
+    }
+    return {
+        name: score_in_portfolio_use(cov, test, portfolio_generator)
+        for name, cov in candidates.items()
+    }</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">signal-generation</div>
+      <h2>Relative Value Needs Economic and Statistical Structure</h2>
+      <p class="finding-text"><strong>Finding:</strong> Correlation is not cointegration. A broad pair scan grows quadratically, manufactures false discoveries, and can mistake a temporary co-movement for a durable relative relationship.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Begin with an economic relationship, then test the relative series for stationarity, estimate a stable hedge ratio and half-life, and demand untouched relationship survival.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This raises the evidence bar for the existing lead-lag/stat-arb sleeve and links it directly to trial accounting, volatility scaling, risk limits, borrow, and execution friction.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Rolling or Kalman estimates may adapt a surviving relationship, but their transition and observation-noise assumptions are new parameters—not a cure for a broken economic link.</p>
+        </div>
+      </div>
+      <p class="application-label">Research pseudocode:</p>
+<pre><code>def qualify_pair(pair, discovery, untouched, ledger):
+    assert pair.has_economic_prior
+    register_trial(ledger, pair.spec)
+    hedge = estimate_hedge_ratio(discovery)
+    spread = make_spread(discovery, hedge)
+    return {
+        "stationarity": stationarity_tests(spread),
+        "hedge_stability": rolling_hedge_ranges(discovery),
+        "untouched_survival": evaluate_spread(untouched, hedge),
+        "cost_and_borrow": stress_execution(pair),
+    }</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">execution-trade-management</div>
+      <h2>Implementation Shortfall Is Part of the Strategy</h2>
+      <p class="finding-text"><strong>Finding:</strong> Fees, spread, timing risk, temporary impact, information or permanent impact, and incomplete fills sit between a paper portfolio and realized economics.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Liquidity is relative to order size, execution horizon, venue, urgency, and market state. ADV alone cannot establish capacity, and different price benchmarks answer different questions.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This gives impact-aware optimization and realistic backtesting a common vocabulary: decision price, parent-order VWAP, interval VWAP, participation, duration, and post-trade reversion.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Reconstruct parent orders from child fills, compare them with the decision-time benchmark, and stress several cost regimes. Dated coefficients require contemporary calibration.</p>
+        </div>
+      </div>
+      <p class="application-label">Research pseudocode:</p>
+<pre><code>def implementation_shortfall(parent, fills, decision_price):
+    executed_value = sum(fill.price * fill.quantity for fill in fills)
+    executed_qty = sum(fill.quantity for fill in fills)
+    realized_vwap = executed_value / executed_qty
+    side = 1 if parent.is_buy else -1
+    return {
+        "shortfall_bps": side * (realized_vwap / decision_price - 1) * 10_000,
+        "fill_ratio": executed_qty / parent.quantity,
+        "participation": executed_qty / parent.interval_volume,
+    }</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">risk-management</div>
+      <h2>Tail Risk and Leverage Are Conditional Forecasts</h2>
+      <p class="finding-text"><strong>Finding:</strong> Historical or Gaussian VaR, CVaR, volatility, and leverage limits inherit the selected lookback, distribution, regime, and model. They are not timeless risk facts.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>Extreme quantiles are data-poor, volatility clusters, tails are heavier than simple normal models imply, and leverage multiplies both returns and estimation error.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This reinforces VHF's return-volatility modeling, sustainable leverage, dynamic allocation, guardrails, concentration, and volatility research without replacing deeper source material.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>Report multiple windows, historical and conditional-volatility estimates, expected shortfall, crisis scenarios, financing constraints, and confidence ranges before setting leverage.</p>
+        </div>
+      </div>
+      <p class="application-label">Research pseudocode:</p>
+<pre><code>def tail_risk_panel(returns, confidence=0.99):
+    panels = {}
+    for window in (252, 756, 1260):
+        sample = returns.tail(window)
+        cutoff = sample.quantile(1 - confidence)
+        panels[window] = {
+            "historical_var": -cutoff,
+            "expected_shortfall": -sample[sample &lt;= cutoff].mean(),
+            "conditional_vol": garch_forecast(sample),
+            "stress_loss": scenario_loss(sample),
+        }
+    return panels</code></pre>
+    </article>
+
+    <article class="card">
+      <div class="role">data-engineering</div>
+      <h2>Translate the Research Contract, Not the Legacy API</h2>
+      <p class="finding-text"><strong>Finding:</strong> The notebooks' durable value is the calculation and diagnostic intent. Their Python 2 syntax, Quantopian data calls, Pipeline objects, platform backtests, saved outputs, and historical impact coefficients are artifacts of a retired environment.</p>
+      <div class="detail-grid">
+        <div class="detail-box">
+          <h3>What it means</h3>
+          <p>A notebook result demonstrates a lesson; it does not validate today's data, universe, provider, strategy, or implementation. Direct code transplantation would blur research lineage with engineering evidence.</p>
+        </div>
+        <div class="detail-box">
+          <h3>How it connects</h3>
+          <p>This preserves the VHF boundary: the wiki records source-derived research truth, while engineering independently implements and tests point-in-time data, metrics, portfolio, and execution contracts.</p>
+        </div>
+        <div class="detail-box">
+          <h3>Implementation lens</h3>
+          <p>For each lecture, extract the input contract, formula, assumptions, diagnostic output, and failure conditions. Only then map the contract to current provider-neutral components.</p>
+        </div>
+      </div>
+      <p class="application-label">Translation template:</p>
+<pre><code>ResearchContract(
+    concept="rolling factor exposure",
+    inputs=("point_in_time_returns", "factor_returns"),
+    assumptions=("aligned_clock", "stable_enough_window", "diagnosed_residuals"),
+    outputs=("exposure_path", "uncertainty", "break_flags"),
+    legacy_dependencies=("Quantopian get_pricing", "Python 2 notebook"),
+    current_implementation_status="not inferred from source",
+)</code></pre>
+    </article>
+  </section>
+
+  <footer>
+    Source: Quantopian, <a href="https://github.com/quantopian/research_public/tree/e183ecd093efbebce9b0febdc7d0253159c04061/notebooks/lectures">public lecture notebooks at pinned commit <code>e183ecd0</code></a>. Local wiki lineage: <code>quantopian-lecture-series</code> and <code>research-discipline-and-portfolio-controls-from-quantopian-lectures</code>.
+  </footer>
+</main>
+</body>
+</html>
