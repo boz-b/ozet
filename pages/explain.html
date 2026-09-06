@@ -1312,17 +1312,20 @@
             <div class="funnel" aria-label="Momentum universe funnel">
               <div class="funnel-row"><span>Start</span><div class="funnel-bar">Contemporaneous security universe</div></div>
               <div class="funnel-row"><span>Security type</span><div class="funnel-bar">USD ordinary common shares</div></div>
-              <div class="funnel-row"><span>Venue</span><div class="funnel-bar">XNYS · XNAS · XASE</div></div>
+              <div class="funnel-row"><span>Venue rule</span><div class="funnel-bar">NYSE · Nasdaq · NYSE American</div></div>
               <div class="funnel-row"><span>Size</span><div class="funnel-bar">Above 40th-percentile breakpoint</div></div>
               <div class="funnel-row"><span>Liquidity</span><div class="funnel-bar">Positive 60-session ADV floor</div></div>
               <div class="funnel-row"><span>History</span><div class="funnel-bar">Complete signal windows</div></div>
             </div>
-            <p>The frozen provider-neutral rule uses a decision-date NYSE 40th-percentile market-cap breakpoint. The current five-year pilot uses a documented all-eligible substitute and a $1 million minimum 60-session raw-notional ADV.</p>
+            <p><strong>The size cutoff removes the smallest stocks.</strong> The frozen provider-neutral rule finds the 40th-percentile market cap among qualifying NYSE stocks on the decision date. Stocks must be strictly above that dollar threshold: roughly the largest 60% of the NYSE reference set pass, not the largest 40%. Nasdaq and NYSE American stocks can also qualify against the same threshold.</p>
+            <p><strong>The pilot uses a broader reference set.</strong> Reliable historical exchange listings are unavailable, so the five-year pilot selects USD domestic common shares from Sharadar’s SEP dataset without an explicit exchange filter. It calculates the cutoff across stocks active on that date with positive market cap and thirteen complete month-end total-return levels. This includes qualifying Nasdaq stocks; it does not reconstruct their historical exchange. The liquidity and complete daily-signal checks are applied after this size cutoff is calculated.</p>
+            <p><strong>Liquidity means dollars traded per day.</strong> The pilot requires at least $1 million in average daily trading value over 60 trading sessions, including the decision session: average(unadjusted closing price × raw share volume). This is the 60-session raw-notional ADV. Missing observations exclude the stock; a high market cap alone does not guarantee sufficient liquidity.</p>
           </div>
 
           <div class="section-block">
             <h3>Step 2 — Measure 12-minus-2 momentum</h3>
-            <p>Use thirteen consecutive month-end total-return levels. Compare the first with the penultimate; reserve the final month as the skipped recent month.</p>
+            <p>The prior-year, skip-recent-month rule comes from Gray and Vogel’s <em>Quantitative Momentum</em>. VHF expresses it using thirteen consecutive month-end total-return levels: thirteen observations mark twelve monthly intervals. Compare the first with the penultimate level to measure eleven months of returns; skip the final month. Requiring the complete sequence is a data-quality rule, not a window chosen because it won a VHF backtest.</p>
+            <p><strong>Calendar example:</strong> at a December 2025 month-end decision, collect December 2024 through December 2025 levels. Measure the return from December 2024 to November 2025, and skip the November-to-December 2025 return. “12-minus-2” refers to the included monthly returns relative to the next holding month.</p>
             <div class="month-axis" aria-label="Thirteen month-end levels for twelve-minus-two momentum">
               <div class="month form start">start</div><div class="month form">+1</div><div class="month form">+2</div><div class="month form">+3</div><div class="month form">+4</div><div class="month form">+5</div><div class="month form">+6</div><div class="month form">+7</div><div class="month form">+8</div><div class="month form">+9</div><div class="month form">+10</div><div class="month form end">form end</div><div class="month skip">decision</div>
             </div>
@@ -1336,15 +1339,28 @@ Example: 130 ÷ 100 − 1 = 30%</div>
 
           <div class="section-block">
             <h3>Step 3 — Keep the strongest decile, then judge path quality</h3>
+            <p><strong>First create the shortlist using the Step 2 momentum percentages.</strong> Rank all eligible stocks by momentum, highest first, and keep the top 10%. Only these candidates enter the path-quality comparison.</p>
+            <div class="formula">Candidate count = max(1, ceiling(eligible names × 10%))
+
+Example: 1,003 eligible stocks → 101 highest-momentum candidates
+<small>Ceiling rounds upward; max(1, …) keeps at least one candidate when the eligible universe is nonempty. No eligible stocks means no selection.</small></div>
             <p>Two stocks can both rise 30%. One may climb through many modest gains; the other may sit flat and jump on one spectacular day. VHF rewards the steadier path inside the high-momentum candidate set.</p>
             <div class="grid-2">
               <article class="card blue">
                 <span class="mini-label">Information discreteness · FIP</span>
                 <h3>Was the return broad or concentrated?</h3>
-                <p>Across exactly 252 daily returns ending at the formation end, count positive and negative days. Zero-return days remain in the denominator.</p>
-                <div class="formula">ID = sign(momentum) × (negative fraction − positive fraction)
+                <p><strong>FIP means “Frog in the Pan”:</strong> investors may underreact to gradual information arriving through many small changes. Information discreteness (ID) is a proxy for that idea, using the direction of daily returns.</p>
+                <p>Count exactly 252 daily returns ending at the formation end. This daily window is separate from the eleven-month momentum window. Zero-return days stay in the denominator but enter neither count.</p>
+                <div class="formula">negative fraction = negative-return days ÷ 252
+positive fraction = positive-return days ÷ 252
+sign(momentum) = +1 if positive, −1 if negative, 0 if zero
 
-For a winner: more negative ID = more continuous positive information.</div>
+ID = sign(momentum) × (negative fraction − positive fraction)
+
+Example: Step 2 momentum = +30% → sign(+30%) = +1
+160 positive days, 92 negative days:
+ID = +1 × (92/252 − 160/252) ≈ −0.27</div>
+                <p>The full <strong>30%</strong> ranks performance in the shortlist step; only its <strong>+1 sign</strong> enters ID. For a positive-momentum stock, more negative ID means more positive than negative days. This suggests a more continuous rise, but ID counts direction, not move size, and does not prove smoothness or information arrival.</p>
               </article>
               <article class="card amber">
                 <span class="mini-label">MAX</span>
@@ -1358,27 +1374,44 @@ It is not max(abs(return)).</div>
             <div class="formula">ID quality percentile  = percentile rank of −ID
 MAX quality percentile = percentile rank of −MAX
 path quality           = 50% × ID quality + 50% × MAX quality
-
-Candidate count = max(1, ceiling(eligible names × 10%))
-<small>The quality percentiles are calculated only among the frozen high-momentum candidates, not across the full universe.</small></div>
+<small>Calculate both percentiles only within the momentum shortlist. Ranking −ID and −MAX makes lower ID and lower MAX receive higher quality scores.</small></div>
+            <p><strong>The order is:</strong> rank eligible stocks by momentum → keep the top 10% → calculate quality percentiles within that shortlist → rank the shortlist by path quality → select the long-only portfolio.</p>
           </div>
 
           <div class="section-block">
             <h3>Step 4 — Turn the rank into a provisional portfolio</h3>
+            <p>These are <strong>three separate research variants</strong>, not three consecutive steps applied to one portfolio. The daily challenger also changes the signal formula. Their historical evaluation is at different stages.</p>
             <div class="grid-3">
               <article class="card green">
                 <h3>Source-faithful long-only</h3>
                 <p>Take the best path-quality names from the high-momentum decile, up to 50 names, equal weighted at 2% each. If fewer qualify, unused weight stays in cash.</p>
+                <p><strong>Calculated:</strong> five-year historical return paths and turnover, cost, and capacity diagnostics, subject to the documented data and terminal-value limitations.</p>
               </article>
               <article class="card violet">
-                <h3>Factor-controlled derivative</h3>
-                <p>Use raw-momentum top and bottom deciles as long/short membership, 50% gross per side, 2% name cap, then apply a sign-preserving neutralization solve.</p>
+                <h3>Factor-controlled long/short variant</h3>
+                <p>Use the top 10% by raw momentum as long candidates and the bottom 10% as short candidates. Buying the winners bets on further gains; shorting the losers bets on further declines. This membership is not the long-only path-quality top 50.</p>
+                <p>Allocate 50% of portfolio equity to each side, with a maximum 2% per stock. Adjust weights to offset market-beta, sector, and size exposures without switching any stock from long to short or vice versa. “Derivative” here means a strategy variation, not an option or futures contract.</p>
+                <p><strong>Calculated:</strong> five-year target feasibility and exposure/route diagnostics. <strong>Not calculated:</strong> factor-controlled historical portfolio performance.</p>
               </article>
               <article class="card amber">
                 <h3>Daily challenger</h3>
                 <p>A separate 252/21 prototype ranks 70% momentum, 20% log-path R² smoothness, and 10% low absolute jump. It is not allowed to replace the primary formula after results are seen.</p>
+                <p><strong>Calculated:</strong> synthetic prototype checks. A provider-backed historical performance study remains unfinished.</p>
               </article>
             </div>
+            <h3>How the long/short neutralization works</h3>
+            <p>Start with equal weights within each side. The solver finds weights as close as possible to that starting portfolio, minimizing the sum of squared weight changes, while requiring market-beta, standardized size, and each sector’s net exposure to be zero within numerical tolerance.</p>
+            <div class="formula">Long weights:   0% ≤ each weight ≤ +2%; sum = +50%
+Short weights: −2% ≤ each weight ≤  0%; sum = −50%
+
+Example with 50 stocks on each side:
+50 × +1% = +50% long; 50 × −1% = −50% short
+Change two longs from 1% + 1% to 1.4% + 0.6%:
+their combined 2% stays unchanged, but their factor exposures change.</div>
+            <p>The algorithm adjusts all exposures together, keeping weights inside their bounds on every iteration. It then independently checks the final constraints. A weight may reach zero but cannot cross to the opposite side. Each side needs at least 25 stocks to reach 50% under the 2% cap; that alone does not guarantee neutralization is possible. With exactly 25, every weight is forced to the cap. Missing inputs or a failed solve/check withhold the target.</p>
+            <p>Equal dollars long and short give zero net dollar exposure, but do not automatically cancel beta, sector, or size. Likewise, a neutral target does not establish a neutral realized portfolio: missing trades, borrow restrictions, price drift, and costs still matter.</p>
+            <h3>What the additional Sharadar history enables</h3>
+            <p>The approved maximum-history study already has twelve evaluation folds and four benchmark paths. It has not completed historical performance comparisons for all three variants. The longer history supports extending the long-only analysis, extending factor-target diagnostics, and connecting the challenger to historical data. Factor-controlled returns still need signed position accounting, terminal outcomes, borrow, and costs. The complete ten-trial comparison remains unfinished; the reserved holdout stays unread.</p>
           </div>
 
           <div class="section-block">
@@ -1832,6 +1865,11 @@ idiosyncratic IR = selection IR × diversification ratio + sizing IR</div>
           <div class="callout amber">
             <h3>The next quantitative gate is the complete registered trial panel</h3>
             <p>The split geometry, holdout lock, raw-momentum construction, cash proxy, and sign-flip engine are now frozen. Promotion still requires canonical point-in-time evidence, exact terminal accounting, factor-controlled signed returns, borrow and financing, provider-calibrated costs, the complete ten-trial common return panel, and its maximum-Sharpe multiple-testing result.</p>
+          </div>
+          <div class="section-block">
+            <h3>What continued development needs from the owner</h3>
+            <p>Sharadar access, expanded history, and the historical evaluation protocol are already supplied or approved. No new purchase or credential is currently required to continue development; the existing subscription should be exhausted first. Missing terminal payouts, historical venue/revision evidence, borrow information, and execution calibration are research and engineering gaps, not automatically a request for the owner to obtain another dataset.</p>
+            <p>Later owner decisions include accepting specific documented approximations where exact evidence remains unavailable, reviewing the development results before authorizing the reserved holdout, and separately authorizing any paper-trading or broker work. Accepting an approximation does not make the underlying evidence exact.</p>
           </div>
 
           <a class="book-link" href="scratchpad.html">Open the detailed Phase 6 research notebook</a>
