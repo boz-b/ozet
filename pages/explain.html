@@ -1,1962 +1,365 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="A plain-language quantitative field guide to the Virtual Hedge Fund, including the maximum-history Phase 6 walk-forward study and its evidence boundaries." />
-  <meta name="color-scheme" content="dark" />
-  <title>Virtual Hedge Fund — Quantitative Field Guide</title>
-
-  <style>
-    :root {
-      color-scheme: dark;
-      --bg: #070a10;
-      --bg-2: #0b111b;
-      --panel: #101824;
-      --panel-2: #141f2e;
-      --paper: #f3f6fa;
-      --soft: #c4cfdd;
-      --muted: #8d9bad;
-      --line: rgba(196, 207, 221, .14);
-      --line-strong: rgba(196, 207, 221, .27);
-      --blue: #63d9ff;
-      --blue-soft: rgba(99, 217, 255, .11);
-      --green: #b7ef78;
-      --green-soft: rgba(183, 239, 120, .10);
-      --amber: #ffc96b;
-      --amber-soft: rgba(255, 201, 107, .11);
-      --red: #ff8c86;
-      --red-soft: rgba(255, 140, 134, .10);
-      --violet: #bea7ff;
-      --violet-soft: rgba(190, 167, 255, .11);
-      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      --serif: Iowan Old Style, Charter, "Bitstream Charter", Georgia, serif;
-      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-      --radius: 18px;
-      --radius-sm: 11px;
-      --shadow: 0 28px 90px rgba(0, 0, 0, .34);
-    }
-
-    * { box-sizing: border-box; }
-
-    html {
-      scroll-behavior: smooth;
-      scroll-padding-top: 92px;
-    }
-
-    body {
-      margin: 0;
-      min-width: 290px;
-      background:
-        radial-gradient(circle at 10% -5%, rgba(99, 217, 255, .14), transparent 31rem),
-        radial-gradient(circle at 92% 2%, rgba(190, 167, 255, .12), transparent 32rem),
-        linear-gradient(180deg, #05070c, var(--bg) 18%, #080c13 100%);
-      color: var(--paper);
-      font-family: var(--sans);
-      font-size: 16px;
-      line-height: 1.65;
-      overflow-x: hidden;
-    }
-
-    body::before {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      content: "";
-      pointer-events: none;
-      opacity: .18;
-      background-image:
-        linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px);
-      background-size: 44px 44px;
-      mask-image: linear-gradient(to bottom, black, transparent 92%);
-    }
-
-    a {
-      color: var(--blue);
-      text-decoration-thickness: 1px;
-      text-underline-offset: 4px;
-    }
-
-    a:hover { color: #b7efff; }
-
-    a:focus-visible {
-      outline: 3px solid var(--amber);
-      outline-offset: 4px;
-      border-radius: 5px;
-    }
-
-    p { margin: 0 0 1rem; color: var(--soft); }
-    strong { color: var(--paper); }
-
-    code,
-    pre,
-    .mono { font-family: var(--mono); }
-
-    code {
-      padding: .12em .34em;
-      border: 1px solid rgba(99, 217, 255, .14);
-      border-radius: 5px;
-      background: rgba(99, 217, 255, .07);
-      color: #d9f7ff;
-      font-size: .9em;
-      overflow-wrap: anywhere;
-    }
-
-    .skip-link {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      z-index: 100;
-      padding: 9px 13px;
-      border-radius: 8px;
-      background: var(--paper);
-      color: var(--bg);
-      font-weight: 850;
-      transform: translateY(-160%);
-      transition: transform .18s ease;
-    }
-
-    .skip-link:focus { transform: translateY(0); }
-
-    .shell {
-      width: min(1240px, calc(100% - 40px));
-      margin: 0 auto;
-    }
-
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 30;
-      border-bottom: 1px solid var(--line);
-      background: rgba(5, 7, 12, .88);
-      backdrop-filter: blur(18px);
-    }
-
-    .topbar-inner {
-      min-height: 66px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--paper);
-      font-size: .78rem;
-      font-weight: 900;
-      letter-spacing: .11em;
-      text-decoration: none;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .brand-mark {
-      width: 31px;
-      height: 31px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(99, 217, 255, .44);
-      border-radius: 9px;
-      background: linear-gradient(145deg, rgba(99, 217, 255, .18), rgba(190, 167, 255, .10));
-      color: var(--blue);
-      font-family: var(--mono);
-      box-shadow: 0 0 25px rgba(99, 217, 255, .12);
-    }
-
-    .top-links {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 4px;
-    }
-
-    .top-links a {
-      padding: 7px 9px;
-      border-radius: 999px;
-      color: var(--muted);
-      font-size: .74rem;
-      font-weight: 760;
-      text-decoration: none;
-    }
-
-    .top-links a:hover {
-      background: rgba(255, 255, 255, .055);
-      color: var(--paper);
-    }
-
-    main { padding-bottom: 92px; }
-
-    .hero {
-      min-height: 680px;
-      display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(330px, .85fr);
-      gap: 52px;
-      align-items: center;
-      padding: 72px 0 64px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .eyebrow {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 17px;
-      color: var(--blue);
-      font-family: var(--mono);
-      font-size: .74rem;
-      font-weight: 800;
-      letter-spacing: .13em;
-      text-transform: uppercase;
-    }
-
-    .eyebrow::before {
-      width: 28px;
-      height: 1px;
-      background: currentColor;
-      content: "";
-    }
-
-    h1,
-    h2,
-    h3,
-    h4 {
-      margin-top: 0;
-      color: var(--paper);
-      letter-spacing: -.025em;
-    }
-
-    h1 {
-      max-width: 770px;
-      margin-bottom: 24px;
-      font-size: clamp(3.4rem, 7.9vw, 7rem);
-      font-weight: 920;
-      line-height: .89;
-    }
-
-    h1 span {
-      color: transparent;
-      background: linear-gradient(90deg, var(--blue), #d7f8ff 45%, var(--green));
-      background-clip: text;
-      -webkit-background-clip: text;
-    }
-
-    .lede {
-      max-width: 760px;
-      color: #d7e0ea;
-      font-family: var(--serif);
-      font-size: clamp(1.18rem, 2vw, 1.55rem);
-      line-height: 1.48;
-    }
-
-    .hero-note {
-      max-width: 720px;
-      padding-left: 15px;
-      border-left: 2px solid var(--amber);
-      color: var(--muted);
-      font-size: .92rem;
-    }
-
-    .hero-card {
-      position: relative;
-      padding: 24px;
-      border: 1px solid var(--line-strong);
-      border-radius: 24px;
-      background: linear-gradient(160deg, rgba(20, 31, 46, .95), rgba(9, 14, 23, .97));
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .hero-card::before {
-      position: absolute;
-      top: -90px;
-      right: -90px;
-      width: 230px;
-      height: 230px;
-      border-radius: 50%;
-      background: rgba(99, 217, 255, .09);
-      content: "";
-      filter: blur(2px);
-    }
-
-    .hero-card > * { position: relative; }
-
-    .hero-card h2 {
-      margin-bottom: 7px;
-      font-size: 1.15rem;
-    }
-
-    .hero-stack {
-      display: grid;
-      gap: 9px;
-      margin-top: 20px;
-    }
-
-    .hero-step {
-      display: grid;
-      grid-template-columns: 34px 1fr;
-      gap: 12px;
-      align-items: center;
-      padding: 10px 12px;
-      border: 1px solid var(--line);
-      border-radius: 11px;
-      background: rgba(255, 255, 255, .025);
-    }
-
-    .hero-step b {
-      width: 29px;
-      height: 29px;
-      display: grid;
-      place-items: center;
-      border-radius: 8px;
-      background: var(--blue-soft);
-      color: var(--blue);
-      font-family: var(--mono);
-      font-size: .73rem;
-    }
-
-    .hero-step span {
-      color: var(--soft);
-      font-size: .84rem;
-      font-weight: 720;
-    }
-
-    .status-strip {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-      margin-top: 20px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 6px 9px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: .68rem;
-      font-weight: 750;
-      letter-spacing: .02em;
-    }
-
-    .pill::before {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: currentColor;
-      content: "";
-    }
-
-    .pill.green { color: var(--green); }
-    .pill.amber { color: var(--amber); }
-    .pill.red { color: var(--red); }
-
-    .page-grid {
-      display: grid;
-      grid-template-columns: 210px minmax(0, 1fr);
-      gap: 48px;
-      padding-top: 54px;
-    }
-
-    .page-grid > *,
-    .chapter { min-width: 0; }
-
-    .contents {
-      position: sticky;
-      top: 92px;
-      align-self: start;
-      max-height: calc(100vh - 112px);
-      overflow: auto;
-      padding-right: 10px;
-    }
-
-    .contents-title {
-      margin-bottom: 12px;
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: .68rem;
-      font-weight: 820;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }
-
-    .contents a {
-      display: block;
-      padding: 7px 9px;
-      border-left: 1px solid var(--line);
-      color: var(--muted);
-      font-size: .79rem;
-      font-weight: 690;
-      line-height: 1.35;
-      text-decoration: none;
-    }
-
-    .contents a:hover {
-      border-left-color: var(--blue);
-      background: linear-gradient(90deg, var(--blue-soft), transparent);
-      color: var(--paper);
-    }
-
-    .chapter {
-      padding: 72px 0 32px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .chapter:first-child { padding-top: 8px; }
-
-    .chapter-number {
-      margin-bottom: 10px;
-      color: var(--blue);
-      font-family: var(--mono);
-      font-size: .7rem;
-      font-weight: 850;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-    }
-
-    .chapter h2 {
-      max-width: 800px;
-      margin-bottom: 18px;
-      font-size: clamp(2.15rem, 4.5vw, 4.2rem);
-      font-weight: 900;
-      line-height: 1.02;
-    }
-
-    .chapter-intro {
-      max-width: 820px;
-      margin-bottom: 32px;
-      color: #d9e1eb;
-      font-family: var(--serif);
-      font-size: clamp(1.1rem, 1.7vw, 1.34rem);
-      line-height: 1.55;
-    }
-
-    .section-block { margin: 34px 0; }
-
-    .section-block > h3 {
-      margin-bottom: 11px;
-      font-size: 1.45rem;
-      line-height: 1.2;
-    }
-
-    .section-block > h4 {
-      margin-bottom: 9px;
-      color: var(--soft);
-      font-size: 1rem;
-      letter-spacing: 0;
-    }
-
-    .grid-2,
-    .grid-3,
-    .grid-4 {
-      display: grid;
-      gap: 14px;
-    }
-
-    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-
-    .card {
-      padding: 19px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: linear-gradient(155deg, rgba(20, 31, 46, .79), rgba(10, 15, 24, .82));
-    }
-
-    .card h3,
-    .card h4 {
-      margin-bottom: 8px;
-      font-size: 1rem;
-      letter-spacing: -.012em;
-    }
-
-    .card p:last-child,
-    .callout p:last-child { margin-bottom: 0; }
-
-    .card p,
-    .card li {
-      color: var(--muted);
-      font-size: .9rem;
-    }
-
-    .card.blue { border-color: rgba(99, 217, 255, .27); }
-    .card.green { border-color: rgba(183, 239, 120, .25); }
-    .card.amber { border-color: rgba(255, 201, 107, .27); }
-    .card.violet { border-color: rgba(190, 167, 255, .27); }
-
-    .mini-label {
-      display: block;
-      margin-bottom: 7px;
-      color: var(--blue);
-      font-family: var(--mono);
-      font-size: .65rem;
-      font-weight: 820;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-    }
-
-    .callout {
-      padding: 20px 22px;
-      border: 1px solid var(--line-strong);
-      border-left: 4px solid var(--blue);
-      border-radius: var(--radius-sm);
-      background: var(--blue-soft);
-    }
-
-    .callout.amber {
-      border-left-color: var(--amber);
-      background: var(--amber-soft);
-    }
-
-    .callout.green {
-      border-left-color: var(--green);
-      background: var(--green-soft);
-    }
-
-    .callout.red {
-      border-left-color: var(--red);
-      background: var(--red-soft);
-    }
-
-    .callout h3,
-    .callout h4 {
-      margin-bottom: 7px;
-      font-size: 1rem;
-    }
-
-    .formula {
-      margin: 16px 0;
-      padding: 18px 20px;
-      border: 1px solid rgba(99, 217, 255, .22);
-      border-radius: var(--radius-sm);
-      background: #080d15;
-      color: #d9f7ff;
-      font-family: var(--mono);
-      font-size: clamp(.76rem, 1.3vw, .91rem);
-      line-height: 1.65;
-      white-space: pre-wrap;
-      overflow-x: auto;
-    }
-
-    .formula small {
-      display: block;
-      margin-top: 9px;
-      padding-top: 9px;
-      border-top: 1px solid var(--line);
-      color: var(--muted);
-      font-family: var(--sans);
-      font-size: .76rem;
-    }
-
-    .pipeline {
-      display: grid;
-      grid-template-columns: repeat(8, minmax(100px, 1fr));
-      gap: 7px;
-      margin: 24px 0;
-      overflow-x: auto;
-      padding-bottom: 8px;
-      max-width: 100%;
-    }
-
-    .pipe-node {
-      position: relative;
-      min-width: 112px;
-      padding: 15px 11px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: var(--panel);
-      text-align: center;
-    }
-
-    .pipe-node:not(:last-child)::after {
-      position: absolute;
-      top: 50%;
-      right: -9px;
-      z-index: 2;
-      color: var(--blue);
-      content: "›";
-      font-size: 1.2rem;
-      font-weight: 900;
-      transform: translateY(-53%);
-    }
-
-    .pipe-node b {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--paper);
-      font-size: .77rem;
-    }
-
-    .pipe-node span {
-      display: block;
-      color: var(--muted);
-      font-size: .68rem;
-      line-height: 1.35;
-    }
-
-    .timeline {
-      position: relative;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 14px;
-      margin: 20px 0;
-    }
-
-    .timeline::before {
-      position: absolute;
-      top: 24px;
-      right: 12%;
-      left: 12%;
-      height: 2px;
-      background: linear-gradient(90deg, var(--violet), var(--blue), var(--green));
-      content: "";
-    }
-
-    .time-point {
-      position: relative;
-      z-index: 1;
-      padding-top: 45px;
-      text-align: center;
-    }
-
-    .time-point::before {
-      position: absolute;
-      top: 16px;
-      left: 50%;
-      width: 16px;
-      height: 16px;
-      border: 4px solid var(--bg);
-      border-radius: 50%;
-      background: var(--blue);
-      box-shadow: 0 0 0 1px var(--blue);
-      content: "";
-      transform: translateX(-50%);
-    }
-
-    .time-point:first-child::before { background: var(--violet); box-shadow: 0 0 0 1px var(--violet); }
-    .time-point:last-child::before { background: var(--green); box-shadow: 0 0 0 1px var(--green); }
-
-    .time-point b {
-      display: block;
-      color: var(--paper);
-      font-size: .86rem;
-    }
-
-    .time-point span {
-      color: var(--muted);
-      font-size: .76rem;
-    }
-
-    .month-axis {
-      display: grid;
-      grid-template-columns: repeat(13, minmax(48px, 1fr));
-      gap: 4px;
-      margin: 20px 0 8px;
-      overflow-x: auto;
-      padding-bottom: 8px;
-      max-width: 100%;
-    }
-
-    .month {
-      min-width: 48px;
-      padding: 11px 4px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: .67rem;
-      text-align: center;
-    }
-
-    .month.form { border-color: rgba(99, 217, 255, .42); background: var(--blue-soft); color: var(--blue); }
-    .month.skip { border-color: rgba(255, 201, 107, .43); background: var(--amber-soft); color: var(--amber); }
-    .month.start,
-    .month.end { color: var(--paper); font-weight: 850; }
-
-    .axis-legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      color: var(--muted);
-      font-size: .77rem;
-    }
-
-    .axis-legend span::before {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      margin-right: 6px;
-      border-radius: 2px;
-      background: var(--blue);
-      content: "";
-    }
-
-    .axis-legend .skip-key::before { background: var(--amber); }
-
-    .funnel {
-      display: grid;
-      gap: 8px;
-      max-width: 760px;
-      margin: 22px auto;
-    }
-
-    .funnel-row {
-      display: grid;
-      grid-template-columns: 115px 1fr;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .funnel-row span {
-      color: var(--muted);
-      font-size: .76rem;
-      text-align: right;
-    }
-
-    .funnel-bar {
-      min-height: 36px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(99, 217, 255, .28);
-      border-radius: 8px;
-      background: linear-gradient(90deg, rgba(99, 217, 255, .15), rgba(190, 167, 255, .10));
-      color: var(--paper);
-      font-size: .78rem;
-      font-weight: 760;
-    }
-
-    .funnel-row:nth-child(2) .funnel-bar { width: 88%; }
-    .funnel-row:nth-child(3) .funnel-bar { width: 72%; }
-    .funnel-row:nth-child(4) .funnel-bar { width: 54%; }
-    .funnel-row:nth-child(5) .funnel-bar { width: 34%; }
-    .funnel-row:nth-child(6) .funnel-bar { width: 18%; min-width: 130px; }
-
-    .table-block {
-      margin: 20px 0;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(8, 13, 21, .72);
-      overflow: hidden;
-    }
-
-    .table-wrap {
-      max-width: 100%;
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 680px;
-      font-size: .84rem;
-    }
-
-    th,
-    td {
-      padding: 13px 14px;
-      border-bottom: 1px solid var(--line);
-      color: var(--soft);
-      text-align: left;
-      vertical-align: top;
-    }
-
-    th {
-      background: rgba(255, 255, 255, .025);
-      color: var(--paper);
-      font-family: var(--mono);
-      font-size: .68rem;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-    }
-
-    tbody tr:last-child td { border-bottom: 0; }
-    tbody tr:hover { background: rgba(99, 217, 255, .025); }
-
-    .tag {
-      display: inline-block;
-      padding: 3px 7px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: .63rem;
-      font-weight: 760;
-      white-space: nowrap;
-    }
-
-    .tag.built { border-color: rgba(183, 239, 120, .32); color: var(--green); }
-    .tag.synthetic { border-color: rgba(190, 167, 255, .34); color: var(--violet); }
-    .tag.descriptive { border-color: rgba(255, 201, 107, .35); color: var(--amber); }
-    .tag.blocked { border-color: rgba(255, 140, 134, .34); color: var(--red); }
-
-    .bar-chart {
-      display: grid;
-      gap: 14px;
-      margin: 20px 0;
-    }
-
-    .bar-row {
-      display: grid;
-      grid-template-columns: minmax(140px, .65fr) minmax(200px, 2fr) 90px;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .bar-name {
-      color: var(--soft);
-      font-size: .8rem;
-      line-height: 1.25;
-    }
-
-    .bar-track {
-      height: 18px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, .025);
-      overflow: hidden;
-    }
-
-    .bar-fill {
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, var(--blue), var(--green));
-    }
-
-    .bar-fill.amber { background: linear-gradient(90deg, #d8922e, var(--amber)); }
-    .bar-fill.violet { background: linear-gradient(90deg, #8067cf, var(--violet)); }
-
-    .bar-value {
-      color: var(--paper);
-      font-family: var(--mono);
-      font-size: .75rem;
-      text-align: right;
-    }
-
-    .study-strip {
-      display: flex;
-      gap: 5px;
-      margin: 22px 0;
-      padding: 7px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: rgba(255, 255, 255, .018);
-    }
-
-    .study-segment {
-      min-height: 105px;
-      padding: 13px;
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      background: var(--panel);
-    }
-
-    .study-segment.train { flex: 5; border-color: rgba(99, 217, 255, .28); }
-    .study-segment.gap { flex: 1; border-color: rgba(255, 201, 107, .32); }
-    .study-segment.holdout { flex: 3; border-color: rgba(183, 239, 120, .32); background: var(--green-soft); }
-    .study-segment.quarantine { flex: 2; border-color: rgba(255, 140, 134, .32); background: var(--red-soft); }
-
-    .study-segment b,
-    .study-segment span {
-      display: block;
-    }
-
-    .study-segment b {
-      margin-bottom: 6px;
-      color: var(--paper);
-      font-size: .78rem;
-    }
-
-    .study-segment span {
-      color: var(--muted);
-      font-size: .69rem;
-      line-height: 1.4;
-    }
-
-    .return-chart {
-      display: grid;
-      gap: 12px;
-      margin: 22px 0;
-    }
-
-    .return-row {
-      display: grid;
-      grid-template-columns: minmax(135px, .7fr) minmax(240px, 2fr) 82px;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .return-name {
-      color: var(--soft);
-      font-size: .8rem;
-    }
-
-    .return-track {
-      display: grid;
-      grid-template-columns: 78fr 22fr;
-      height: 22px;
-      border: 1px solid var(--line);
-      border-radius: 7px;
-      background: rgba(255, 255, 255, .025);
-      overflow: hidden;
-    }
-
-    .return-half {
-      position: relative;
-      display: flex;
-      align-items: stretch;
-    }
-
-    .return-half.negative {
-      justify-content: flex-end;
-      border-right: 1px solid rgba(243, 246, 250, .48);
-    }
-
-    .return-bar {
-      height: 100%;
-      min-width: 2px;
-    }
-
-    .return-bar.negative { background: linear-gradient(90deg, #8c3f48, var(--red)); }
-    .return-bar.positive { background: linear-gradient(90deg, var(--blue), var(--green)); }
-
-    .return-number {
-      color: var(--paper);
-      font-family: var(--mono);
-      font-size: .74rem;
-      text-align: right;
-    }
-
-    .ladder {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 7px;
-      margin: 22px 0;
-      overflow-x: auto;
-      padding-bottom: 8px;
-      max-width: 100%;
-    }
-
-    .ladder-step {
-      min-width: 118px;
-      min-height: 112px;
-      padding: 13px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: var(--panel);
-    }
-
-    .ladder-step.done { border-color: rgba(183, 239, 120, .36); background: var(--green-soft); }
-    .ladder-step.next { border-color: rgba(255, 201, 107, .38); background: var(--amber-soft); }
-    .ladder-step.locked { opacity: .62; }
-
-    .ladder-step b {
-      display: block;
-      margin-bottom: 7px;
-      color: var(--paper);
-      font-size: .78rem;
-      line-height: 1.25;
-    }
-
-    .ladder-step span {
-      color: var(--muted);
-      font-size: .69rem;
-      line-height: 1.35;
-    }
-
-    .decision-list {
-      display: grid;
-      gap: 8px;
-      margin: 17px 0;
-      padding: 0;
-      list-style: none;
-      counter-reset: decision;
-    }
-
-    .decision-list li {
-      display: grid;
-      grid-template-columns: 32px 1fr;
-      gap: 12px;
-      align-items: start;
-      color: var(--soft);
-      counter-increment: decision;
-    }
-
-    .decision-list li::before {
-      width: 29px;
-      height: 29px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(99, 217, 255, .28);
-      border-radius: 8px;
-      background: var(--blue-soft);
-      color: var(--blue);
-      content: counter(decision, decimal-leading-zero);
-      font-family: var(--mono);
-      font-size: .65rem;
-      font-weight: 850;
-    }
-
-    .glossary {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 11px;
-      margin: 22px 0;
-    }
-
-    .term {
-      padding: 15px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: rgba(255, 255, 255, .018);
-    }
-
-    .term dt {
-      margin-bottom: 5px;
-      color: var(--paper);
-      font-size: .84rem;
-      font-weight: 820;
-    }
-
-    .term dd {
-      margin: 0;
-      color: var(--muted);
-      font-size: .78rem;
-      line-height: 1.48;
-    }
-
-    .book-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 10px;
-      padding: 9px 12px;
-      border: 1px solid rgba(99, 217, 255, .28);
-      border-radius: 999px;
-      background: var(--blue-soft);
-      font-size: .78rem;
-      font-weight: 780;
-      text-decoration: none;
-    }
-
-    .book-link::after { content: "↗"; }
-
-    footer {
-      padding: 44px 0 12px;
-      color: var(--muted);
-      font-size: .78rem;
-    }
-
-    @media (max-width: 1040px) {
-      .hero { grid-template-columns: 1fr; min-height: auto; }
-      .hero-card { max-width: 720px; }
-      .page-grid { grid-template-columns: 1fr; }
-      .contents {
-        position: static;
-        display: flex;
-        gap: 4px;
-        max-height: none;
-        overflow-x: auto;
-        padding: 0 0 12px;
-      }
-      .contents-title { display: none; }
-      .contents a {
-        flex: 0 0 auto;
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        padding: 7px 10px;
-      }
-      .contents a:hover { border-color: var(--blue); background: var(--blue-soft); }
-      .pipeline { grid-template-columns: repeat(8, 125px); }
-      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-
-    @media (max-width: 820px) {
-      html { scroll-padding-top: 18px; }
-      .topbar { position: static; }
-      .topbar-inner { align-items: flex-start; flex-direction: column; padding: 14px 0; }
-      .top-links { justify-content: flex-start; }
-    }
-
-    @media (max-width: 740px) {
-      .shell { width: min(100% - 26px, 1240px); }
-      .hero { padding-top: 46px; gap: 28px; }
-      h1 { font-size: clamp(3rem, 16vw, 5rem); }
-      .page-grid { gap: 20px; padding-top: 28px; }
-      .chapter { padding-top: 54px; }
-      .grid-2,
-      .grid-3,
-      .grid-4,
-      .glossary { grid-template-columns: 1fr; }
-      .timeline { grid-template-columns: 1fr; }
-      .timeline::before { top: 16px; bottom: 16px; left: 12px; width: 2px; height: auto; }
-      .time-point { padding: 0 0 0 42px; text-align: left; }
-      .time-point::before { top: 5px; left: 12px; }
-      .bar-row { grid-template-columns: 120px 1fr 76px; gap: 8px; }
-      .return-row { grid-template-columns: 105px 1fr 72px; gap: 8px; }
-      .study-strip { display: grid; grid-template-columns: 1fr; }
-      .study-segment { min-height: 0; }
-      .ladder { grid-template-columns: repeat(6, 125px); }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-    }
-
-    @media print {
-      :root { color-scheme: light; }
-      body { background: #fff; color: #111; }
-      body::before, .topbar, .contents { display: none; }
-      .shell { width: 100%; }
-      .hero { min-height: auto; padding: 20px 0; }
-      .page-grid { grid-template-columns: 1fr; padding: 0; }
-      .chapter { break-inside: avoid; }
-      p, .card p, .card li, .term dd, td { color: #333; }
-      h1, h2, h3, h4, strong, th, .bar-value, .bar-name,
-      .return-number, .return-name, .study-segment b, .study-segment span { color: #111 !important; }
-      .card, .formula, .callout, .table-block, .pipe-node, .ladder-step,
-      .term, .study-segment { background: #fff; box-shadow: none; }
-    }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="A first-principles guide to the Virtual Hedge Fund: how investment ideas become signals, portfolios, trades and credible evidence. No quantitative finance background required.">
+  <meta name="theme-color" content="#030405">
+  <title>VHF — The Investment Framework</title>
+  <link rel="stylesheet" href="../assets/vhf-guide.css">
+  <script src="../assets/vhf-guide.js" defer></script>
 </head>
-
 <body>
-<a class="skip-link" href="#content">Skip to the guide</a>
-
-<header class="topbar">
-  <div class="shell topbar-inner">
-    <a class="brand" href="../index.html"><span class="brand-mark">V</span> Quantitative field guide</a>
-    <nav class="top-links" aria-label="Page navigation">
-      <a href="#journey">The journey</a>
-      <a href="#signal">Momentum</a>
-      <a href="#risk">Risk</a>
-      <a href="#execution">Execution</a>
-      <a href="#history">Longer-history study</a>
-      <a href="#research">Research lab</a>
-      <a href="#state">Current state</a>
-      <a href="scratchpad.html">Pilot primer</a>
-    </nav>
-  </div>
+<a class="skip-link" href="#main">Skip to the guide</a>
+<div class="progress" aria-hidden="true"></div>
+<header class="site-header">
+  <a class="brand" href="../index.html" aria-label="Virtual Hedge Fund research library"><span class="brand-mark" aria-hidden="true">V</span><span class="brand-name">Virtual Hedge Fund</span></a>
+  <nav class="header-links" aria-label="Main navigation">
+    <a href="explain.html" aria-current="page">The framework</a>
+    <a href="scratchpad.html">Development record</a>
+    <a class="home-link" href="../index.html">Research library</a>
+  </nav>
 </header>
+<div class="page-shell">
+  <aside class="sidebar" aria-label="Guide contents">
+    <div class="eyebrow">01 / The investment framework</div>
+    <nav class="contents">
+      <a href="#purpose">01 &nbsp; The question behind VHF</a>
+      <a href="#capital">02 &nbsp; Follow the money</a>
+      <a href="#observations">03 &nbsp; Start with credible data</a>
+      <a href="#momentum">04 &nbsp; Find relative winners</a>
+      <a href="#quality">05 &nbsp; Examine the return path</a>
+      <a href="#portfolio">06 &nbsp; Build a portfolio</a>
+      <a href="#risk">07 &nbsp; Measure shared risk</a>
+      <a href="#execution">08 &nbsp; Trade and account</a>
+      <a href="#comparison">09 &nbsp; Choose a fair comparison</a>
+      <a href="#evidence">10 &nbsp; Test without hindsight</a>
+      <a href="#scope">11 &nbsp; Understand today's scope</a>
+      <a href="#reading">12 &nbsp; Sources and next reading</a>
+    </nav>
+    <p class="sidebar-note">Read in order the first time.<br>Numbers in teaching examples are <strong>invented</strong>, unless explicitly described as project evidence.</p>
+  </aside>
+  <main id="main">
+    <div class="hero">
+      <div class="eyebrow">A first-principles guide / No prior reading required</div>
+      <h1>From an investment idea<br>to a portfolio you can <em>explain.</em></h1>
+      <p class="lead">The Virtual Hedge Fund asks a practical question: can we turn a financial idea into explicit decisions, account for every consequence, and find out whether it deserves real capital?</p>
+      <div class="meta"><span>Reader's edition · 07 September 2026</span><span>Part 1 of 2</span><span>About 25 minutes</span></div>
+      <div class="hero-note"><p>VHF is a research and simulation project. It has working software and historical development calculations. It has not established a fully validated, live investment strategy. This guide explains the framework; the <a href="scratchpad.html">development record</a> explains the evidence behind that statement.</p></div>
+    </div>
+    <details class="mobile-contents">
+      <summary>In this guide · 12 chapters</summary>
+      <nav class="contents" aria-label="Mobile guide contents">
+        <a href="#purpose">01 · The question behind VHF</a><a href="#capital">02 · Follow the money</a><a href="#observations">03 · Start with credible data</a><a href="#momentum">04 · Find relative winners</a><a href="#quality">05 · Examine the return path</a><a href="#portfolio">06 · Build a portfolio</a><a href="#risk">07 · Measure shared risk</a><a href="#execution">08 · Trade and account</a><a href="#comparison">09 · Choose a fair comparison</a><a href="#evidence">10 · Test without hindsight</a><a href="#scope">11 · Understand today's scope</a><a href="#reading">12 · Sources and next reading</a>
+      </nav>
+    </details>
 
-<main id="content">
-  <div class="shell">
-    <section class="hero" aria-labelledby="page-title">
-      <div>
-        <div class="eyebrow">Virtual Hedge Fund · from first principles</div>
-        <h1 id="page-title">From an idea to an <span>auditable portfolio.</span></h1>
-        <p class="lede">VHF is not one clever formula. It is a chain of small decisions: what data was knowable, what the signal says, what risks hide inside it, how much to hold, whether a trade is allowed, how it fills, and whether the final record can be replayed.</p>
-        <p class="hero-note">The core implemented journey is daily US equities: decide after an eligible close, trade no earlier than the next regular open, and preserve enough evidence to reconstruct every result.</p>
+    <section class="chapter" id="purpose">
+      <span class="section-number">01 / PURPOSE</span>
+      <h2>The question behind VHF</h2>
+      <p>A stock represents ownership in a company. An investor buys it hoping that future cash distributions and the price at which it can be sold will compensate for the money committed and the risk taken. A <strong>portfolio</strong> is the collection of those investments, cash and any other rights or obligations.</p>
+      <p>Picking an attractive stock is only one part of investing. You must also decide how much to buy, which other investments to hold, when to change the portfolio, and how to respond when facts or prices change. A <strong>strategy</strong> specifies that entire decision process. A <strong>quantitative strategy</strong> expresses enough of it as rules that the same inputs can produce the same decision again.</p>
+      <p>VHF began by studying books on stock selection, portfolio risk, trading systems and research discipline. Their ideas become hypotheses to investigate. Software then makes the assumptions precise and records their consequences. The first substantial historical application is a stock-selection method called <strong>quality momentum</strong>: buy relatively strong stocks while considering how their gains developed.</p>
+      <div class="process" aria-label="The investment decision chain">
+        <div><b>01</b><strong>Idea</strong>Why might an opportunity exist?</div>
+        <div><b>02</b><strong>Signal</strong>What observable rule identifies it?</div>
+        <div><b>03</b><strong>Portfolio</strong>What should we own, and how much?</div>
+        <div><b>04</b><strong>Execution</strong>What could we actually buy or sell?</div>
+        <div><b>05</b><strong>Evidence</strong>What did we earn, risk and learn?</div>
       </div>
-
-      <aside class="hero-card" aria-label="The VHF decision chain">
-        <span class="mini-label">The central question changes at every step</span>
-        <h2>A signal is only the first answer.</h2>
-        <div class="hero-stack">
-          <div class="hero-step"><b>01</b><span>Data — what could we honestly know?</span></div>
-          <div class="hero-step"><b>02</b><span>Signal — which securities look attractive?</span></div>
-          <div class="hero-step"><b>03</b><span>Risk — what may move together?</span></div>
-          <div class="hero-step"><b>04</b><span>Portfolio — how much should we hold?</span></div>
-          <div class="hero-step"><b>05</b><span>Execution — what price might we receive?</span></div>
-          <div class="hero-step"><b>06</b><span>Evidence — can the whole result be trusted?</span></div>
-        </div>
-        <div class="status-strip" aria-label="Current evidence summary">
-          <span class="pill green">Core contracts built</span>
-          <span class="pill green">12 folds + holdout materialized</span>
-          <span class="pill amber">Benchmark paths are lower bounds</span>
-          <span class="pill red">Promotion, paper and live closed</span>
-        </div>
-      </aside>
+      <p>Each step needs the previous one, but also adds a new question. A good signal can lead to a badly diversified portfolio. A sensible portfolio can be expensive to trade. A profitable-looking simulation can rely on information nobody had at the time. VHF's purpose is to make those differences visible.</p>
+      <div class="reading-note"><h3>Two kinds of work, two kinds of truth</h3><p>The <strong>research library</strong> explains what a book or paper argues. The <strong>engineering record</strong> explains what VHF actually implemented and checked. A passing software test does not prove an investment theory. A missing payment record does not refute momentum. Keeping these two records separate makes each more useful.</p></div>
+      <p class="source-note">Intellectual starting point: Giuseppe A. Paleologo, <a href="advanced-portfolio-management.html">Advanced Portfolio Management</a>, especially the connection between investment edge, sizing, factor risk, trading and performance attribution. <a href="#ref-apm">Full reference ↗</a></p>
     </section>
 
-    <div class="page-grid">
-      <nav class="contents" aria-label="Contents">
-        <div class="contents-title">Contents</div>
-        <a href="#journey">1 · The whole journey</a>
-        <a href="#time">2 · Time and data</a>
-        <a href="#signal">3 · Momentum signal</a>
-        <a href="#risk">4 · Risk models</a>
-        <a href="#portfolio">5 · Portfolio construction</a>
-        <a href="#execution">6 · Execution and accounting</a>
-        <a href="#evidence">7 · Backtest integrity</a>
-        <a href="#history">8 · Longer-history study</a>
-        <a href="#research">9 · Research laboratory</a>
-        <a href="#state">10 · What exists now</a>
-        <a href="#lineage">11 · Knowledge lineage</a>
-        <a href="#glossary">12 · Glossary</a>
-      </nav>
-
-      <div>
-        <section class="chapter" id="journey" aria-labelledby="journey-title">
-          <div class="chapter-number">Chapter 01 · Orientation</div>
-          <h2 id="journey-title">The whole journey, before the mathematics.</h2>
-          <p class="chapter-intro">The fund turns an uncertain research belief into a controlled experiment. Each layer narrows what the next layer is allowed to claim.</p>
-
-          <div class="pipeline" aria-label="VHF pipeline">
-            <div class="pipe-node"><b>Point-in-time data</b><span>only information then knowable</span></div>
-            <div class="pipe-node"><b>Signal</b><span>relative attractiveness</span></div>
-            <div class="pipe-node"><b>Risk model</b><span>shared and specific risk</span></div>
-            <div class="pipe-node"><b>Target</b><span>desired portfolio weights</span></div>
-            <div class="pipe-node"><b>Risk gate</b><span>approve or reject atomically</span></div>
-            <div class="pipe-node"><b>Next-open fill</b><span>spread, impact, commission</span></div>
-            <div class="pipe-node"><b>Ledger</b><span>cash, holdings, costs, PnL</span></div>
-            <div class="pipe-node"><b>Evidence</b><span>attribution, replay, promotion</span></div>
-          </div>
-
-          <div class="grid-3 section-block">
-            <article class="card blue">
-              <span class="mini-label">Research</span>
-              <h3>What might work?</h3>
-              <p>The current central hypothesis is quality momentum: recent winners with steadier return paths may be better candidates than jump-driven winners.</p>
-            </article>
-            <article class="card violet">
-              <span class="mini-label">Engineering</span>
-              <h3>Can we calculate it honestly?</h3>
-              <p>The code fixes timestamps, inputs, formulas, constraints, event order, and replay rules so later information cannot quietly improve an earlier decision.</p>
-            </article>
-            <article class="card green">
-              <span class="mini-label">Governance</span>
-              <h3>What does the evidence permit?</h3>
-              <p>A passing unit test permits a stronger code claim, not a return claim. Historical, holdout, capacity, paper, and live evidence are separate gates.</p>
-            </article>
-          </div>
-
-          <div class="callout amber">
-            <h3>The two truths stay separate</h3>
-            <p>The <strong>knowledge base</strong> records source-derived ideas. The <strong>engineering layer</strong> records which contracts, simulations, provider diagnostics, and experiments exist. A failed implementation does not make a research concept false; a green test does not make it profitable.</p>
-          </div>
-        </section>
-
-        <section class="chapter" id="time" aria-labelledby="time-title">
-          <div class="chapter-number">Chapter 02 · The information clock</div>
-          <h2 id="time-title">A correct value at the wrong time is still wrong.</h2>
-          <p class="chapter-intro">Most serious backtest errors are time errors. VHF therefore asks not only “what is the value?” but also “when did the system have permission to know it?”</p>
-
-          <div class="timeline" aria-label="Decision and execution timing">
-            <div class="time-point"><b>Session T closes</b><span>prices, universe, ADV and risk evidence become fixed</span></div>
-            <div class="time-point"><b>Decision is formed</b><span>signal → risk model → target → atomic approval</span></div>
-            <div class="time-point"><b>Next regular open</b><span>the first permitted execution point</span></div>
-          </div>
-
-          <div class="grid-3 section-block">
-            <article class="card">
-              <h3>Effective time</h3>
-              <p>When the fact economically applies. A fiscal value may describe a quarter that ended months ago.</p>
-            </article>
-            <article class="card">
-              <h3>Availability time</h3>
-              <p>When the value could actually be observed. This is the clock a decision must obey.</p>
-            </article>
-            <article class="card">
-              <h3>Revision</h3>
-              <p>Which published version was visible then. A later correction must not rewrite an earlier experiment.</p>
-            </article>
-          </div>
-
-          <div class="section-block">
-            <h3>Point-in-time data means rebuilding the past as it looked then</h3>
-            <p>VHF’s provider-neutral data contract separates permanent security identity, ticker history, exchange sessions, prices, actions, delistings, membership, market cap, liquidity, benchmarks, and factor exposures. Every requested session is materialized at its own cutoff.</p>
-            <div class="grid-2">
-              <div class="callout green">
-                <h4>Safe question</h4>
-                <p>“Using only rows available by the June 24 close, what portfolio would the rules have formed?”</p>
-              </div>
-              <div class="callout red">
-                <h4>Unsafe shortcut</h4>
-                <p>“Using today’s cleaned history, which stocks appear to have qualified on June 24?”</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="section-block">
-            <h3>Identity is not the ticker</h3>
-            <p>A company can change ticker; a ticker can later be reused. VHF keys history to a permanent security identity and treats symbols as dated labels. This protects holdings, corporate actions, and delistings from being attached to the wrong instrument.</p>
-          </div>
-
-          <div class="section-block">
-            <h3>Research prices and tradable prices have different jobs</h3>
-            <div class="table-block">
-              <div class="table-wrap">
-                <table>
-                  <thead><tr><th>Price domain</th><th>Use</th><th>Why</th><th>VHF rule</th></tr></thead>
-                  <tbody>
-                    <tr><td><strong>Total-return level</strong></td><td>Signal and research returns</td><td>Combines price change with split/dividend adjustment so economic performance is comparable.</td><td>Momentum reads total-return history.</td></tr>
-                    <tr><td><strong>Raw market price</strong></td><td>Orders, fills, shares, cash and notional</td><td>A share trades at the unadjusted market price observed at that time.</td><td>Execution snapshots expose raw open only.</td></tr>
-                    <tr><td><strong>Corporate-action ledger</strong></td><td>Splits, dividends and terminal settlement</td><td>Cash and share changes must be booked explicitly rather than hidden inside adjusted prices.</td><td>Phase 4 accounts for actions separately.</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <div class="callout">
-            <h3>The current Sharadar timing rule</h3>
-            <p>A value economically dated to session T may influence VHF no earlier than the next reviewed regular session. The economic date is preserved; availability is never backdated to make same-close trading possible.</p>
-          </div>
-        </section>
-
-        <section class="chapter" id="signal" aria-labelledby="signal-title">
-          <div class="chapter-number">Chapter 03 · Signal generation</div>
-          <h2 id="signal-title">Momentum asks who has been winning—and how.</h2>
-          <p class="chapter-intro">VHF’s primary implemented research signal is cross-sectional quality momentum. It compares stocks with one another; it does not merely ask whether one stock went up.</p>
-
-          <div class="section-block">
-            <h3>Step 1 — Build the investable universe before ranking</h3>
-            <div class="funnel" aria-label="Momentum universe funnel">
-              <div class="funnel-row"><span>Start</span><div class="funnel-bar">Contemporaneous security universe</div></div>
-              <div class="funnel-row"><span>Security type</span><div class="funnel-bar">USD ordinary common shares</div></div>
-              <div class="funnel-row"><span>Venue rule</span><div class="funnel-bar">NYSE · Nasdaq · NYSE American</div></div>
-              <div class="funnel-row"><span>Size</span><div class="funnel-bar">Above 40th-percentile breakpoint</div></div>
-              <div class="funnel-row"><span>Liquidity</span><div class="funnel-bar">Positive 60-session ADV floor</div></div>
-              <div class="funnel-row"><span>History</span><div class="funnel-bar">Complete signal windows</div></div>
-            </div>
-            <p><strong>The size cutoff removes the smallest stocks.</strong> The frozen provider-neutral rule finds the 40th-percentile market cap among qualifying NYSE stocks on the decision date. Stocks must be strictly above that dollar threshold: roughly the largest 60% of the NYSE reference set pass, not the largest 40%. Nasdaq and NYSE American stocks can also qualify against the same threshold.</p>
-            <p><strong>The pilot uses a broader reference set.</strong> Reliable historical exchange listings are unavailable, so the five-year pilot selects USD domestic common shares from Sharadar’s SEP dataset without an explicit exchange filter. It calculates the cutoff across stocks active on that date with positive market cap and thirteen complete month-end total-return levels. This includes qualifying Nasdaq stocks; it does not reconstruct their historical exchange. The liquidity and complete daily-signal checks are applied after this size cutoff is calculated.</p>
-            <p><strong>Liquidity means dollars traded per day.</strong> The pilot requires at least $1 million in average daily trading value over 60 trading sessions, including the decision session: average(unadjusted closing price × raw share volume). This is the 60-session raw-notional ADV. Missing observations exclude the stock; a high market cap alone does not guarantee sufficient liquidity.</p>
-          </div>
-
-          <div class="section-block">
-            <h3>Step 2 — Measure 12-minus-2 momentum</h3>
-            <p>The prior-year, skip-recent-month rule comes from Gray and Vogel’s <em>Quantitative Momentum</em>. VHF expresses it using thirteen consecutive month-end total-return levels: thirteen observations mark twelve monthly intervals. Compare the first with the penultimate level to measure eleven months of returns; skip the final month. Requiring the complete sequence is a data-quality rule, not a window chosen because it won a VHF backtest.</p>
-            <p><strong>Calendar example:</strong> at a December 2025 month-end decision, collect December 2024 through December 2025 levels. Measure the return from December 2024 to November 2025, and skip the November-to-December 2025 return. “12-minus-2” refers to the included monthly returns relative to the next holding month.</p>
-            <div class="month-axis" aria-label="Thirteen month-end levels for twelve-minus-two momentum">
-              <div class="month form start">start</div><div class="month form">+1</div><div class="month form">+2</div><div class="month form">+3</div><div class="month form">+4</div><div class="month form">+5</div><div class="month form">+6</div><div class="month form">+7</div><div class="month form">+8</div><div class="month form">+9</div><div class="month form">+10</div><div class="month form end">form end</div><div class="month skip">decision</div>
-            </div>
-            <div class="axis-legend"><span>twelve formation levels</span><span class="skip-key">one skipped month: formation end → decision</span></div>
-            <div class="formula">momentum₁₂₋₂ = total_return_level[formation end]
-               ÷ total_return_level[formation start] − 1
-
-Example: 130 ÷ 100 − 1 = 30%</div>
-            <p>The skip reduces contamination from short-term reversal and makes the signal closer to the source-defined intermediate horizon.</p>
-          </div>
-
-          <div class="section-block">
-            <h3>Step 3 — Keep the strongest decile, then judge path quality</h3>
-            <p><strong>First create the shortlist using the Step 2 momentum percentages.</strong> Rank all eligible stocks by momentum, highest first, and keep the top 10%. Only these candidates enter the path-quality comparison.</p>
-            <div class="formula">Candidate count = max(1, ceiling(eligible names × 10%))
-
-Example: 1,003 eligible stocks → 101 highest-momentum candidates
-<small>Ceiling rounds upward; max(1, …) keeps at least one candidate when the eligible universe is nonempty. No eligible stocks means no selection.</small></div>
-            <p>Two stocks can both rise 30%. One may climb through many modest gains; the other may sit flat and jump on one spectacular day. VHF rewards the steadier path inside the high-momentum candidate set.</p>
-            <div class="grid-2">
-              <article class="card blue">
-                <span class="mini-label">Information discreteness · FIP</span>
-                <h3>Was the return broad or concentrated?</h3>
-                <p><strong>FIP means “Frog in the Pan”:</strong> investors may underreact to gradual information arriving through many small changes. Information discreteness (ID) is a proxy for that idea, using the direction of daily returns.</p>
-                <p>Count exactly 252 daily returns ending at the formation end. This daily window is separate from the eleven-month momentum window. Zero-return days stay in the denominator but enter neither count.</p>
-                <div class="formula">negative fraction = negative-return days ÷ 252
-positive fraction = positive-return days ÷ 252
-sign(momentum) = +1 if positive, −1 if negative, 0 if zero
-
-ID = sign(momentum) × (negative fraction − positive fraction)
-
-Example: Step 2 momentum = +30% → sign(+30%) = +1
-160 positive days, 92 negative days:
-ID = +1 × (92/252 − 160/252) ≈ −0.27</div>
-                <p>The full <strong>30%</strong> ranks performance in the shortlist step; only its <strong>+1 sign</strong> enters ID. For a positive-momentum stock, more negative ID means more positive than negative days. This suggests a more continuous rise, but ID counts direction, not move size, and does not prove smoothness or information arrival.</p>
-              </article>
-              <article class="card amber">
-                <span class="mini-label">MAX</span>
-                <h3>Did one recent day dominate?</h3>
-                <p>Take the largest <em>signed</em> daily return in the skipped month. A smaller MAX receives the better quality rank.</p>
-                <div class="formula">MAX = max(daily returns in skipped month)
-
-It is not max(abs(return)).</div>
-              </article>
-            </div>
-            <div class="formula">ID quality percentile  = percentile rank of −ID
-MAX quality percentile = percentile rank of −MAX
-path quality           = 50% × ID quality + 50% × MAX quality
-<small>Calculate both percentiles only within the momentum shortlist. Ranking −ID and −MAX makes lower ID and lower MAX receive higher quality scores.</small></div>
-            <p><strong>The order is:</strong> rank eligible stocks by momentum → keep the top 10% → calculate quality percentiles within that shortlist → rank the shortlist by path quality → select the long-only portfolio.</p>
-          </div>
-
-          <div class="section-block">
-            <h3>Step 4 — Turn the rank into a provisional portfolio</h3>
-            <p>These are <strong>three separate research variants</strong>, not three consecutive steps applied to one portfolio. The daily challenger also changes the signal formula. Their historical evaluation is at different stages.</p>
-            <div class="grid-3">
-              <article class="card green">
-                <h3>Source-faithful long-only</h3>
-                <p>Take the best path-quality names from the high-momentum decile, up to 50 names, equal weighted at 2% each. If fewer qualify, unused weight stays in cash.</p>
-                <p><strong>Calculated:</strong> five-year historical return paths and turnover, cost, and capacity diagnostics, subject to the documented data and terminal-value limitations.</p>
-              </article>
-              <article class="card violet">
-                <h3>Factor-controlled long/short variant</h3>
-                <p>Use the top 10% by raw momentum as long candidates and the bottom 10% as short candidates. Buying the winners bets on further gains; shorting the losers bets on further declines. This membership is not the long-only path-quality top 50.</p>
-                <p>Allocate 50% of portfolio equity to each side, with a maximum 2% per stock. Adjust weights to offset market-beta, sector, and size exposures without switching any stock from long to short or vice versa. “Derivative” here means a strategy variation, not an option or futures contract.</p>
-                <p><strong>Calculated:</strong> five-year target feasibility and exposure/route diagnostics. <strong>Not calculated:</strong> factor-controlled historical portfolio performance.</p>
-              </article>
-              <article class="card amber">
-                <h3>Daily challenger</h3>
-                <p>A separate 252/21 prototype ranks 70% momentum, 20% log-path R² smoothness, and 10% low absolute jump. It is not allowed to replace the primary formula after results are seen.</p>
-                <p><strong>Calculated:</strong> synthetic prototype checks. A provider-backed historical performance study remains unfinished.</p>
-              </article>
-            </div>
-            <h3>How the long/short neutralization works</h3>
-            <p>Start with equal weights within each side. The solver finds weights as close as possible to that starting portfolio, minimizing the sum of squared weight changes, while requiring market-beta, standardized size, and each sector’s net exposure to be zero within numerical tolerance.</p>
-            <div class="formula">Long weights:   0% ≤ each weight ≤ +2%; sum = +50%
-Short weights: −2% ≤ each weight ≤  0%; sum = −50%
-
-Example with 50 stocks on each side:
-50 × +1% = +50% long; 50 × −1% = −50% short
-Change two longs from 1% + 1% to 1.4% + 0.6%:
-their combined 2% stays unchanged, but their factor exposures change.</div>
-            <p>The algorithm adjusts all exposures together, keeping weights inside their bounds on every iteration. It then independently checks the final constraints. A weight may reach zero but cannot cross to the opposite side. Each side needs at least 25 stocks to reach 50% under the 2% cap; that alone does not guarantee neutralization is possible. With exactly 25, every weight is forced to the cap. Missing inputs or a failed solve/check withhold the target.</p>
-            <p>Equal dollars long and short give zero net dollar exposure, but do not automatically cancel beta, sector, or size. Likewise, a neutral target does not establish a neutral realized portfolio: missing trades, borrow restrictions, price drift, and costs still matter.</p>
-            <h3>What the additional Sharadar history enables</h3>
-            <p>The approved maximum-history study already has twelve evaluation folds and four benchmark paths. It has not completed historical performance comparisons for all three variants. The longer history supports extending the long-only analysis, extending factor-target diagnostics, and connecting the challenger to historical data. Factor-controlled returns still need signed position accounting, terminal outcomes, borrow, and costs. The complete ten-trial comparison remains unfinished; the reserved holdout stays unread.</p>
-          </div>
-
-          <div class="section-block">
-            <h3>Rebalance timing is part of the strategy</h3>
-            <div class="table-block"><div class="table-wrap"><table>
-              <thead><tr><th>Registered schedule</th><th>Formation</th><th>Holding logic</th><th>Research purpose</th></tr></thead>
-              <tbody>
-                <tr><td>Monthly</td><td>Every month end</td><td>One nonoverlapping month</td><td>Primary frequent-refresh comparison</td></tr>
-                <tr><td>Quarterly</td><td>Mar · Jun · Sep · Dec</td><td>Three nonoverlapping months</td><td>Lower-turnover robustness</td></tr>
-                <tr><td>Overlapping quarterly</td><td>Every month</td><td>Blend three equal three-month cohorts</td><td>Smooth timing dependence</td></tr>
-                <tr><td>Seasonality-aware</td><td>Feb · May · Aug · Nov</td><td>Three nonoverlapping months</td><td>Test quarter-end and January distortions</td></tr>
-              </tbody>
-            </table></div></div>
-          </div>
-        </section>
-
-        <section class="chapter" id="risk" aria-labelledby="risk-title">
-          <div class="chapter-number">Chapter 04 · Risk modeling</div>
-          <h2 id="risk-title">A return forecast is not a risk forecast.</h2>
-          <p class="chapter-intro">Momentum ranks opportunity. A risk model estimates what can move together, which exposures dominate, and how violently a portfolio may behave.</p>
-
-          <div class="section-block">
-            <h3>Covariance is the grammar of joint movement</h3>
-            <div class="formula">portfolio variance   = weightsᵀ × covariance × weights
-portfolio volatility = √portfolio variance</div>
-            <p>Variance on the diagonal measures each stock’s own movement. Covariance off the diagonal measures how pairs move together. Those pairwise relationships are why a collection of individually volatile stocks can sometimes form a calmer portfolio—and why apparent diversification can disappear in a crisis.</p>
-          </div>
-
-          <div class="section-block">
-            <h3>Factor models split common risk from stock-specific risk</h3>
-            <div class="formula">stock returns = factor exposures × factor returns + residual returns
-
-stock covariance = B × factor covariance × Bᵀ + diagonal(specific variance)</div>
-            <div class="grid-3">
-              <article class="card"><h3>Exposure matrix B</h3><p>How sensitive each stock is to market, sector, size, or another common driver.</p></article>
-              <article class="card"><h3>Factor covariance</h3><p>How those shared drivers vary and co-vary with one another.</p></article>
-              <article class="card"><h3>Specific variance</h3><p>The remaining stock-level uncertainty after the shared factors are removed.</p></article>
-            </div>
-          </div>
-
-          <div class="section-block">
-            <h3>VHF preserves five covariance candidates</h3>
-            <div class="table-block"><div class="table-wrap"><table>
-              <thead><tr><th>Model</th><th>Plain-language idea</th><th>Strength</th><th>Main danger</th></tr></thead>
-              <tbody>
-                <tr><td><strong>Fundamental ridge</strong></td><td>Explain returns with known exposures, stabilized by a ridge penalty.</td><td>Interpretable common risk.</td><td>Misspecified or stale exposures.</td></tr>
-                <tr><td><strong>Sample</strong></td><td>Use ordinary historical covariance.</td><td>Simple and transparent.</td><td>Noisy when assets are many and history is short.</td></tr>
-                <tr><td><strong>EWMA</strong></td><td>Give newer returns more weight; VHF uses a declared half-life.</td><td>Adapts to recent volatility.</td><td>Can react to noise and churn.</td></tr>
-                <tr><td><strong>Shrinkage</strong></td><td>Pull unstable sample relationships toward the diagonal.</td><td>Often better conditioned.</td><td>May erase real correlation structure.</td></tr>
-                <tr><td><strong>Rolling PCA</strong></td><td>Infer a few statistical factors from common return patterns.</td><td>Finds hidden common movement.</td><td>Factors can rotate and be hard to interpret.</td></tr>
-              </tbody>
-            </table></div></div>
-          </div>
-
-          <div class="section-block">
-            <h3>The models are evaluated after the forecast</h3>
-            <p>VHF scores candidates only on strictly later realized returns. It uses equal-weight, deterministic random dollar-neutral, and model-specific minimum-variance probes, then inspects calibration, QLIKE loss, eigenvalues, rank, conditioning, beta/loading stability, and model-induced turnover.</p>
-            <div class="formula">QLIKE(realized variance, forecast variance)
-= realized / forecast − log(realized / forecast) − 1
-<small>Zero is best. Large under- or over-forecasts are penalized, while the formula respects variance’s positive scale.</small></div>
-          </div>
-
-          <div class="section-block">
-            <h3>Alpha sizing keeps conviction, volatility and uncertainty separate</h3>
-            <div class="formula">gross expected return = signal × return scale × confidence
-sizing score          = gross expected return ÷ annualized volatility
-effective score       = sizing score × (1 − uncertainty haircut)</div>
-            <p>A stronger signal may deserve more weight; a more volatile stock may deserve less; low confidence or high estimation uncertainty reduces the trade. None of these changes rewrites historical returns.</p>
-          </div>
-        </section>
-
-        <section class="chapter" id="portfolio" aria-labelledby="portfolio-title">
-          <div class="chapter-number">Chapter 05 · Portfolio construction</div>
-          <h2 id="portfolio-title">Keep the intended edge. Remove accidental bets.</h2>
-          <p class="chapter-intro">Portfolio construction translates relative scores into weights while negotiating risk, liquidity, concentration, cost, and the positions already owned.</p>
-
-          <div class="section-block">
-            <h3>What “factor neutral” means</h3>
-            <p>A raw momentum book may accidentally be long market beta, large technology sectors, or a particular size bucket. Neutralization changes weights as little as possible while bringing selected exposures to zero—or inside explicit bounds.</p>
-            <div class="formula">choose adjusted weights close to the desired weights
-
-subject to:
-  net exposure ≈ 0
-  beta, sector and size exposure ≈ 0
-  gross exposure ≤ limit
-  |single-name weight| ≤ cap
-  predicted volatility ≤ limit
-  turnover, cost and ADV participation ≤ limits</div>
-          </div>
-
-          <div class="grid-3 section-block">
-            <article class="card blue">
-              <span class="mini-label">Phase 1</span>
-              <h3>Least-change neutralizer</h3>
-              <p>Start from ranked long and short books, then use a ridge-stabilized active-set solve for net, factor, gross, sign and name constraints. Volatility may scale down, never up.</p>
-            </article>
-            <article class="card violet">
-              <span class="mini-label">Phase 5</span>
-              <h3>One-dimensional convex path</h3>
-              <p>Start from feasible holdings, form one covariance-scaled alpha direction, find the farthest structurally feasible endpoint, then choose how far to move along that line.</p>
-            </article>
-            <article class="card amber">
-              <span class="mini-label">Pilot v7</span>
-              <h3>Target-feasibility projection</h3>
-              <p>Use a bounded least-change solve to preserve long/short signs, 50% gross per side and the 2% cap while neutralizing beta, size, net and every sector.</p>
-            </article>
-          </div>
-
-          <div class="callout green">
-            <h3>Why the one-dimensional path is useful</h3>
-            <p>Cost and uncertainty can only shorten the move along a fixed direction. They cannot rotate the optimizer toward a completely different trade. Therefore, raising cost or uncertainty cannot increase turnover—a simple, testable safety property.</p>
-          </div>
-
-          <div class="section-block">
-            <h3>Actual v7 target diagnostics</h3>
-            <p>The long-only target and raw long/short seed carry meaningful exposures. The controlled long/short target brings every registered exposure below <code>1e-10</code>, but this proves target feasibility only; it does not provide realized factor-controlled returns.</p>
-            <div class="table-block"><div class="table-wrap"><table>
-              <thead><tr><th>Portfolio view</th><th>Beta</th><th>Size</th><th>Largest sector measure</th><th>Interpretation</th></tr></thead>
-              <tbody>
-                <tr><td>Median long-only target</td><td>0.869026</td><td>0.429128</td><td>26.0%</td><td>Material systematic concentration.</td></tr>
-                <tr><td>Raw equal-side long/short seed</td><td>−0.081301</td><td>0.238203</td><td>6.6528%</td><td>Closer to neutral, but not neutral.</td></tr>
-                <tr><td>Controlled long/short target</td><td>&lt; 1e−10</td><td>&lt; 1e−10</td><td>&lt; 1e−10</td><td>All registered target constraints pass.</td></tr>
-              </tbody>
-            </table></div></div>
-          </div>
-
-          <div class="callout amber">
-            <h3>Neutral is not automatically optimal</h3>
-            <p>Hedges cost money, exposures are estimated with error, and a factor may itself have expected return. VHF supports neutrality as a controlled experiment—not as a universal law.</p>
-          </div>
-        </section>
-
-        <section class="chapter" id="execution" aria-labelledby="execution-title">
-          <div class="chapter-number">Chapter 06 · Risk, execution and accounting</div>
-          <h2 id="execution-title">A target becomes real only through orders and a ledger.</h2>
-          <p class="chapter-intro">The execution layer asks whether the whole rebalance is allowed, what adverse price it might receive, and whether cash, positions, actions, financing, and PnL reconcile afterward.</p>
-
-          <div class="section-block">
-            <h3>The pre-trade decision is atomic</h3>
-            <p>VHF approves or rejects the complete batch. A rejected rebalance exposes no stray order that another component could execute.</p>
-            <div class="grid-3">
-              <article class="card"><h3>Universal blockers</h3><p>Invalid or stale data, unknown instruments, session mismatch, missing borrow, non-positive equity, duplicate lifecycle events, or a halted portfolio.</p></article>
-              <article class="card"><h3>Portfolio limits</h3><p>Gross, net, single name, turnover, liquidity participation, factor exposure, and drawdown.</p></article>
-              <article class="card"><h3>Governance warnings</h3><p>Signal decay, strategy drawdown, unstable parameters, or expected anomaly pain requiring review.</p></article>
-            </div>
-          </div>
-
-          <div class="section-block">
-            <h3>Turnover measures how much of the risky book changes</h3>
-            <div class="formula">one-way turnover = ½ × Σ |target weight − current weight|</div>
-            <p>The half prevents counting a matched sell-and-buy rebalance twice. In the five-year pilot, mean target turnover is 61.67%; return drift moves it to roughly 62.5–62.9%, depending on the terminal-cash sensitivity.</p>
-          </div>
-
-          <div class="section-block">
-            <h3>The default synthetic fill is deliberately adverse</h3>
-            <div class="formula">participation = |order notional| ÷ ADV
-impact fraction = 0.10 × daily volatility × √participation
-
-buy fill  = next raw open × (1 + half spread + impact)
-sell fill = next raw open × (1 − half spread − impact)
-commission = 1 bp × |reference notional|</div>
-            <p>The model uses prior-close ADV and volatility at the next open; it never peeks at that day’s later volume or close. Phase 4 then adds whole lots, adverse ticks, partial fills, cancel/expiry, and point-in-time borrow.</p>
-          </div>
-
-          <div class="section-block">
-            <h3>Capacity finds the first liquidity bottleneck</h3>
-            <div class="formula">participationᵢ(AUM) = AUM × |Δweightᵢ| ÷ ADVᵢ
-
-capacity = largest constant AUM for which every leg ≤ 5% of ADV</div>
-            <p>The pilot evaluates every nonzero buy and sell. One missing route, ADV value, or volatility estimate makes the entire capacity path unavailable. The current fixed-slice sensitivity finds a history-wide bottleneck near <strong>$2.4 million</strong>; it is arithmetic under registered assumptions, not calibrated executable capacity.</p>
-          </div>
-
-          <div class="section-block">
-            <h3>The ledger is the final arithmetic authority</h3>
-            <div class="formula">holdings value = Σ(shares × raw close)
-equity          = cash + holdings value
-daily PnL       = equity[t] − equity[t−1]
-
-starting capital + cumulative daily PnL = ending equity</div>
-            <p>Phase 4 separately tracks realized and unrealized gross PnL, spread, impact, commission, tick rounding, dividends, splits, known delisting proceeds, and exact short-financing intervals. Missing terminal treatment preserves the unresolved holding, halts trading in it, and blocks finalization instead of inventing zero recovery.</p>
-          </div>
-
-          <div class="callout red">
-            <h3>A halt is persistent</h3>
-            <p>A drawdown or operational breach can stop new risk and schedule liquidation. The system never silently restarts itself; only a separately identified, audited human reset can clear the halt.</p>
-          </div>
-        </section>
-
-        <section class="chapter" id="evidence" aria-labelledby="evidence-title">
-          <div class="chapter-number">Chapter 07 · Backtest integrity</div>
-          <h2 id="evidence-title">A backtest is a recorded argument, not a picture of the future.</h2>
-          <p class="chapter-intro">VHF treats reproducibility, leakage control, trial registration, and out-of-sample geometry as parts of the algorithm.</p>
-
-          <div class="section-block">
-            <h3>Event-driven means cause comes before effect</h3>
-            <div class="pipeline" aria-label="Event sequence">
-              <div class="pipe-node"><b>Open</b><span>fill prior approved batch</span></div>
-              <div class="pipe-node"><b>Close mark</b><span>value cash and holdings</span></div>
-              <div class="pipe-node"><b>Drawdown</b><span>halt check on fresh equity</span></div>
-              <div class="pipe-node"><b>Signal</b><span>read close-time prefix</span></div>
-              <div class="pipe-node"><b>Risk model</b><span>estimate dated covariance</span></div>
-              <div class="pipe-node"><b>Target</b><span>solve constrained weights</span></div>
-              <div class="pipe-node"><b>Decision</b><span>approve or reject atomically</span></div>
-              <div class="pipe-node"><b>Wait</b><span>next regular open only</span></div>
-            </div>
-          </div>
-
-          <div class="grid-2 section-block">
-            <article class="card blue">
-              <span class="mini-label">Manifest</span>
-              <h3>Declare the experiment first</h3>
-              <p>The immutable run specification binds strategy version, universe, availability rule, lag, horizon, rebalance calendar, costs, benchmarks, trial family, and evaluation plan.</p>
-            </article>
-            <article class="card violet">
-              <span class="mini-label">Replay</span>
-              <h3>Rebuild without rerunning the idea</h3>
-              <p>The authoritative hash-chained event log lets VHF reconstruct cash, shares, fills, costs, marks and PnL without calling the strategy, risk model, optimizer, or venue again.</p>
-            </article>
-          </div>
-
-          <div class="section-block">
-            <h3>Five persisted files, one authoritative history</h3>
-            <div class="table-block"><div class="table-wrap"><table>
-              <thead><tr><th>Artifact</th><th>Role</th></tr></thead>
-              <tbody>
-                <tr><td><code>manifest.json</code></td><td>The complete declared calculation and deterministic run identity.</td></tr>
-                <tr><td><code>events.jsonl</code></td><td>The authoritative ordered, hash-chained economic record.</td></tr>
-                <tr><td><code>equity_curve.csv.gz</code></td><td>A deterministic derived view of the ledger.</td></tr>
-                <tr><td><code>metrics.json</code></td><td>A deterministic derived summary.</td></tr>
-                <tr><td><code>inventory.json</code></td><td>Byte lengths and SHA-256 digests for the other four files.</td></tr>
-              </tbody>
-            </table></div></div>
-          </div>
-
-          <div class="section-block">
-            <h3>Walk-forward evaluation preserves chronology</h3>
-            <div class="formula">expanding training: at least 5 years
-test window:        1 year
-purge:              21 sessions
-embargo:            21 sessions
-final holdout:      3 years, locked before inspection</div>
-            <p>The purge removes training observations whose returns overlap the test boundary. The embargo leaves a buffer after the test. With maximum history now available, this geometry has been materialized as 12 expanding folds and a separately locked historical holdout. The holdout has not been opened.</p>
-          </div>
-
-          <div class="section-block">
-            <h3>Multiple testing asks whether the best result could be luck</h3>
-            <p>VHF preregisters a block sign-flip maximum-Sharpe procedure across the complete ten-trial momentum family. Whole 21-session blocks receive one shared random sign across every trial, preserving local dependence and the competition among strategies. Ten thousand repetitions estimate how often noise produces a family maximum at least as strong as the observed one.</p>
-            <div class="formula">p = (1 + number of simulated family maxima ≥ observed maximum)
-    ÷ (1 + 10,000)</div>
-          </div>
-
-          <div class="section-block">
-            <h3>Evidence advances one rung at a time</h3>
-            <div class="ladder" aria-label="VHF evidence ladder">
-              <div class="ladder-step done"><b>Unit validated</b><span>Individual mechanics behave as declared.</span></div>
-              <div class="ladder-step done"><b>Synthetic integrated</b><span>The full synthetic path works and replays.</span></div>
-              <div class="ladder-step next"><b>Historical research</b><span>Point-in-time provider evidence and results.</span></div>
-              <div class="ladder-step next"><b>Walk-forward candidate</b><span>Geometry and historical holdout are ready; promotion evidence is not.</span></div>
-              <div class="ladder-step locked"><b>Stress & capacity</b><span>Costs, capacity, attribution and stress.</span></div>
-              <div class="ladder-step locked"><b>Paper export ready</b><span>Separate operational approval boundary.</span></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="chapter" id="history" aria-labelledby="history-title">
-          <div class="chapter-number">Chapter 08 · The longer-history experiment</div>
-          <h2 id="history-title">More history changed what could be tested—not what could be claimed.</h2>
-          <p class="chapter-intro">The original five-year slice contained too little time to separate learning, testing, and a final untouched examination. Extending Sharadar to its maximum history crossed that mathematical threshold and allowed the approved Phase 6 experiment to be built honestly.</p>
-
-          <div class="section-block">
-            <h3>Why 108 months was the hard minimum</h3>
-            <p>The frozen design needs at least five years to learn, one year to test, and three final years to hold back. That is <strong>60 + 12 + 36 = 108 monthly outcomes</strong> before allowing for the 21-session safety gaps. The first slice supplied only 48. The maximum-history calendar supplies 330 completed monthly routes.</p>
-            <div class="bar-chart" aria-label="Completed monthly outcomes compared with the minimum study requirement">
-              <div class="bar-row"><div class="bar-name">Original five-year slice</div><div class="bar-track"><div class="bar-fill amber" style="width: 14.5%"></div></div><div class="bar-value">48</div></div>
-              <div class="bar-row"><div class="bar-name">No-gap minimum</div><div class="bar-track"><div class="bar-fill violet" style="width: 32.7%"></div></div><div class="bar-value">108</div></div>
-              <div class="bar-row"><div class="bar-name">Maximum-history routes</div><div class="bar-track"><div class="bar-fill" style="width: 100%"></div></div><div class="bar-value">330</div></div>
-            </div>
-            <p>The larger archive therefore adds 222 monthly routes beyond the bare minimum. Length is no longer the blocking issue.</p>
-          </div>
-
-          <div class="section-block">
-            <h3>How the past was divided without borrowing from the future</h3>
-            <p>Boz approved the exact split rules before the newly available return values were read. The study stops at the April 2021 decision, enters on 3 May, and exits on 1 June. Data from 30 June 2021 onward had already appeared in the earlier pilot, so it is quarantined rather than relabeled as unseen.</p>
-            <div class="study-strip" role="img" aria-label="Study sequence: expanding development and tests, purge and embargo gaps, locked historical holdout, then quarantined previously inspected data">
-              <div class="study-segment train"><b>12 expanding folds</b><span>At least five years of training, then one-year tests. Label-aware 21-session purge and embargo keep adjacent returns apart.</span></div>
-              <div class="study-segment gap"><b>Safety gaps</b><span>No overlapping return labels.</span></div>
-              <div class="study-segment holdout"><b>36-month holdout</b><span>Starts with the May 2018 entry. Physically excluded from development archives and still unread.</span></div>
-              <div class="study-segment quarantine"><b>Quarantine</b><span>30 June 2021 onward was previously inspected. It cannot become a fresh holdout.</span></div>
-            </div>
-            <div class="callout green">
-              <h3>A historically locked holdout is useful, but it is not live-forward evidence</h3>
-              <p>The final 36 months are the untouched end of a deliberately capped historical study. This protects the experiment from researcher choice, but it does not imitate waiting three future years in real time.</p>
-            </div>
-          </div>
-
-          <div class="section-block">
-            <h3>Every comparison must stand on the same dates</h3>
-            <p>The approved raw-momentum benchmark owns the 50 strongest eligible stocks by ordinary 12-minus-2 total-return momentum and gives each a 2% weight. Cash is represented by BIL using exact, no-fill Sharadar fund-price returns; this is an approved Treasury-bill ETF proxy, not literal risk-free cash. Because BIL begins in May 2007, the fair common comparison uses folds 4 through 12: <strong>9 folds, 108 monthly decisions, and 2,268 daily returns</strong>.</p>
-            <div class="grid-3">
-              <article class="card blue"><span class="mini-label">Equity comparison</span><h3>Eligible equal weight</h3><p>Every eligible stock receives the same target weight.</p></article>
-              <article class="card violet"><span class="mini-label">Equity comparison</span><h3>Eligible cap weight</h3><p>Larger decision-close companies receive more weight.</p></article>
-              <article class="card amber"><span class="mini-label">Signal comparison</span><h3>Raw momentum</h3><p>Top 50 by unfiltered 12-minus-2 momentum, equal weighted.</p></article>
-            </div>
-          </div>
-
-          <div class="section-block">
-            <h3>What the development-only benchmark paths showed</h3>
-            <p>The chart shows cumulative return across the common nine-fold development axis. The vertical divider is zero. These are gross research paths; the three equity rows apply a total loss whenever a scheduled exit is missing.</p>
-            <div class="return-chart" role="img" aria-label="Cumulative returns: eligible equal weight minus 3.6376 percent, eligible cap weight plus 20.0552 percent, raw momentum minus 85.3386 percent, BIL cash plus 4.5493 percent">
-              <div class="return-row"><div class="return-name">Eligible equal weight</div><div class="return-track"><div class="return-half negative"><div class="return-bar negative" style="width: 4.04%"></div></div><div class="return-half positive"></div></div><div class="return-number">−3.64%</div></div>
-              <div class="return-row"><div class="return-name">Eligible cap weight</div><div class="return-track"><div class="return-half negative"></div><div class="return-half positive"><div class="return-bar positive" style="width: 91.16%"></div></div></div><div class="return-number">+20.06%</div></div>
-              <div class="return-row"><div class="return-name">Raw momentum</div><div class="return-track"><div class="return-half negative"><div class="return-bar negative" style="width: 94.82%"></div></div><div class="return-half positive"></div></div><div class="return-number">−85.34%</div></div>
-              <div class="return-row"><div class="return-name">BIL cash</div><div class="return-track"><div class="return-half negative"></div><div class="return-half positive"><div class="return-bar positive" style="width: 20.68%"></div></div></div><div class="return-number">+4.55%</div></div>
-            </div>
-
-            <div class="table-block"><div class="table-wrap"><table>
-              <thead><tr><th>Development path</th><th>Cumulative</th><th>Annualized</th><th>Volatility</th><th>Sharpe over cash</th><th>Max drawdown</th><th>Missing exits</th></tr></thead>
-              <tbody>
-                <tr><td>Eligible equal weight</td><td>−3.6376%</td><td>−0.4109%</td><td>21.0517%</td><td>0.063218</td><td>−61.1147%</td><td>1,134</td></tr>
-                <tr><td>Eligible cap weight</td><td>+20.0552%</td><td>+2.0517%</td><td>16.3522%</td><td>0.176239</td><td>−52.8405%</td><td>1,134</td></tr>
-                <tr><td>Raw momentum</td><td>−85.3386%</td><td>−19.2109%</td><td>27.3416%</td><td>−0.646718</td><td>−86.3373%</td><td>78</td></tr>
-                <tr><td>BIL cash</td><td>+4.5493%</td><td>+0.4955%</td><td>0.6405%</td><td>—</td><td>−0.5477%</td><td>0</td></tr>
-              </tbody>
-            </table></div></div>
-
-            <div class="callout red">
-              <h3>Do not read the raw-momentum loss as a verdict on momentum</h3>
-              <p>Its path includes 78 missing exits, each charged as a complete loss. The result is therefore a conservative lower-bound sensitivity, not an exact strategy return. It is useful because it exposes the data problem; it is not a winner-selection result.</p>
-            </div>
-            <p><strong>One metric subtlety:</strong> equal weight can finish below cash while showing a slightly positive arithmetic daily Sharpe over cash. Sharpe averages daily excess returns; cumulative wealth compounds them, so volatility drag can make the two summaries point in different directions.</p>
-          </div>
-
-          <div class="section-block">
-            <h3>What became possible, and what remains unfinished</h3>
-            <div class="table-block"><div class="table-wrap"><table>
-              <thead><tr><th>Now completed</th><th>Still required before promotion</th></tr></thead>
-              <tbody>
-                <tr><td>Exact reviewed 7,207-session XNYS calendar and 330 monthly routes</td><td>Canonical point-in-time prices, metadata, venue history and revision history</td></tr>
-                <tr><td>12 label-aware expanding folds with 21-session purge and embargo</td><td>Exact terminal value instead of total-loss treatment for missing exits</td></tr>
-                <tr><td>Physically separated 36-month historical holdout, still unread</td><td>Factor-controlled signed returns, borrow availability, financing and short costs</td></tr>
-                <tr><td>Common nine-fold equity, raw-momentum and BIL cash comparison</td><td>Provider-calibrated execution costs and market impact</td></tr>
-                <tr><td>Frozen maximum-Sharpe sign-flip engine and typed split identities</td><td>One complete ten-trial return matrix, the sign-flip result, owner review, then any holdout opening</td></tr>
-              </tbody>
-            </table></div></div>
-            <p>In short: the extra history enabled promotion-grade <em>experimental machinery</em>. It did not itself promote a strategy.</p>
-          </div>
-        </section>
-
-        <section class="chapter" id="research" aria-labelledby="research-title">
-          <div class="chapter-number">Chapter 09 · The wider research laboratory</div>
-          <h2 id="research-title">The core engine now hosts several controlled research families.</h2>
-          <p class="chapter-intro">These Phase 8 modules freeze definitions and timing before real testing. They are prerequisites and diagnostics—not competing performance claims.</p>
-
-          <div class="grid-2">
-            <article class="card blue">
-              <span class="mini-label">Lead–lag statistical arbitrage</span>
-              <h3>Did one instrument react before another?</h3>
-              <p>Fit a cutoff-safe ordinary least-squares relationship from lead evidence known at the decision close to a target return beginning at the next open. H1 and H3 horizons must agree on shared evidence.</p>
-              <div class="formula">target return ≈ intercept + beta × lead feature</div>
-              <p>Adjacent reviews detect sign flips, beta drift and correlation decay. Hash-bound state then derives <code>ENTRY</code>, <code>HOLD</code>, <code>EXIT</code> or <code>NO_TRADE</code>.</p>
-            </article>
-
-            <article class="card green">
-              <span class="mini-label">Technical overlay</span>
-              <h3>A dimmer switch, never a new signal</h3>
-              <p>Exactly 80 total-return closes supply close versus SMA40, 40-observation momentum, and 20-return volatility versus a warmed historical median.</p>
-              <div class="formula">overlay magnitude ∈ [0, base magnitude]
-direction cannot reverse</div>
-              <p>The overlay may suppress or attenuate a complete base signal. It cannot create, reverse, or amplify alpha.</p>
-            </article>
-
-            <article class="card amber">
-              <span class="mini-label">Value and value–momentum</span>
-              <h3>Cheap fundamentals meet strong price action</h3>
-              <p>The value characteristic uses latest visible total-issuer common equity over trailing 30-calendar-day average total-issuer market cap.</p>
-              <div class="formula">book-to-price = common equity ÷ average market cap
-composite = 50% value percentile + 50% momentum percentile</div>
-              <p>The synthetic boundary emits ranks only. It does not silently intersect mismatched universes or allocate capital.</p>
-            </article>
-
-            <article class="card violet">
-              <span class="mini-label">Alternative data and ML</span>
-              <h3>First prove the feature’s identity</h3>
-              <p>A seven-UTC-day entity-activity count resolves visible revisions and dated entity-to-security mappings. Missing mapping is not the same as a genuine observed zero.</p>
-              <p>The ML layer declares a next-open-to-close direction target, L2 logistic primary, shallow boosted-tree challenger, and time-aware protocol. It contains no labels, fitted models, predictions, metrics, or winner yet.</p>
-            </article>
-          </div>
-
-          <div class="section-block">
-            <h3>Variance and correlation diagnostics</h3>
-            <p>Bennett’s variance-first view appears in two fixed synthetic calculations. Variance is used because squared moves add naturally and option/correlation mathematics is expressed in variance units.</p>
-            <div class="grid-2">
-              <div class="formula">forward variance(T₁,T₂)
-= (variance₂ × T₂ − variance₁ × T₁) ÷ (T₂ − T₁)</div>
-              <div class="formula">index variance
-= Σ wᵢ²σᵢ² + 2ρ Σᵢ&lt;ⱼ wᵢwⱼσᵢσⱼ</div>
-            </div>
-            <p>VHF binds exact 30/90-day ACT/365F maturities and a fixed three-name constant-correlation example. An implied correlation outside the mathematically valid interval is rejected, not clipped into looking plausible.</p>
-          </div>
-
-          <div class="section-block">
-            <h3>Attribution explains what happened without double counting</h3>
-            <div class="formula">market movement = market factor + nonmarket factor + idiosyncratic PnL
-
-total PnL = market movement + hedge + corporate action
-            − spread − impact − commission − tick rounding − borrow + residual
-
-idiosyncratic IR = selection IR × diversification ratio + sizing IR</div>
-            <p>The first two lines are currency. The last line is a unitless research-quality decomposition and stays separate. Phase 7 also tracks information coefficient, hit rate, signal drawdown, parameter drift, capacity multiple, and execution dislocation.</p>
-          </div>
-        </section>
-
-        <section class="chapter" id="state" aria-labelledby="state-title">
-          <div class="chapter-number">Chapter 10 · Current implementation</div>
-          <h2 id="state-title">What exists now—and what each part proves.</h2>
-          <p class="chapter-intro">The project is broad in contract coverage but deliberately narrow in empirical authority. The table below is the shortest accurate map.</p>
-
-          <div class="table-block"><div class="table-wrap"><table>
-            <thead><tr><th>Phase</th><th>Built capability</th><th>Current evidence meaning</th></tr></thead>
-            <tbody>
-              <tr><td>1</td><td>Quality momentum → factor risk → neutral target → risk → next-open fills → reconciled PnL</td><td><span class="tag built">Built</span> deterministic synthetic vertical slice</td></tr>
-              <tr><td>2</td><td>Run specification, injected components, manifests, hash-chained events, five-file replay</td><td><span class="tag built">Built</span> tamper-evident synthetic orchestration</td></tr>
-              <tr><td>3</td><td>Twelve-table point-in-time contract plus Sharadar capture, transforms and bounded bulk inputs</td><td><span class="tag synthetic">Mixed</span> canonical layer synthetic; pilot inputs provider-backed</td></tr>
-              <tr><td>4</td><td>Whole lots, ticks, partials, cancellations, borrow, actions, halts and reference ledger</td><td><span class="tag synthetic">Synthetic</span> operational boundary</td></tr>
-              <tr><td>5</td><td>Five covariance models, dated exposures, alpha sizing and constrained optimizer</td><td><span class="tag synthetic">Synthetic</span> not wired into a canonical historical run</td></tr>
-              <tr><td>6</td><td>Frozen momentum family, five-year diagnostics, maximum-history folds, locked historical holdout, and registered benchmark family</td><td><span class="tag descriptive">Research only</span> 12 folds; common nine-fold lower-bound benchmark paths; no promotion</td></tr>
-              <tr><td>7</td><td>Attribution, health checks and promotion governance</td><td><span class="tag synthetic">Synthetic</span> only first evidence transition available</td></tr>
-              <tr><td>8</td><td>Lead-lag, technical, value/composite, alternative/ML and variance contracts</td><td><span class="tag synthetic">Synthetic</span> definitions and integrity, no performance</td></tr>
-              <tr><td>9</td><td>Replay-only whole-share broker-handoff fixtures</td><td><span class="tag blocked">Blocked</span> no export, connection or order authority</td></tr>
-            </tbody>
-          </table></div></div>
-
-          <div class="section-block">
-            <h3>The earlier five-year pilot remains an important diagnostic</h3>
-            <p>The v8 pilot contains 48 monthly decisions over a five-year current-vintage Sharadar slice. It could not support the approved walk-forward geometry, but it showed how strongly missing terminal economics can change an apparent return.</p>
-            <div class="bar-chart" aria-label="Long-only momentum cumulative return sensitivities">
-              <div class="bar-row"><div class="bar-name">All unresolved exits lose everything</div><div class="bar-track"><div class="bar-fill amber" style="width: 10.9%"></div></div><div class="bar-value">11.13%</div></div>
-              <div class="bar-row"><div class="bar-name">Reviewed documented lower path</div><div class="bar-track"><div class="bar-fill" style="width: 82.3%"></div></div><div class="bar-value">83.75%</div></div>
-              <div class="bar-row"><div class="bar-name">Full-principal recovery sensitivity</div><div class="bar-track"><div class="bar-fill violet" style="width: 100%"></div></div><div class="bar-value">101.72%</div></div>
-            </div>
-            <p>Direct SEC evidence resolves 22 selected exits exactly and gives fixed-cash floors for 5 more; 3 remain unresolved. The full-principal case is a sensitivity, not an upper bound. The documented lower path changes gross returns only; it is not yet propagated through later holdings, turnover, or costs.</p>
-          </div>
-
-          <div class="grid-4 section-block">
-            <article class="card"><span class="mini-label">Coverage</span><h3>6,397 identities</h3><p>48 monthly decisions; 9 missing entries and 30 selected missing-exit occurrences.</p></article>
-            <article class="card"><span class="mini-label">Turnover</span><h3>≈ 62.5–62.9%</h3><p>Mean drift-aware one-way turnover across terminal-cash sensitivities.</p></article>
-            <article class="card"><span class="mini-label">Capacity</span><h3>≈ $2.4m</h3><p>First 5%-ADV bottleneck under illustrative constant-AUM assumptions.</p></article>
-            <article class="card"><span class="mini-label">Factor target</span><h3>48 / 48 feasible</h3><p>Neutral targets exist; factor-controlled performance is still unrun.</p></article>
-          </div>
-
-          <div class="callout amber">
-            <h3>The next quantitative gate is the complete registered trial panel</h3>
-            <p>The split geometry, holdout lock, raw-momentum construction, cash proxy, and sign-flip engine are now frozen. Promotion still requires canonical point-in-time evidence, exact terminal accounting, factor-controlled signed returns, borrow and financing, provider-calibrated costs, the complete ten-trial common return panel, and its maximum-Sharpe multiple-testing result.</p>
-          </div>
-          <div class="section-block">
-            <h3>What continued development needs from the owner</h3>
-            <p>Sharadar access, expanded history, and the historical evaluation protocol are already supplied or approved. No new purchase or credential is currently required to continue development; the existing subscription should be exhausted first. Missing terminal payouts, historical venue/revision evidence, borrow information, and execution calibration are research and engineering gaps, not automatically a request for the owner to obtain another dataset.</p>
-            <p>Later owner decisions include accepting specific documented approximations where exact evidence remains unavailable, reviewing the development results before authorizing the reserved holdout, and separately authorizing any paper-trading or broker work. Accepting an approximation does not make the underlying evidence exact.</p>
-          </div>
-
-          <a class="book-link" href="scratchpad.html">Open the detailed Phase 6 research notebook</a>
-        </section>
-
-        <section class="chapter" id="lineage" aria-labelledby="lineage-title">
-          <div class="chapter-number">Chapter 11 · Knowledge lineage</div>
-          <h2 id="lineage-title">Where the implemented ideas came from.</h2>
-          <p class="chapter-intro">The wiki supplies the conceptual ancestry; engineering chooses exact, testable versions without pretending those choices were calibrated by the books.</p>
-
-          <div class="table-block"><div class="table-wrap"><table>
-            <thead><tr><th>Research source</th><th>Knowledge-base concepts</th><th>VHF application</th></tr></thead>
-            <tbody>
-              <tr><td><strong>Quantitative Momentum</strong><br />Gray &amp; Vogel</td><td>12-2 stock-selection momentum, information discreteness, jump penalty, universe/liquidity filters, concentration, turnover and rebalance seasonality</td><td>Phase 6 primary signal, long-only sleeve, trial family, capacity diagnostics</td></tr>
-              <tr><td><strong>Advanced Portfolio Management</strong><br />Paleologo</td><td>Factor risk, alpha sizing, factor-neutral construction, attribution, stops and sustainable leverage</td><td>Core factor-neutral operating model and risk-governed portfolio philosophy</td></tr>
-              <tr><td><strong>The Elements of Quantitative Investing</strong><br />Paleologo</td><td>Return/volatility modeling, risk-model evaluation, PCA, optimizer fragility, impact, hedging, dynamic allocation and multiple-testing control</td><td>Phase 5 covariance/optimizer boundary, QLIKE evaluation, walk-forward and Rademacher declarations, Phase 7 attribution</td></tr>
-              <tr><td><strong>Learn Algorithmic Trading</strong><br />Donadio &amp; Ghosh</td><td>Event-driven components, risk guardrails, feature factories, ML validation, lead-lag signals, simulation dislocation and decay</td><td>Orchestration, execution lifecycle, replay architecture, Phase 8 lead-lag/technical/ML contracts</td></tr>
-              <tr><td><strong>Trading Volatility, Correlation, Term Structure and Skew</strong><br />Bennett</td><td>Variance-first measurement, forward variance, implied correlation and dispersion</td><td>Shared Phase 8 forward-variance and constant-correlation diagnostics</td></tr>
-            </tbody>
-          </table></div></div>
-
-          <div class="section-block">
-            <h3>The important cross-connections</h3>
-            <div class="grid-2">
-              <article class="card"><h3>Momentum + factor control</h3><p>Momentum supplies the stock ranking. The risk model and optimizer test whether the idea survives after market, sector and size bets are removed.</p></article>
-              <article class="card"><h3>Momentum + value</h3><p>The signals have different behavioral stories. VHF preserves both separate sleeves and a transparent 50/50 rank composite so attribution remains possible.</p></article>
-              <article class="card"><h3>Signals + common execution</h3><p>Momentum, lead-lag, value and future strategies can reuse timing, risk, order, fill, ledger, attribution and replay contracts.</p></article>
-              <article class="card"><h3>Covariance + volatility research</h3><p>Factor portfolios and implied-correlation diagnostics share the same basic language of variance, covariance, weights and dependence.</p></article>
-            </div>
-          </div>
-        </section>
-
-        <section class="chapter" id="glossary" aria-labelledby="glossary-title">
-          <div class="chapter-number">Chapter 12 · Compact glossary</div>
-          <h2 id="glossary-title">The terms worth keeping.</h2>
-          <p class="chapter-intro">A small vocabulary carries most of the project.</p>
-
-          <dl class="glossary">
-            <div class="term"><dt>Alpha</dt><dd>A forecast of relative return not yet converted into a position.</dd></div>
-            <div class="term"><dt>ADV</dt><dd>Average daily dollar volume; a liquidity scale used for participation and capacity.</dd></div>
-            <div class="term"><dt>Basis point</dt><dd>One hundredth of one percent. One bp = 0.01%.</dd></div>
-            <div class="term"><dt>Covariance</dt><dd>How two returns vary together, in squared-return units.</dd></div>
-            <div class="term"><dt>Drawdown</dt><dd>The decline from the portfolio’s previous high-water mark.</dd></div>
-            <div class="term"><dt>Exposure</dt><dd>A portfolio’s sensitivity to a shared driver such as market beta, sector or size.</dd></div>
-            <div class="term"><dt>Factor</dt><dd>A common return driver shared by many securities.</dd></div>
-            <div class="term"><dt>Gross exposure</dt><dd>The sum of absolute portfolio weights: long plus short risk.</dd></div>
-            <div class="term"><dt>Net exposure</dt><dd>The sum of signed weights: long exposure minus short exposure.</dd></div>
-            <div class="term"><dt>Half-life</dt><dd>The time after which an EWMA observation carries half its original weight.</dd></div>
-            <div class="term"><dt>Holdout</dt><dd>A final untouched sample opened only after research choices are frozen.</dd></div>
-            <div class="term"><dt>Idiosyncratic</dt><dd>The stock-specific part left after common factor movement is removed.</dd></div>
-            <div class="term"><dt>Market impact</dt><dd>Adverse price movement associated with the size of the fund’s own trade.</dd></div>
-            <div class="term"><dt>Momentum</dt><dd>Relative strength over a specified past horizon.</dd></div>
-            <div class="term"><dt>Point in time</dt><dd>Reconstructing only the facts and revisions available at that historical decision.</dd></div>
-            <div class="term"><dt>Positive semidefinite</dt><dd>A covariance property ensuring no portfolio is assigned impossible negative variance.</dd></div>
-            <div class="term"><dt>Rebalance</dt><dd>Changing current holdings toward a new target portfolio.</dd></div>
-            <div class="term"><dt>Replay</dt><dd>Rebuilding recorded accounting from events without recomputing the strategy.</dd></div>
-            <div class="term"><dt>Residual</dt><dd>The unexplained remainder after an accounting or statistical decomposition.</dd></div>
-            <div class="term"><dt>Shrinkage</dt><dd>Pulling a noisy estimate toward a simpler, more stable target.</dd></div>
-            <div class="term"><dt>Spread</dt><dd>The gap between buy and sell prices; half-spread is one side’s modeled cost.</dd></div>
-            <div class="term"><dt>Survivorship bias</dt><dd>Studying only securities that survived to the present and silently losing failed ones.</dd></div>
-            <div class="term"><dt>Turnover</dt><dd>The fraction of the book replaced during a rebalance.</dd></div>
-            <div class="term"><dt>Volatility</dt><dd>The square root of variance, expressed in return units.</dd></div>
-          </dl>
-
-          <div class="section-block">
-            <h3>Ten questions for any VHF result</h3>
-            <ol class="decision-list">
-              <li>What exact universe existed at each decision?</li>
-              <li>When was every input actually available?</li>
-              <li>Did the signal use total-return data while execution used raw prices?</li>
-              <li>Which formula was primary, and which variants were registered challengers?</li>
-              <li>What factor, volatility, concentration and liquidity risks remain?</li>
-              <li>How much trading was required, and under what cost assumptions?</li>
-              <li>How were missing entries, delistings and terminal proceeds treated?</li>
-              <li>Were folds chronological, purged and embargoed, with a locked holdout?</li>
-              <li>How many strategies were tried, and where is the multiple-testing adjustment?</li>
-              <li>What evidence stage does the result actually permit?</li>
-            </ol>
-          </div>
-        </section>
+    <section class="chapter" id="capital">
+      <span class="section-number">02 / CAPITAL</span>
+      <h2>Follow the money before following a signal</h2>
+      <p>A <strong>return</strong> measures the change in the value of an investment relative to what you started with. An investment worth $100 that becomes $110 has returned 10%. If it pays a distribution, that payment is also part of the economic result; a price chart alone may omit it.</p>
+      <div class="formula" aria-label="Simple holding-period return formula">Return = (ending value + distributions − starting value) / starting value</div>
+      <p class="source-note">This simple formula assumes one holding with no external deposits or withdrawals. Ending value excludes distributions counted separately in the formula, so each dollar is counted once.</p>
+      <p>For a portfolio, the contribution of an investment also depends on its <strong>weight</strong>: the fraction of capital allocated to it. A 10% stock gain is not a 10% portfolio gain if most of the portfolio is elsewhere.</p>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Hypothetical portfolio accounting example">
+        <table><caption>Illustration: $100,000 of capital, one 2% stock position, no fees or distributions</caption><thead><tr><th scope="col">Item</th><th scope="col">At purchase</th><th scope="col">After a 10% stock gain</th></tr></thead><tbody>
+          <tr><th scope="row">Shares held</th><td>20 shares × $100</td><td>20 shares × $110</td></tr>
+          <tr><th scope="row">Stock value</th><td>$2,000</td><td>$2,200</td></tr>
+          <tr><th scope="row">Uninvested cash</th><td>$98,000</td><td>$98,000</td></tr>
+          <tr><th scope="row">Total portfolio value</th><td>$100,000</td><td>$100,200</td></tr>
+          <tr><th scope="row">Portfolio return</th><td>—</td><td>$200 / $100,000 = <strong>0.20%</strong></td></tr>
+        </tbody></table>
       </div>
-    </div>
+      <p><strong>Net asset value</strong>, or NAV, is the value of holdings plus cash and valued claims, less liabilities. A <strong>claim</strong> is a right to receive something later—for example, a declared dividend or the cash owed after a merger. That right may have value today without being spendable cash today. If its value cannot be established, the full portfolio's NAV can be unknown.</p>
+      <p>Returns also compound. Growing $100 to $120 and then losing 10% leaves $108. You gained 8% over the whole period, and suffered a 10% <strong>drawdown</strong> from the $120 peak. Final return and the journey taken to reach it answer different questions.</p>
+      <dl class="glossary">
+        <dt>Capital</dt><dd>The money committed to the strategy.</dd>
+        <dt>Position</dt><dd>The actual number of shares or other units held.</dd>
+        <dt>Target weight</dt><dd>The share of portfolio value the strategy would like to allocate.</dd>
+        <dt>Profit and loss</dt><dd>The dollar gain or loss, often abbreviated P&amp;L.</dd>
+        <dt>Drawdown</dt><dd>The decline from a previous peak in portfolio value.</dd>
+      </dl>
+    </section>
 
-    <footer>
-      Virtual Hedge Fund quantitative field guide · Research lineage through August 2026 · <a href="../index.html">All research primers</a>
-    </footer>
-  </div>
-</main>
+    <section class="chapter" id="observations">
+      <span class="section-number">03 / OBSERVATIONS</span>
+      <h2>A decision can only use information it had</h2>
+      <p>Before asking which stock looks best, we need to know what a historical investor could have observed. A December financial statement might be published in February. A company's ticker can change. A business that later failed must still appear in an earlier investment universe if it was eligible then.</p>
+      <p><strong>Point-in-time data</strong> means preserving the information available at each decision date, including revisions and publication delays. Using today's surviving companies to reconstruct yesterday's choices creates <strong>survivorship bias</strong>. Using a later revision or tomorrow's price creates <strong>look-ahead bias</strong>. Either can make a strategy appear better informed than it was.</p>
+      <div class="grid two">
+        <div class="card"><div class="eyebrow">When did it happen?</div><h3>Economic date</h3><p>The date a price was traded or a financial period ended.</p></div>
+        <div class="card"><div class="eyebrow">When could we act on it?</div><h3>Availability date</h3><p>The time the necessary information reached the decision process. It can be later than the economic date.</p></div>
+      </div>
+      <p>VHF's historical development study uses a current snapshot of older data and a modeled delay between a month-end observation and the next opening trade. It verifies which input files were used and restricts their dates. Those controls do <strong>not</strong> establish that every historical revision and delivery time is known. The study is explicitly a current-vintage reconstruction.</p>
+      <h3>The same stock can need two price representations</h3>
+      <p>A two-for-one split replaces one old share with two new shares. A $100 share might become two $50 shares without creating or destroying wealth. A raw price chart would show a 50% drop; that would be a false loss for the holder.</p>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Hypothetical stock split example">
+        <table><caption>Illustration: a two-for-one split, with no intervening market movement</caption><thead><tr><th scope="col">Measurement</th><th scope="col">Before the split</th><th scope="col">After the split</th></tr></thead><tbody>
+          <tr><th scope="row">Raw price per share</th><td>$100</td><td>$50</td></tr>
+          <tr><th scope="row">Your shares</th><td>1 old share</td><td>2 new shares</td></tr>
+          <tr><th scope="row">Your holding's value</th><td>$100</td><td>$100</td></tr>
+          <tr><th scope="row">Comparable example trading volume</th><td>1,000 old shares</td><td>2,000 new shares</td></tr>
+          <tr><th scope="row">Example dollars traded</th><td>$100 × 1,000 = $100,000</td><td>$50 × 2,000 = $100,000</td></tr>
+        </tbody></table>
+      </div>
+      <p>A coherent <strong>total-return series</strong> accounts for splits and distributions when measuring an investment's economic return. <strong>Raw prices and raw share units</strong> are needed to simulate orders, fills and cash movements. Dollar trading volume must multiply a price and share quantity expressed in compatible units. The volumes above are chosen to illustrate that identity; actual market volume need not double after a split.</p>
+      <p class="source-note">Method: <a href="learn-algorithmic-trading.html">Donadio and Ghosh on data and trading systems</a>, and <a href="elements-quantitative-investing.html">Paleologo on research data and validation</a>. VHF's specific vendor conversion follows the <a href="https://sharadar.com/docs/faqs">Sharadar adjustment documentation</a>; its September correction is explained in the development record.</p>
+    </section>
+
+    <section class="chapter" id="momentum">
+      <span class="section-number">04 / THE FIRST SIGNAL</span>
+      <h2>Find relative winners</h2>
+      <p><strong>Cross-sectional momentum</strong> compares different stocks at the same date and ranks them by past return. The hypothesis is that relative strength can persist for a time. Possible explanations include investors responding gradually to information and institutions being slow to change positions. These are research explanations, not a guarantee that the next winner will keep winning.</p>
+      <p>Momentum does not mean finding the fastest-growing business. Nor does this particular strategy ask whether an index is above its own moving average. It asks: <strong>among the stocks we could consider today, which have performed relatively well?</strong> A relative winner can still have a negative return when most stocks are falling.</p>
+      <p>VHF starts with a declared <strong>universe</strong>: the stocks eligible for consideration. Its current monthly rule uses supported US-dollar domestic common stocks, sufficient price history, a size screen and a liquidity screen. <strong>Market capitalization</strong> is the market value of a company's equity. <strong>Average daily dollar volume</strong>, or ADV, measures the average dollar amount traded each day.</p>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Current VHF eligibility screens">
+        <table><caption>Current VHF development rules; precise choices made by this project</caption><thead><tr><th scope="col">Screen</th><th scope="col">Rule</th><th scope="col">Purpose</th></tr></thead><tbody>
+          <tr><th scope="row">Identity and history</th><td>Supported dated stock identity; thirteen consecutive month-end price levels and complete required signals.</td><td>Avoid ambiguous securities and incomplete comparisons.</td></tr>
+          <tr><th scope="row">Size</th><td>Capitalization strictly above the 40th percentile of the eligible size-reference group.</td><td>Set a common size boundary before ranking.</td></tr>
+          <tr><th scope="row">Liquidity</th><td>At least $1 million in average daily raw-dollar trading volume over sixty sessions.</td><td>Screen out very thin trading; this still does not guarantee an opening fill.</td></tr>
+        </tbody></table>
+      </div>
+      <p>A <strong>percentile</strong> locates a value within a group: roughly 40% of reference capitalizations fall at or below the 40th-percentile threshold. The size reference is formed <em>before</em> liquidity filtering. Its membership matters because removing a stock can change the threshold for other stocks. This is also why the newer ex-TECO variation excludes that company before any thresholds or rankings, consistently across the compared portfolios.</p>
+      <h3>Look back, then skip the latest month</h3>
+      <p>The current primary signal takes thirteen month-end levels and compares the first with the penultimate. This measures <strong>eleven included monthly returns</strong>, leaving the latest month out of the momentum calculation. The skip-month convention separates intermediate-term momentum from short-term price reversal effects.</p>
+      <figure class="figure">
+        <div class="eyebrow">The decision clock / Illustrative dates</div>
+        <div class="chart-scroll" tabindex="0" role="region" aria-label="Momentum observation and trading timeline">
+          <svg viewBox="0 0 780 190" role="img" aria-labelledby="clock-title clock-desc">
+            <title id="clock-title">Eleven months of momentum, one skipped month, then a trade</title>
+            <desc id="clock-desc">At December 2025 month end, compare December 2024 and November 2025 total-return levels. Exclude December 2025 from this momentum return. Form the decision after month-end information arrives and trade at the next reviewed opening.</desc>
+            <line x1="36" y1="94" x2="738" y2="94" stroke="#4d5661" stroke-width="1"/>
+            <rect x="36" y="75" width="424" height="38" fill="#c5ad7d"/>
+            <rect x="460" y="75" width="140" height="38" fill="#303944"/>
+            <line x1="624" y1="60" x2="624" y2="123" stroke="#f1efe8"/>
+            <circle cx="716" cy="94" r="6" fill="#9bb8d0"/>
+            <text x="248" y="49" text-anchor="middle" fill="#f1efe8" font-size="15">Momentum measurement</text>
+            <text x="248" y="99" text-anchor="middle" fill="#080a0c" font-size="13">11 monthly returns</text>
+            <text x="530" y="49" text-anchor="middle" fill="#c4c9ce" font-size="14">Skip December</text>
+            <text x="36" y="146" fill="#c4c9ce" font-size="12">Dec 2024 end</text>
+            <text x="460" y="146" text-anchor="middle" fill="#c4c9ce" font-size="12">Nov 2025 end</text>
+            <text x="624" y="145" text-anchor="middle" fill="#c4c9ce" font-size="12">Decision</text>
+            <text x="716" y="49" text-anchor="middle" fill="#9bb8d0" font-size="13">Next open</text>
+            <text x="716" y="145" text-anchor="middle" fill="#c4c9ce" font-size="12">Jan 2026</text>
+          </svg>
+        </div>
+        <figcaption>The dates illustrate the sequence, not a historical result. The skipped month is omitted from this momentum return; it still supplies a different feature—the jump measure explained next.</figcaption>
+      </figure>
+      <p>If the relevant total-return level rose from 100 to 125, momentum is 25%. Once all eligible stocks have a score, VHF can rank them. A high rank is an input to the next step; it is not yet an instruction to buy.</p>
+      <p class="source-note">Research lineage: Gray and Vogel, <a href="quantitative-momentum.html">Quantitative Momentum</a>, chapters 5–7. The <a href="https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/Data_Library/det_mom_factor_daily.html">Kenneth French Data Library</a> illustrates the prior 2–12 month convention; its portfolio construction is different from VHF's fifty-stock implementation.</p>
+    </section>
+
+    <section class="chapter" id="quality">
+      <span class="section-number">05 / THE PATH</span>
+      <h2>The same gain can tell two different stories</h2>
+      <p>Imagine two stocks that both rise from 100 to 120. One advances gradually; the other spends most of the period flat and then jumps. Their endpoint returns are identical. Their paths suggest different information and attention patterns.</p>
+      <figure class="figure">
+        <div class="eyebrow">Illustration / Not VHF performance</div>
+        <h3>Equal endpoint returns, different journeys</h3>
+        <div class="chart-legend"><span><i class="swatch" aria-hidden="true"></i>Gradual path</span><span><i class="swatch blue" aria-hidden="true"></i>Jump-dominated path</span></div>
+        <div class="chart-scroll" tabindex="0" role="region" aria-label="Illustrative return paths">
+          <svg viewBox="0 0 760 300" role="img" aria-labelledby="path-title path-desc">
+            <title id="path-title">Two invented price paths both gain twenty percent</title>
+            <desc id="path-desc">At five equally spaced observations, the gradual path has levels 100, 105, 110, 115, 120. The jump path has levels 100, 100, 100, 100, 120. Both start at100 and end at120. This motivates path analysis but does not calculate VHF's FIP and MAX scores.</desc>
+            <g stroke="#293039" stroke-width="1"><line x1="65" y1="45" x2="696" y2="45"/><line x1="65" y1="140" x2="696" y2="140"/><line x1="65" y1="235" x2="696" y2="235"/></g>
+            <g fill="#99a2ad" font-size="12"><text x="24" y="50">120</text><text x="24" y="145">110</text><text x="24" y="240">100</text><text x="65" y="272">Start</text><text x="326" y="272">Observation period →</text><text x="671" y="272">End</text></g>
+            <polyline points="65,235 222,187.5 380,140 538,92.5 696,45" fill="none" stroke="#c5ad7d" stroke-width="3"/>
+            <polyline points="65,235 222,235 380,235 538,235 696,45" fill="none" stroke="#9bb8d0" stroke-width="3" stroke-dasharray="7 5"/>
+            <circle cx="696" cy="45" r="5" fill="#f1efe8"/><text x="681" y="25" fill="#f1efe8" font-size="14">+20%</text>
+          </svg>
+        </div>
+        <figcaption>The chart motivates a question about the path. It does not mechanically determine the actual quality score: that requires daily observations and the precise windows below.</figcaption>
+      </figure>
+      <p>In this project, <strong>quality</strong> describes the return path. It does not mean good management, a strong balance sheet or high accounting profitability. Gray and Vogel's discussion of continuous information motivates examining whether strength came through many ordinary moves or a few attention-grabbing events.</p>
+      <div class="grid two">
+        <div class="card"><div class="eyebrow">Measure 1 / FIP</div><h3>How continuous was the path?</h3><p>Frog-in-the-pan, or FIP, compares positive and negative return days and accounts for the sign of overall momentum. Lower values are preferred. For a positive-momentum stock, many more up days than down days give a lower value.</p><p>VHF uses 252 daily returns ending before the skipped month. Zero-return days remain in the denominator.</p></div>
+        <div class="card"><div class="eyebrow">Measure 2 / MAX</div><h3>Was there a large upward jump?</h3><p>MAX is the largest signed daily return in the skipped month. Lower values are preferred. It measures a particular form of lottery-like upward movement.</p><p>For daily returns of +1%, +2% and −8%, MAX is <strong>+2%</strong>, not 8%. The daily challenger uses a different absolute-jump measure.</p></div>
+      </div>
+      <h3>How the current primary selects fifty stocks</h3>
+      <ol>
+        <li><strong>Rank eligible stocks by momentum.</strong> Keep the highest 10%, rounding the count up.</li>
+        <li><strong>Rank path quality inside that shortlist.</strong> Give equal importance to the percentile ranks of negative FIP and negative MAX, so lower underlying values score better. These percentile ranks describe each stock's relative position within the shortlist.</li>
+        <li><strong>Select the fifty strongest quality scores.</strong> Assign each a target weight of 2%. If the shortlist contains fewer than fifty stocks, mark the formation unavailable.</li>
+      </ol>
+      <p>For example, 1,000 eligible stocks produce a shortlist of 100, then fifty targets. The method does not quietly broaden the universe or select a smaller portfolio just because its rules cannot form fifty names. Ties are broken consistently using permanent security identifiers.</p>
+      <details><summary>Optional detail · the FIP formula and an invented example</summary>
+        <div class="formula">FIP = sign(momentum) × (negative days − positive days) / 252</div>
+        <p>A positive-momentum stock with 150 up days, 90 down days and 12 flat days has FIP = (90 − 150) / 252 ≈ −0.238. This counts directions, not the size of each move. MAX adds a separate jump-related observation. Neither statistic fully describes a return distribution.</p>
+      </details>
+      <p class="source-note">Research: Da, Gurun and Warachka, <a href="https://digitalcommons.chapman.edu/business_articles/115/">Frog in the Pan</a>; Bali, Cakici and Whitelaw, <a href="https://pages.stern.nyu.edu/~rwhitela/papers/max%20jfe11.pdf">Maxing Out</a>; Gray and Vogel's <a href="quantitative-momentum.html">path-quality discussion</a>. The exact windows, 50/50 percentile combination and fifty-name rule above describe VHF's declared implementation.</p>
+    </section>
+
+    <section class="chapter" id="portfolio">
+      <span class="section-number">06 / CONSTRUCTION</span>
+      <h2>A ranking becomes a set of commitments</h2>
+      <p>A signal orders candidates. <strong>Portfolio construction</strong> turns that ordering into desired weights, subject to rules about concentration, risk and funding. The primary long-only strategy targets fifty stocks at 2% each. <strong>Long-only</strong> means buying and owning stocks, rather than betting against them through borrowed shares.</p>
+      <p>Those are target weights at a decision. Prices subsequently move, so actual weights drift. A <strong>rebalance</strong> proposes trades to change the existing portfolio toward a new target. It must consider what is already owned, the cash available and the ability to sell old holdings—not just produce another list of attractive names.</p>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="VHF primary challenger and signed construction comparison">
+        <table><caption>Related constructions answer different questions</caption><thead><tr><th scope="col">Construction</th><th scope="col">What it does</th><th scope="col">Why compare it?</th></tr></thead><tbody>
+          <tr><th scope="row">Primary long-only</th><td>Momentum shortlist, then FIP/MAX quality; fifty equal targets.</td><td>The main declared stock-selection recipe.</td></tr>
+          <tr><th scope="row">Daily challenger</th><td>Ranks a separate daily composite combining momentum, trend fit and an absolute-jump penalty; fifty equal targets.</td><td>Tests a different engineering interpretation of momentum quality.</td></tr>
+          <tr><th scope="row">Factor-neutral versions</th><td>Build positive and negative weights from winner and loser groups, then constrain specified estimated common exposures.</td><td>Ask whether a selection idea can survive with less exposure to shared market drivers.</td></tr>
+        </tbody></table>
+      </div>
+      <p>The daily challenger uses a declared 70/20/10 mix of momentum, log-price trend fit and a low-absolute-jump measure, under a 252/21 trading-session convention. It is <strong>not the same FIP/MAX recipe</strong> as the primary. Keeping it separate lets the comparison test a genuine alternative instead of changing the primary after looking at outcomes.</p>
+      <p><strong>Shorting</strong> means borrowing shares, selling them, and later buying shares back to return them. Falling prices can benefit the short position; rising prices create losses. Borrow availability and fees matter. Positive and negative targets in a spreadsheet do not establish that borrowing and trading those shares would have been possible.</p>
+      <h3>Time is part of the strategy</h3>
+      <p>VHF has ten registered trial constructions: monthly primary and challenger, each with long-only and factor-neutral forms, plus three calendar variations of the primary, also in both forms. The calendar variations are quarterly, overlapping quarterly and seasonality-aware.</p>
+      <p>An overlapping quarterly portfolio keeps several independently funded groups, or <strong>cohorts</strong>, alive at the same time. A maturing group recycles its own capital. Their weights and wealth then drift. Averaging three return series, or resetting each group to one-third every month, would describe different economics.</p>
+      <p class="source-note">Portfolio and sizing principles: <a href="advanced-portfolio-management.html">Advanced Portfolio Management</a>. Momentum calendar motivation: <a href="quantitative-momentum.html">Quantitative Momentum</a>. The ten-trial construction family and challenger coefficients are VHF engineering choices; their development is documented on the next page.</p>
+    </section>
+
+    <section class="chapter" id="risk">
+      <span class="section-number">07 / RISK</span>
+      <h2>Fifty stocks can still share one big bet</h2>
+      <p>A portfolio can hold many companies and still be concentrated in a common exposure. Technology shares may respond together to interest rates. Small companies may be sensitive to credit conditions. Most long-only equities carry substantial exposure to broad stock-market moves.</p>
+      <p>A <strong>factor</strong> is a shared driver used to describe these movements. A stock's <strong>beta</strong> is its estimated sensitivity to a factor. For example, market beta of 1.2 suggests a tendency to move about 1.2% when the market moves 1%, within the model. Individual news and estimation error can dominate on any particular day.</p>
+      <div class="formula">Stock return ≈ market contribution + other common-factor contributions + stock-specific return</div>
+      <p><strong>Correlation</strong> describes how closely returns move together. <strong>Covariance</strong> combines that relationship with the sizes of their fluctuations. A portfolio risk model uses these relationships to estimate how much total value might vary. Counting names alone cannot provide that estimate.</p>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Illustrative diversification calculation">
+        <table><caption>Illustration: two assets, each with 20% annual volatility, held at equal weights</caption><thead><tr><th scope="col">Relationship assumed</th><th scope="col">Portfolio volatility</th><th scope="col">Interpretation</th></tr></thead><tbody>
+          <tr><th scope="row">Perfect positive correlation</th><td>20.0%</td><td>They move together; the second name adds no diversification in this model.</td></tr>
+          <tr><th scope="row">Zero correlation</th><td>About 14.1%</td><td>Some fluctuations offset; portfolio risk is lower.</td></tr>
+        </tbody></table>
+      </div>
+      <p><strong>Volatility</strong> measures the variability of returns. It treats upside and downside variation alike; it does not capture every risk, including an inability to sell, an unpaid claim or a sudden change in correlations. The table assumes stable relationships purely to illustrate the calculation.</p>
+      <h3>Dollar neutrality is not factor neutrality</h3>
+      <p>A portfolio that is 50% long and 50% short has zero <strong>net dollar exposure</strong> and 100% <strong>gross exposure</strong>, the sum of absolute weights. But if its longs have market beta 1.4 and its shorts beta 0.6, its market exposure is 0.5 × 1.4 − 0.5 × 0.6 = <strong>0.4</strong>. Equal dollars have not removed market sensitivity.</p>
+      <p>VHF's factor-neutral construction adjusts a proposed long/short portfolio to satisfy named market, sector and size constraints while staying close to its initial weights. A <strong>constraint</strong> is a limit or requirement the solution must meet. If no permitted solution exists, the target is unavailable. Even an estimated neutral target can develop risk as prices, exposures and holdings change.</p>
+      <details><summary>Optional detail · what an optimizer is solving</summary><p>An optimizer searches for weights that balance an objective with constraints. VHF's neutral construction minimizes changes from its initial target while enforcing specified exposure and weight requirements. The broader library also studies the trade-off between expected return, covariance risk and transaction costs. Those are related tools, not a claim that every historical long-only result used a full optimized risk allocation.</p></details>
+      <p class="source-note">Sources: Paleologo, <a href="advanced-portfolio-management.html">Advanced Portfolio Management</a> and <a href="elements-quantitative-investing.html">The Elements of Quantitative Investing</a>; the <a href="quantopian-lecture-series.html">Quantopian lectures</a> reinforce covariance estimation, factor diagnostics and uncertainty.</p>
+    </section>
+
+    <section class="chapter" id="execution">
+      <span class="section-number">08 / OWNERSHIP</span>
+      <h2>An intended trade is not a completed trade</h2>
+      <p>A <strong>target</strong> says what the portfolio wants. An <strong>order</strong> requests a transaction. A <strong>fill</strong> records a completed transaction with a quantity, price and costs. Only completed fills and actual corporate actions change the units owned.</p>
+      <p>VHF's historical adapter forms decisions using the allowed earlier observations, sizes whole-share orders, and then applies opening checks. The next opening price can make the order unaffordable or breach a concentration limit. Trading volume can be inadequate. An old position may be impossible to sell. In those cases, a selected portfolio may never become the held portfolio.</p>
+      <div class="process" aria-label="Target-to-ledger sequence">
+        <div><b>01</b><strong>Target</strong>Desired weights</div><div><b>02</b><strong>Order</strong>Fixed share quantities</div><div><b>03</b><strong>Opening checks</strong>Cash, prices and capacity</div><div><b>04</b><strong>Fill</strong>Executed quantity and cost</div><div><b>05</b><strong>Ledger</strong>Updated holdings and cash</div>
+      </div>
+      <h3>Small trading costs can compound into a large hurdle</h3>
+      <p><strong>Turnover</strong> measures trading relative to capital. <strong>Spread</strong> is the gap between buying and selling quotes. <strong>Market impact</strong> is the change in execution price associated with trading. Fees add another charge. A strategy that changes many positions must earn enough before costs to absorb all of them.</p>
+      <!-- The controls intentionally use one simple turnover convention. Their
+           arithmetic is educational and is not connected to any VHF result. -->
+      <div class="lab" aria-labelledby="cost-lab-title">
+        <div class="eyebrow">Interactive illustration / Invented annual scenario</div>
+        <h3 id="cost-lab-title">How much of an 8% gross return survives trading?</h3>
+        <p>Start with $100,000. Hold the before-cost profit at $8,000. Change trading activity and cost per dollar traded. This simple example ignores compounding within the year, taxes, financing and other charges.</p>
+        <div class="lab-controls">
+          <div><label for="turnover">Annual dollars bought + sold / starting capital: <output id="turnover-value" for="turnover">200%</output></label><input id="turnover" type="range" min="0" max="600" step="25" value="200"></div>
+          <div><label for="trade-cost">Cost per traded dollar: <output id="cost-value" for="trade-cost">25 basis points</output></label><input id="trade-cost" type="range" min="0" max="100" step="5" value="25"></div>
+        </div>
+        <div class="lab-result" aria-live="polite" aria-atomic="true"><span>Trading cost<br><strong id="cost-dollars">$500</strong></span><span>After-cost return<br><strong id="net-return">7.50%</strong></span><span>Ending value<br><strong id="ending-capital">$107,500</strong></span></div>
+        <p class="source-note">One basis point is 0.01 percentage points; 25 basis points = 0.25%. At the starting settings, $200,000 traded × 0.25% costs $500. The turnover convention here counts purchases <em>and</em> sales; some reports instead use half that sum.</p>
+        <noscript><p>The displayed starting example remains valid without JavaScript. Enable JavaScript to adjust the two assumptions.</p></noscript>
+      </div>
+      <h3>Corporate actions add a second clock</h3>
+      <p>A company can split shares, pay a dividend, merge into another company or stop trading. These are <strong>corporate actions</strong>. An economic entitlement and its later payment or share delivery can occur on different dates. A ledger must distinguish them.</p>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Entitlement versus receipt">
+        <table><caption>Illustration: a cash acquisition, with dates established separately by evidence</caption><thead><tr><th scope="col">State</th><th scope="col">What the holder has</th><th scope="col">Can it fund a new purchase?</th></tr></thead><tbody>
+          <tr><th scope="row">Before entitlement</th><td>Shares in the target company.</td><td>Only through an executable sale or other available cash.</td></tr>
+          <tr><th scope="row">Entitled, not paid</th><td>A right to receive acquisition cash.</td><td>A promised payment is not automatically spendable cash.</td></tr>
+          <tr><th scope="row">Cash received and available</th><td>Cash in the account.</td><td>Yes, subject to the account and strategy's other constraints.</td></tr>
+        </tbody></table>
+      </div>
+      <p>This is why a missing final stock quote cannot simply become an assumed cash payment. A later cash receipt cannot be treated as already spendable at an earlier opening. The claim and uncertainty must remain visible until the relevant evidence is established.</p>
+      <p class="source-note">System structure: Donadio and Ghosh, <a href="learn-algorithmic-trading.html">Learn Algorithmic Trading</a>. Trading-cost and capacity context: <a href="quantitative-momentum.html">Gray and Vogel</a> and <a href="elements-quantitative-investing.html">Paleologo</a>. VHF's specific opening reserves and settlement admission rules are engineering assumptions described in the development record.</p>
+    </section>
+
+    <section class="chapter" id="comparison">
+      <span class="section-number">09 / COMPARISON</span>
+      <h2>“It went up” does not establish an edge</h2>
+      <p>If a stock portfolio gains 10% while a broad comparable opportunity set gains 15%, the result means something different from gaining 10% while that opportunity set loses 5%. A <strong>benchmark</strong> provides a comparison chosen to answer a specific question.</p>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="The VHF comparator family">
+        <table><caption>Comparators use the same decision axis and declared equity universe</caption><thead><tr><th scope="col">Comparator</th><th scope="col">How it is formed</th><th scope="col">Question it asks</th></tr></thead><tbody>
+          <tr><th scope="row">Raw momentum</th><td>Top fifty stocks by momentum, without the primary's path-quality overlay.</td><td>Does the quality step add value beyond selecting winners?</td></tr>
+          <tr><th scope="row">Eligible equal weight</th><td>Equal weight in every eligible stock.</td><td>Does selection add value beyond broad eligible ownership?</td></tr>
+          <tr><th scope="row">Eligible cap weight</th><td>Weights proportional to capitalization within the eligible universe.</td><td>How does the result compare with larger companies receiving more weight?</td></tr>
+          <tr><th scope="row">BIL</th><td>An external short-term Treasury-bill fund price series.</td><td>What did a cash-like alternative do over the same dates?</td></tr>
+        </tbody></table>
+      </div>
+      <p>“Raw momentum” means the signal has no path-quality overlay. It does <strong>not</strong> mean using unadjusted prices for returns. Likewise, BIL is an external comparison, not the return automatically credited to idle cash. VHF's current ledger assumptions give uninvested cash zero interest.</p>
+      <p>There are several useful summaries. <strong>Cumulative return</strong> measures total growth. <strong>Volatility</strong> measures fluctuation. <strong>Maximum drawdown</strong> measures the worst decline from a previous peak. A <strong>Sharpe ratio</strong> compares average excess return with its variability. Each compresses a different aspect of the path; none resolves missing observations or incorrect accounting.</p>
+      <div class="callout"><h3>A fair comparison must retain failures</h3><p>If a stock was selected but later cannot be valued, dropping it and scaling the survivors back to 100% changes the strategy after seeing the outcome. VHF keeps the original allocation and reports unavailable exact results where necessary. A separate zero-recovery scenario can show one assumption's consequence; it does not turn that assumption into an observed settlement.</p></div>
+      <p class="source-note">Evaluation and attribution: <a href="elements-quantitative-investing.html">The Elements of Quantitative Investing</a> and the <a href="quantopian-lecture-series.html">Quantopian lectures</a>. The benchmark family above is the project's declared development comparison.</p>
+    </section>
+
+    <section class="chapter" id="evidence">
+      <span class="section-number">10 / RESEARCH DISCIPLINE</span>
+      <h2>Test without learning the answer first</h2>
+      <p>A <strong>backtest</strong> applies a rule to historical observations. It is useful because it exposes the rule to many market conditions. It is dangerous because the researcher already has access to the outcomes and can keep adjusting the rule until the history looks attractive.</p>
+      <p><strong>Training data</strong> helps estimate or choose a rule. A later <strong>test period</strong> asks how that fixed choice behaved afterwards. <strong>Walk-forward evaluation</strong> repeats this sequence: use an earlier window, assess a later window, then advance through time. The split must be based on information timing, not merely row positions.</p>
+      <div class="figure">
+        <div class="eyebrow">Evaluation sequence / Schematic</div>
+        <div class="process" aria-label="Training and evaluation sequence"><div><b>01</b><strong>Earlier data</strong>Estimate the rule</div><div><b>02</b><strong>Boundary controls</strong>Remove overlapping labels</div><div><b>03</b><strong>Later test</strong>Apply the fixed choice</div><div><b>04</b><strong>Advance</strong>Repeat in time order</div><div><b>05</b><strong>Final holdout</strong>Keep unread until authorized</div></div>
+        <p class="caption">A future-return label can overlap a later test window even when its starting observation lies in training. Purging and separation gaps address that timing problem.</p>
+      </div>
+      <p><strong>Purging</strong> removes training examples whose outcome periods overlap a protected boundary. An <strong>embargo</strong> adds separation around periods that might share information. These controls are particularly important when a position is held for several months or multiple cohorts overlap.</p>
+      <p>There is another problem: try enough variants and one can look good by chance. This is <strong>multiple testing</strong>. Changing a lookback, a rebalance month, a filter or a universe can each spend research evidence. VHF records declared trials and later amendments, including the retrospective ex-TECO variation. A previously inspected period does not become untouched again when the code is corrected.</p>
+      <p>A <strong>holdout</strong> is a reserved period kept separate from development. VHF's final historical holdout remains unread. Complete strategy-family inference and final holdout evaluation have not been completed. An isolated attractive chart therefore cannot identify a validated winner.</p>
+      <h3>What different checks actually establish</h3>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Four types of evidence">
+        <table><thead><tr><th scope="col">Evidence</th><th scope="col">What it can establish</th><th scope="col">What it does not establish</th></tr></thead><tbody>
+          <tr><th scope="row">Invented economic example</th><td>A split preserves value or a fee reduces cash as intended.</td><td>That a vendor recorded every historical event correctly.</td></tr>
+          <tr><th scope="row">Source verification</th><td>Which records and transformations a calculation used.</td><td>That every missing real-world fact is known.</td></tr>
+          <tr><th scope="row">Independent replay</th><td>Saved events and source observations reconstruct the reported calculation.</td><td>That the underlying investment hypothesis is profitable.</td></tr>
+          <tr><th scope="row">Complete investment evaluation</th><td>Performance under defined data, cost, timing and statistical conditions.</td><td>A guarantee about future returns or automatic live-trading approval.</td></tr>
+        </tbody></table>
+      </div>
+      <p class="source-note">Research discipline: <a href="elements-quantitative-investing.html">Paleologo's treatment of backtesting and strategy search</a> and the <a href="https://github.com/quantopian/research_public/tree/e183ecd093efbebce9b0febdc7d0253159c04061/notebooks/lectures">original Quantopian lecture archive</a>. VHF's fixed dates, purging rules and current evidence gates belong to its engineering protocol.</p>
+    </section>
+
+    <section class="chapter" id="scope">
+      <span class="section-number">11 / THE PRESENT SCOPE</span>
+      <h2>A broad research ambition, one concrete development frontier</h2>
+      <p>The library reaches beyond momentum. Paleologo provides the portfolio and risk framework. Donadio and Ghosh explain trading-system mechanics. Bennett develops volatility, options and correlation research. Quantopian contributes practical statistical discipline. These sources help VHF consider how strategies might complement one another and share data, risk and execution infrastructure.</p>
+      <p>For example, a <strong>value</strong> strategy compares prices with measures of business value; it asks a different selection question from momentum. A <strong>volatility</strong> strategy may compare the movement priced into options with the movement that later occurs. Those ideas can require different instruments, information and accounting. Their presence in the library is not evidence that VHF has run or validated them historically.</p>
+      <div class="grid three">
+        <div class="card"><span class="tag complete">Implemented</span><h3>Research and mechanics</h3><p>A maintained source library; data controls; signals and targets; risk and execution components; cash/share accounting; recorded calculations and replay.</p></div>
+        <div class="card"><span class="tag partial">Development evidence</span><h3>Historical momentum</h3><p>Corrected monthly comparisons and modeled long-only execution have been calculated. Missing terminal facts still prevent complete exact returns.</p></div>
+        <div class="card"><span class="tag open">Still open</span><h3>Investment acceptance</h3><p>Complete original settlement evidence, signed historical economics, full-family inference and the final holdout. Live trading is not established.</p></div>
+      </div>
+      <p>The most recent implementation adds an <strong>ex-TECO development variant</strong>. TECO is one historical company with unresolved settlement evidence, not an essential ingredient of momentum theory. The variant consistently excludes it before formation and preserves the original records. Its code and focused checks are complete; its actual historical performance has not yet been calculated.</p>
+      <p>You now have the concepts needed to read the development history: what a signal is, why a target differs from a holding, how missing settlement affects capital, and why software correctness differs from investment evidence. The second page follows how VHF learned and implemented those distinctions.</p>
+    </section>
+
+    <section class="chapter" id="reading">
+      <span class="section-number">12 / REFERENCES</span>
+      <h2>The reading behind the framework</h2>
+      <p>You do not need to read these sources before using either guide. Each linked VHF primer explains its source in more detail. Publisher, author and archive links identify the underlying work. VHF's numerical settings, implementation changes and reported results are project decisions, not claims that the authors endorsed this particular system.</p>
+      <ol class="references">
+        <li id="ref-apm"><strong>Giuseppe A. Paleologo · Advanced Portfolio Management: A Quant's Guide for Fundamental Investors.</strong> Wiley, 2021. Connects investment edge with sizing, common-factor risk, hedging, leverage and attribution.<small><a href="advanced-portfolio-management.html">Read the VHF primer</a> · <a href="https://www.wiley-vch.de/de?isbn=978-1-119-78979-6&amp;option=com_eshop&amp;view=product">Publisher record</a></small></li>
+        <li id="ref-momentum"><strong>Wesley R. Gray and Jack R. Vogel · Quantitative Momentum: A Practitioner's Guide to Building a Momentum-Based Stock Selection System.</strong> Wiley, 2016. Chapters 5–7 develop basic momentum, return-path quality and seasonality; chapter 9 addresses practice.<small><a href="quantitative-momentum.html">Read the VHF primer</a> · <a href="https://uat.store.wiley.com/en-us/quantitative-momentum-a-practitioner%27s-guide-to-building-a-momentum-based-stock-selection-system-p-9781119237198">Publisher record</a></small></li>
+        <li id="ref-elements"><strong>Giuseppe A. Paleologo · The Elements of Quantitative Investing.</strong> Wiley, 2025. Develops returns, factor models, portfolio risk, optimization, impact and research evaluation. VHF's source lineage uses the July 17, 2024 draft; that draft is distinct from the published edition.<small><a href="elements-quantitative-investing.html">Read the VHF primer</a> · <a href="https://www.wiley-vch.de/de?isbn=978-1-394-26545-9&amp;option=com_eshop&amp;view=product">Published-edition record</a></small></li>
+        <li id="ref-trading"><strong>Sebastien Donadio and Sourav Ghosh · Learn Algorithmic Trading.</strong> Packt, 2019. Explains data, signals, orders, execution, risk and event-driven trading-system construction.<small><a href="learn-algorithmic-trading.html">Read the VHF primer</a> · <a href="https://www.packtpub.com/en-GB/product/learn-algorithmic-trading-9781789348347">Publisher record</a></small></li>
+        <li id="ref-volatility"><strong>Colin Bennett · Trading Volatility, Correlation, Term Structure and Skew.</strong> Introduces the volatility research branch: variance, options, hedging, carry and correlations. This extends the research agenda beyond the current historical equity test.<small><a href="trading-volatility-correlation-term-structure-skew.html">Read the VHF primer</a> · <a href="https://www.trading-volatility.com/">Author's site and book</a></small></li>
+        <li id="ref-quantopian"><strong>Quantopian · Lecture Series.</strong> Educational notebooks covering statistical estimation, portfolio analysis, risk, implementation and research discipline. The archived material is a learning source, not a current trading-platform dependency.<small><a href="quantopian-lecture-series.html">Read the VHF primer</a> · <a href="https://github.com/quantopian/research_public/tree/e183ecd093efbebce9b0febdc7d0253159c04061/notebooks/lectures">Original archived notebooks</a></small></li>
+        <li id="ref-papers"><strong>Original papers on return paths.</strong> Zhi Da, Umit G. Gurun and Mitch Warachka, “Frog in the Pan: Continuous Information and Momentum,” <em>Review of Financial Studies</em>, 2014. Turan G. Bali, Nusret Cakici and Robert F. Whitelaw, “Maxing Out: Stocks as Lotteries and the Cross-Section of Expected Returns,” <em>Journal of Financial Economics</em>, 2011.<small><a href="https://digitalcommons.chapman.edu/business_articles/115/">FIP paper and author manuscript</a> · <a href="https://pages.stern.nyu.edu/~rwhitela/papers/max%20jfe11.pdf">MAX author-hosted paper</a></small></li>
+      </ol>
+    </section>
+    <a class="next-page" href="scratchpad.html"><div><span>Continue to part 2</span><strong>How the project reached this point</strong></div><div class="arrow" aria-hidden="true">→</div></a>
+    <footer class="page-footer">VHF / Research &amp; engineering<br>Concept guide reviewed against the project record on 07 September 2026. Illustrations are educational examples, not simulated or realized VHF investment performance. Historical status is detailed in the companion development record.</footer>
+  </main>
+</div>
 </body>
 </html>

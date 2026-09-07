@@ -1,2499 +1,281 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Private-safe Phase 6 momentum research record: five-year diagnostics, maximum-history walk-forward geometry, registered benchmarks, aggregate results, and promotion boundaries." />
-  <meta name="color-scheme" content="dark" />
-  <title>Virtual Hedge Fund — Phase 6 Historical Study</title>
-
-  <style>
-    :root {
-      color-scheme: dark;
-      --ink-0: #05070c;
-      --ink-1: #090d16;
-      --ink-2: #0d1421;
-      --ink-3: #121c2b;
-      --paper: #f4f7fb;
-      --soft: #c7d2e2;
-      --muted: #8d9cb1;
-      --line: rgba(199, 210, 226, .16);
-      --line-strong: rgba(199, 210, 226, .31);
-      --cyan: #49ddff;
-      --cyan-soft: rgba(73, 221, 255, .11);
-      --lime: #b6f56f;
-      --lime-soft: rgba(182, 245, 111, .11);
-      --amber: #ffc766;
-      --amber-soft: rgba(255, 199, 102, .11);
-      --coral: #ff7e79;
-      --coral-soft: rgba(255, 126, 121, .11);
-      --violet: #b99cff;
-      --violet-soft: rgba(185, 156, 255, .12);
-      --radius: 18px;
-      --radius-sm: 11px;
-      --shadow: 0 28px 90px rgba(0, 0, 0, .34);
-      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-        "Segoe UI", sans-serif;
-    }
-
-    * { box-sizing: border-box; }
-
-    html {
-      scroll-behavior: smooth;
-      scroll-padding-top: 90px;
-    }
-
-    body {
-      margin: 0;
-      min-width: 280px;
-      background:
-        radial-gradient(circle at 8% -4%, rgba(73, 221, 255, .15), transparent 28rem),
-        radial-gradient(circle at 95% 4%, rgba(185, 156, 255, .13), transparent 31rem),
-        radial-gradient(circle at 52% 48%, rgba(182, 245, 111, .035), transparent 38rem),
-        linear-gradient(180deg, var(--ink-0), var(--ink-1) 46%, #060910 100%);
-      color: var(--paper);
-      font-family: var(--sans);
-      font-size: 16px;
-      line-height: 1.62;
-      overflow-x: hidden;
-    }
-
-    body::before {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      content: "";
-      pointer-events: none;
-      opacity: .22;
-      background-image:
-        linear-gradient(rgba(255, 255, 255, .022) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, .022) 1px, transparent 1px);
-      background-size: 42px 42px;
-      mask-image: linear-gradient(to bottom, black, transparent 90%);
-    }
-
-    a {
-      color: var(--cyan);
-      text-decoration-thickness: 1px;
-      text-underline-offset: 4px;
-    }
-
-    a:hover { color: #a9efff; }
-
-    a:focus-visible {
-      outline: 3px solid var(--amber);
-      outline-offset: 4px;
-      border-radius: 4px;
-    }
-
-    p,
-    li { color: var(--soft); }
-
-    p { margin: 0 0 1rem; }
-
-    ul,
-    ol {
-      margin: .75rem 0 0;
-      padding-left: 1.2rem;
-    }
-
-    li + li { margin-top: .42rem; }
-
-    strong { color: var(--paper); }
-
-    code,
-    pre,
-    .mono { font-family: var(--mono); }
-
-    code {
-      padding: .12em .35em;
-      border: 1px solid rgba(73, 221, 255, .15);
-      border-radius: 5px;
-      background: rgba(73, 221, 255, .07);
-      color: #d9f8ff;
-      font-size: .9em;
-      overflow-wrap: anywhere;
-    }
-
-    .skip-link {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      z-index: 100;
-      padding: 10px 14px;
-      border-radius: 8px;
-      background: var(--paper);
-      color: var(--ink-0);
-      font-weight: 800;
-      transform: translateY(-160%);
-      transition: transform .18s ease;
-    }
-
-    .skip-link:focus { transform: translateY(0); }
-
-    .shell {
-      width: min(1220px, calc(100% - 38px));
-      margin: 0 auto;
-    }
-
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      border-bottom: 1px solid var(--line);
-      background: rgba(5, 7, 12, .87);
-      backdrop-filter: blur(18px);
-    }
-
-    .topbar-inner {
-      min-height: 68px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-    }
-
-    .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 11px;
-      color: var(--paper);
-      font-size: .82rem;
-      font-weight: 900;
-      letter-spacing: .12em;
-      text-decoration: none;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .brand-mark {
-      width: 30px;
-      height: 30px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(73, 221, 255, .45);
-      border-radius: 9px;
-      background: linear-gradient(145deg, rgba(73, 221, 255, .2), rgba(185, 156, 255, .11));
-      box-shadow: 0 0 24px rgba(73, 221, 255, .14);
-      color: var(--cyan);
-      font-family: var(--mono);
-      font-weight: 900;
-    }
-
-    .nav-links {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 5px;
-    }
-
-    .nav-links a {
-      padding: 7px 9px;
-      border-radius: 999px;
-      color: var(--muted);
-      font-size: .76rem;
-      font-weight: 750;
-      text-decoration: none;
-    }
-
-    .nav-links a:hover {
-      background: rgba(255, 255, 255, .055);
-      color: var(--paper);
-    }
-
-    main { padding: 44px 0 88px; }
-
-    h1,
-    h2,
-    h3,
-    h4 {
-      margin-top: 0;
-      color: var(--paper);
-      letter-spacing: -.025em;
-    }
-
-    h1 {
-      max-width: 850px;
-      margin-bottom: 22px;
-      font-size: clamp(3.15rem, 7.8vw, 6.5rem);
-      font-weight: 900;
-      line-height: .91;
-    }
-
-    .gradient-word {
-      color: transparent;
-      background: linear-gradient(90deg, var(--cyan), #c8f7ff 42%, var(--lime));
-      background-clip: text;
-      -webkit-background-clip: text;
-    }
-
-    .eyebrow {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 16px;
-      color: var(--cyan);
-      font-family: var(--mono);
-      font-size: .74rem;
-      font-weight: 800;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-    }
-
-    .eyebrow::before {
-      width: 28px;
-      height: 1px;
-      background: currentColor;
-      content: "";
-    }
-
-    .hero {
-      position: relative;
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
-      gap: 44px;
-      align-items: center;
-      min-height: 590px;
-      padding: 46px 0 62px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .hero::after {
-      position: absolute;
-      right: -9%;
-      bottom: 11%;
-      width: 410px;
-      height: 410px;
-      border: 1px solid rgba(73, 221, 255, .09);
-      border-radius: 50%;
-      content: "";
-      pointer-events: none;
-      box-shadow:
-        0 0 0 50px rgba(73, 221, 255, .018),
-        0 0 0 110px rgba(185, 156, 255, .014);
-    }
-
-    .hero-copy,
-    .status-console {
-      position: relative;
-      z-index: 1;
-      min-width: 0;
-    }
-
-    .hero-lede {
-      max-width: 68ch;
-      color: #d6dfeb;
-      font-size: clamp(1.05rem, 2vw, 1.25rem);
-      line-height: 1.58;
-    }
-
-    .badge-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 9px;
-      margin-top: 25px;
-    }
-
-    .badge,
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 7px 10px;
-      border: 1px solid var(--line-strong);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, .035);
-      color: var(--soft);
-      font-family: var(--mono);
-      font-size: .7rem;
-      font-weight: 800;
-      letter-spacing: .04em;
-    }
-
-    .badge::before {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: currentColor;
-      content: "";
-      box-shadow: 0 0 12px currentColor;
-    }
-
-    .badge.good,
-    .tag.floor {
-      border-color: rgba(182, 245, 111, .34);
-      background: var(--lime-soft);
-      color: var(--lime);
-    }
-
-    .badge.warn,
-    .tag.bound {
-      border-color: rgba(255, 199, 102, .34);
-      background: var(--amber-soft);
-      color: var(--amber);
-    }
-
-    .badge.blocked,
-    .tag.sensitivity {
-      border-color: rgba(255, 126, 121, .34);
-      background: var(--coral-soft);
-      color: var(--coral);
-    }
-
-    .status-console,
-    .panel,
-    .card {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background:
-        linear-gradient(155deg, rgba(255, 255, 255, .05), transparent 56%),
-        rgba(13, 20, 33, .78);
-      box-shadow: 0 18px 52px rgba(0, 0, 0, .2);
-    }
-
-    .status-console {
-      border-color: var(--line-strong);
-      background:
-        linear-gradient(145deg, rgba(73, 221, 255, .075), transparent 44%),
-        rgba(9, 13, 22, .91);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .console-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 14px 17px;
-      border-bottom: 1px solid var(--line);
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: .71rem;
-      text-transform: uppercase;
-    }
-
-    .console-light {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      color: var(--lime);
-    }
-
-    .console-light::before {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--lime);
-      box-shadow: 0 0 14px rgba(182, 245, 111, .7);
-      content: "";
-    }
-
-    .console-body { padding: 4px 18px 18px; }
-
-    .console-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 18px;
-      padding: 14px 0;
-      border-bottom: 1px dashed var(--line);
-      align-items: baseline;
-    }
-
-    .console-row:last-child { border-bottom: 0; }
-    .console-row span { color: var(--muted); font-size: .87rem; }
-
-    .console-row strong {
-      font-family: var(--mono);
-      font-size: .8rem;
-      text-align: right;
-    }
-
-    .console-row strong.good { color: var(--lime); }
-    .console-row strong.warn { color: var(--amber); }
-    .console-row strong.blocked { color: var(--coral); }
-
-    .guardrail {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 20px;
-      align-items: center;
-      margin-top: 26px;
-      padding: 20px 22px;
-      border-color: rgba(255, 199, 102, .34);
-      background:
-        linear-gradient(100deg, var(--amber-soft), transparent 58%),
-        rgba(13, 20, 33, .86);
-    }
-
-    .guardrail-mark {
-      width: 48px;
-      height: 48px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(255, 199, 102, .42);
-      border-radius: 14px;
-      background: var(--amber-soft);
-      color: var(--amber);
-      font-family: var(--mono);
-      font-weight: 900;
-    }
-
-    .guardrail p { margin: 0; color: #e1d6bc; }
-
-    .section { padding: 78px 0 0; }
-
-    .section-heading {
-      display: grid;
-      grid-template-columns: minmax(0, .84fr) minmax(320px, 1.16fr);
-      gap: 34px;
-      align-items: end;
-      margin-bottom: 28px;
-    }
-
-    .section-heading h2 {
-      margin-bottom: 0;
-      font-size: clamp(2rem, 4vw, 3.35rem);
-      line-height: 1.05;
-    }
-
-    .section-heading p { max-width: 68ch; margin: 0; }
-
-    .relationship-map {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
-      gap: 8px;
-    }
-
-    .map-node {
-      position: relative;
-      min-height: 160px;
-      padding: 16px 13px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-sm);
-      background: rgba(13, 20, 33, .78);
-    }
-
-    .map-node::after {
-      position: absolute;
-      top: 50%;
-      right: -10px;
-      z-index: 2;
-      width: 18px;
-      height: 18px;
-      display: grid;
-      place-items: center;
-      border: 1px solid var(--line-strong);
-      border-radius: 50%;
-      background: var(--ink-1);
-      color: var(--cyan);
-      content: "›";
-      font-weight: 900;
-      transform: translateY(-50%);
-    }
-
-    .map-node:last-child::after { display: none; }
-
-    .node-kicker {
-      display: block;
-      margin-bottom: 20px;
-      color: var(--cyan);
-      font-family: var(--mono);
-      font-size: .66rem;
-      font-weight: 800;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-    }
-
-    .map-node h3 { margin-bottom: 6px; font-size: .95rem; }
-    .map-node p { margin: 0; color: var(--muted); font-size: .77rem; line-height: 1.5; }
-
-    .three-grid,
-    .glossary-grid,
-    .boundary-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 16px;
-    }
-
-    .concept-card,
-    .glossary-card,
-    .boundary-card { padding: 21px; }
-
-    .card-label {
-      color: var(--cyan);
-      font-family: var(--mono);
-      font-size: .68rem;
-      font-weight: 800;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-    }
-
-    .concept-card h3,
-    .glossary-card h3,
-    .boundary-card h3 { margin: 8px 0 8px; font-size: 1.08rem; }
-
-    .concept-card p,
-    .glossary-card p,
-    .boundary-card p { margin: 0; font-size: .88rem; }
-
-    .subhead {
-      margin: 38px 0 15px;
-      color: var(--paper);
-      font-size: 1.3rem;
-    }
-
-    .algorithm-stack { display: grid; gap: 16px; }
-
-    .algorithm-card {
-      display: grid;
-      grid-template-columns: 72px minmax(0, .9fr) minmax(320px, 1.1fr);
-      gap: 22px;
-      padding: 24px;
-    }
-
-    .step-id {
-      width: 54px;
-      height: 54px;
-      display: grid;
-      place-items: center;
-      border: 1px solid rgba(73, 221, 255, .35);
-      border-radius: 15px;
-      background: var(--cyan-soft);
-      color: var(--cyan);
-      font-family: var(--mono);
-      font-size: 1rem;
-      font-weight: 900;
-    }
-
-    .algorithm-copy h3 { margin-bottom: 8px; font-size: 1.18rem; }
-    .algorithm-copy p { margin-bottom: 9px; font-size: .9rem; }
-
-    .mini-label {
-      display: block;
-      margin-top: 13px;
-      color: var(--amber);
-      font-family: var(--mono);
-      font-size: .65rem;
-      font-weight: 800;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-
-    .formula-box {
-      min-width: 0;
-      padding: 17px 18px;
-      border: 1px solid rgba(73, 221, 255, .22);
-      border-radius: var(--radius-sm);
-      background: #03060b;
-      align-self: stretch;
-    }
-
-    .formula-box pre {
-      margin: 0;
-      color: #d9edf7;
-      font-size: .76rem;
-      line-height: 1.62;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .formula-note {
-      margin-top: 11px;
-      color: var(--muted);
-      font-size: .78rem;
-    }
-
-    .version-note {
-      margin-bottom: 16px;
-      padding: 17px 19px;
-      border: 1px solid rgba(185, 156, 255, .3);
-      border-radius: var(--radius-sm);
-      background: var(--violet-soft);
-      color: #ddd4f5;
-      font-size: .9rem;
-    }
-
-    .version-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .version-card {
-      position: relative;
-      padding: 23px;
-      overflow: hidden;
-    }
-
-    .version-card::before {
-      position: absolute;
-      inset: 0 auto 0 0;
-      width: 3px;
-      background: var(--cyan);
-      content: "";
-    }
-
-    .version-card.durable::before { background: var(--lime); }
-    .version-card.latest::before { background: var(--violet); }
-
-    .version-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: flex-start;
-      margin-bottom: 13px;
-    }
-
-    .version-number {
-      color: var(--cyan);
-      font-family: var(--mono);
-      font-size: 1.65rem;
-      font-weight: 900;
-      line-height: 1;
-    }
-
-    .version-card.durable .version-number { color: var(--lime); }
-    .version-card.latest .version-number { color: var(--violet); }
-
-    .version-card h3 { margin: 0; font-size: 1.17rem; }
-    .version-card h4 { margin: 17px 0 6px; color: var(--cyan); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; }
-    .version-card p,
-    .version-card li { font-size: .87rem; }
-    .version-card p:last-child { margin-bottom: 0; }
-
-    .pseudo {
-      margin-top: 14px;
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      background: rgba(3, 6, 11, .68);
-      color: #d8e7f7;
-      font-family: var(--mono);
-      font-size: .73rem;
-      line-height: 1.55;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-
-    .metric-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 13px;
-    }
-
-    .metric-card {
-      min-height: 145px;
-      padding: 19px;
-    }
-
-    .metric-value {
-      display: block;
-      margin-bottom: 8px;
-      color: var(--paper);
-      font-size: clamp(1.45rem, 3vw, 2.35rem);
-      font-weight: 900;
-      line-height: 1;
-    }
-
-    .metric-label {
-      display: block;
-      margin-bottom: 8px;
-      color: var(--cyan);
-      font-family: var(--mono);
-      font-size: .65rem;
-      font-weight: 800;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-
-    .metric-card p { margin: 0; color: var(--muted); font-size: .8rem; }
-
-    .scope-chart,
-    .return-chart {
-      display: grid;
-      gap: 13px;
-      margin: 20px 0;
-    }
-
-    .scope-row,
-    .return-row {
-      display: grid;
-      grid-template-columns: minmax(150px, .72fr) minmax(240px, 2fr) 90px;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .chart-name {
-      color: var(--soft);
-      font-size: .8rem;
-      line-height: 1.3;
-    }
-
-    .scope-track,
-    .return-track {
-      height: 22px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: rgba(255, 255, 255, .025);
-      overflow: hidden;
-    }
-
-    .scope-fill {
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, var(--cyan), var(--lime));
-    }
-
-    .scope-fill.amber { background: linear-gradient(90deg, #cb842d, var(--amber)); }
-    .scope-fill.violet { background: linear-gradient(90deg, #735bc5, var(--violet)); }
-
-    .chart-value {
-      color: var(--paper);
-      font-family: var(--mono);
-      font-size: .75rem;
-      text-align: right;
-    }
-
-    .return-track {
-      display: grid;
-      grid-template-columns: 78fr 22fr;
-    }
-
-    .return-half {
-      display: flex;
-      align-items: stretch;
-    }
-
-    .return-half.negative {
-      justify-content: flex-end;
-      border-right: 1px solid rgba(244, 247, 251, .48);
-    }
-
-    .return-fill { height: 100%; min-width: 2px; }
-    .return-fill.negative { background: linear-gradient(90deg, #913e45, var(--coral)); }
-    .return-fill.positive { background: linear-gradient(90deg, var(--cyan), var(--lime)); }
-
-    .study-strip {
-      display: flex;
-      gap: 5px;
-      margin: 20px 0;
-      padding: 7px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: rgba(255, 255, 255, .018);
-    }
-
-    .study-segment {
-      min-height: 105px;
-      padding: 13px;
-      border: 1px solid var(--line);
-      border-radius: 9px;
-      background: rgba(13, 20, 33, .9);
-    }
-
-    .study-segment.train { flex: 5; border-color: rgba(73, 221, 255, .30); }
-    .study-segment.gap { flex: 1; border-color: rgba(255, 199, 102, .34); }
-    .study-segment.holdout { flex: 3; border-color: rgba(182, 245, 111, .34); background: var(--lime-soft); }
-    .study-segment.quarantine { flex: 2; border-color: rgba(255, 126, 121, .34); background: var(--coral-soft); }
-    .study-segment b, .study-segment span { display: block; }
-    .study-segment b { margin-bottom: 6px; color: var(--paper); font-size: .78rem; }
-    .study-segment span { color: var(--muted); font-size: .69rem; line-height: 1.4; }
-
-    .table-block { margin-top: 20px; }
-
-    .table-title {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(280px, .8fr);
-      gap: 20px;
-      align-items: end;
-      margin-bottom: 10px;
-    }
-
-    .table-title h3 { margin: 0; font-size: 1.25rem; }
-    .table-title p { margin: 0; color: var(--muted); font-size: .84rem; }
-
-    .table-wrap {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(9, 13, 22, .78);
-      overflow-x: auto;
-      box-shadow: 0 16px 48px rgba(0, 0, 0, .17);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 720px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    caption {
-      padding: 13px 16px;
-      color: var(--muted);
-      font-size: .78rem;
-      text-align: left;
-    }
-
-    th,
-    td {
-      padding: 13px 15px;
-      border-bottom: 1px solid var(--line);
-      text-align: left;
-      vertical-align: middle;
-    }
-
-    thead th {
-      background: rgba(73, 221, 255, .055);
-      color: #d8e6f2;
-      font-family: var(--mono);
-      font-size: .68rem;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    tbody th { color: var(--paper); font-size: .86rem; }
-    td { color: var(--soft); font-size: .84rem; }
-    td.num, th.num { text-align: right; white-space: nowrap; }
-    tbody tr:last-child th,
-    tbody tr:last-child td { border-bottom: 0; }
-    tbody tr:hover { background: rgba(255, 255, 255, .025); }
-
-    .result-callout {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 17px;
-      margin-top: 17px;
-      padding: 18px 20px;
-      border: 1px solid rgba(255, 126, 121, .28);
-      border-radius: var(--radius-sm);
-      background: linear-gradient(100deg, var(--coral-soft), transparent 72%);
-    }
-
-    .result-callout strong:first-child {
-      color: var(--coral);
-      font-family: var(--mono);
-      font-size: .76rem;
-    }
-
-    .result-callout p { margin: 0; font-size: .87rem; }
-
-    .boundary-card {
-      border-color: rgba(255, 199, 102, .2);
-    }
-
-    .boundary-card .card-label { color: var(--amber); }
-
-    .evidence-panel {
-      margin-top: 18px;
-      padding: 23px;
-      border-color: rgba(73, 221, 255, .27);
-      background:
-        linear-gradient(110deg, var(--cyan-soft), transparent 66%),
-        rgba(13, 20, 33, .84);
-    }
-
-    .verification-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .verification-item {
-      padding: 16px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-sm);
-      background: rgba(3, 6, 11, .44);
-    }
-
-    .verification-item strong {
-      display: block;
-      margin-bottom: 5px;
-      color: var(--cyan);
-      font-family: var(--mono);
-      font-size: .82rem;
-    }
-
-    .verification-item p { margin: 0; color: var(--muted); font-size: .81rem; }
-
-    .evidence-ladder {
-      display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 8px;
-      margin-top: 18px;
-    }
-
-    .evidence-rung {
-      min-height: 95px;
-      padding: 13px 10px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-sm);
-      background: rgba(13, 20, 33, .7);
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: .64rem;
-      line-height: 1.35;
-      overflow-wrap: anywhere;
-    }
-
-    .evidence-rung.done {
-      border-color: rgba(182, 245, 111, .28);
-      background: var(--lime-soft);
-      color: var(--lime);
-    }
-
-    .evidence-rung.current {
-      border-color: rgba(255, 199, 102, .48);
-      background: var(--amber-soft);
-      color: var(--amber);
-      box-shadow: 0 0 26px rgba(255, 199, 102, .08);
-    }
-
-    .rung-state {
-      display: block;
-      margin-bottom: 8px;
-      font-family: var(--sans);
-      font-size: .68rem;
-      font-weight: 900;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-
-    .gate-grid {
-      display: grid;
-      grid-template-columns: .82fr 1.18fr;
-      gap: 14px;
-    }
-
-    .gate-card { padding: 24px; }
-
-    .gate-card.ready {
-      border-color: rgba(182, 245, 111, .27);
-      background:
-        linear-gradient(145deg, var(--lime-soft), transparent 58%),
-        rgba(13, 20, 33, .79);
-    }
-
-    .gate-card.blocked {
-      border-color: rgba(255, 126, 121, .27);
-      background:
-        linear-gradient(145deg, var(--coral-soft), transparent 58%),
-        rgba(13, 20, 33, .79);
-    }
-
-    .gate-card h3 { font-size: 1.2rem; }
-    .gate-card.ready h3 { color: var(--lime); }
-    .gate-card.blocked h3 { color: var(--coral); }
-    .gate-card li { font-size: .88rem; }
-
-    .gate-table { margin-top: 18px; }
-    .gate-table table { min-width: 850px; }
-
-    .footer {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 24px;
-      align-items: end;
-      margin-top: 76px;
-      padding-top: 24px;
-      border-top: 1px solid var(--line);
-    }
-
-    .footer p { max-width: 82ch; margin: 0; color: var(--muted); font-size: .81rem; }
-
-    .footer-stamp {
-      color: var(--cyan);
-      font-family: var(--mono);
-      font-size: .7rem;
-      text-align: right;
-    }
-
-    @media (max-width: 1100px) {
-      .hero,
-      .section-heading,
-      .table-title { grid-template-columns: 1fr; }
-      .hero { gap: 28px; min-height: auto; }
-      .status-console { max-width: 720px; }
-      .relationship-map { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-      .map-node:nth-child(4)::after { display: none; }
-      .algorithm-card { grid-template-columns: 62px minmax(0, 1fr); }
-      .algorithm-card .formula-box { grid-column: 2; }
-      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .evidence-ladder { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
-
-    @media (max-width: 820px) {
-      html { scroll-padding-top: 18px; }
-      .shell { width: min(100% - 24px, 1220px); }
-      .topbar { position: static; }
-      .topbar-inner { align-items: flex-start; flex-direction: column; padding: 14px 0; }
-      .nav-links { justify-content: flex-start; }
-      main { padding-top: 18px; }
-      .hero { padding-top: 28px; }
-      h1 {
-        max-width: 100%;
-        font-size: clamp(2.75rem, 14vw, 3.65rem);
-      }
-      .relationship-map,
-      .three-grid,
-      .glossary-grid,
-      .boundary-grid,
-      .version-grid,
-      .verification-grid,
-      .gate-grid { grid-template-columns: 1fr; }
-      .map-node::after { display: none; }
-      .algorithm-card { grid-template-columns: 1fr; }
-      .algorithm-card .formula-box { grid-column: auto; }
-      .guardrail,
-      .result-callout,
-      .footer { grid-template-columns: 1fr; }
-      .scope-row,
-      .return-row { grid-template-columns: 110px 1fr 76px; gap: 8px; }
-      .study-strip { display: grid; grid-template-columns: 1fr; }
-      .study-segment { min-height: 0; }
-      .footer-stamp { text-align: left; }
-    }
-
-    @media (max-width: 500px) {
-      .metric-grid,
-      .evidence-ladder { grid-template-columns: 1fr; }
-      .console-row { grid-template-columns: 1fr; gap: 3px; }
-      .console-row strong { text-align: left; }
-      .algorithm-card,
-      .version-card,
-      .gate-card { padding: 19px; }
-    }
-
-    @media (prefers-reduced-motion: no-preference) {
-      .hero-copy,
-      .status-console { animation: settle .55s ease-out both; }
-      .status-console { animation-delay: .1s; }
-      @keyframes settle {
-        from { opacity: 0; transform: translateY(12px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        scroll-behavior: auto !important;
-        animation-duration: .01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: .01ms !important;
-      }
-    }
-
-    @media print {
-      :root { color-scheme: light; }
-      body { background: white; color: #111827; }
-      body::before, .topbar { display: none; }
-      p, li, td, caption, .console-row span, .formula-note, .hero-lede { color: #334155 !important; }
-      .panel, .card, .map-node, .table-wrap, .status-console,
-      .formula-box, .pseudo, .verification-item, .version-note,
-      .guardrail, .result-callout, .evidence-rung {
-        box-shadow: none;
-        background: white;
-      }
-      h1, h2, h3, h4, strong, tbody th, .metric-value, .chart-name,
-      .chart-value, .study-segment b, .study-segment span { color: #0f172a !important; }
-      .gradient-word {
-        background: none;
-        color: #0f172a;
-        -webkit-text-fill-color: #0f172a;
-      }
-      .eyebrow, .card-label, .mini-label, .metric-label, .version-number,
-      .node-kicker, .footer-stamp, .tag, .badge, .evidence-rung,
-      .evidence-rung.done, .evidence-rung.current, .verification-item strong,
-      .gate-card.ready h3, .gate-card.blocked h3, thead th,
-      .formula-box pre, .pseudo, code {
-        color: #0f172a !important;
-      }
-      code { background: white; }
-      thead th { background: #f1f5f9; }
-      .table-wrap { overflow: visible; }
-      table, .gate-table table { min-width: 0; }
-      th, td { padding: 7px; font-size: .66rem; }
-      .skip-link, .hero::after { display: none; }
-      .hero {
-        display: block;
-        min-height: 0;
-        padding: 24px 0;
-      }
-      .hero-copy, .status-console {
-        animation: none !important;
-        opacity: 1 !important;
-        transform: none !important;
-      }
-      .status-console { margin-top: 18px; }
-      .guardrail p, .result-callout p, .footer p { color: #334155; }
-      main { padding-top: 0; }
-      .section { break-inside: avoid; }
-    }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#030405">
+  <meta name="description" content="The Virtual Hedge Fund development record: from a research library to reproducible momentum experiments, corrected accounting, and the evidence still needed before investment conclusions.">
+  <title>VHF | The development record</title>
+  <link rel="stylesheet" href="../assets/vhf-guide.css">
+  <script src="../assets/vhf-guide.js" defer></script>
 </head>
-
 <body>
-  <a class="skip-link" href="#main-content">Skip to the pilot primer</a>
-
-  <nav class="topbar" aria-label="Page navigation">
-    <div class="shell topbar-inner">
-      <a class="brand" href="../index.html" aria-label="Return to the research summaries index">
-        <span class="brand-mark" aria-hidden="true">V</span>
-        Virtual Hedge Fund
-      </a>
-      <div class="nav-links">
-        <a href="explain.html">Field guide</a>
-        <a href="#model">Mental model</a>
-        <a href="#algorithm">Algorithm</a>
-        <a href="#versions">Version ledger</a>
-        <a href="#results">Five-year results</a>
-        <a href="#maximum-history">Maximum history</a>
-        <a href="#boundaries">Boundaries</a>
-        <a href="#gates">Remaining gates</a>
-      </div>
-    </div>
-  </nav>
-
-  <main id="main-content" class="shell" tabindex="-1">
-    <header class="hero">
-      <div class="hero-copy">
-        <div class="eyebrow">Phase 6 historical study · 28 August 2026</div>
-        <h1>More time.<br /><span class="gradient-word">Stronger boundaries.</span></h1>
-        <p class="hero-lede">
-          The original five-year pilot exposed data and accounting limits but could
-          not fit the frozen evaluation design. Maximum Sharadar history now provides
-          330 completed monthly routes: enough to materialize 12 expanding folds,
-          isolate a still-unread 36-month historical holdout, and run the registered
-          equal-weight, cap-weight, raw-momentum, and cash comparisons on one common
-          development axis. The machinery is promotion-grade; the evidence is not
-          yet promotion-ready.
-        </p>
-        <div class="badge-row" aria-label="Pilot status">
-          <span class="badge good">12 FOLDS MATERIALIZED</span>
-          <span class="badge good">HOLDOUT LOCKED + UNREAD</span>
-          <span class="badge warn">LOWER-BOUND EQUITY PATHS</span>
-          <span class="badge blocked">PROMOTION BLOCKED</span>
-          <span class="badge">NO EXECUTION AUTHORITY</span>
+  <a class="skip-link" href="#main">Skip to the development record</a>
+  <div class="progress" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="brand" href="../index.html" aria-label="Virtual Hedge Fund research library"><span class="brand-mark" aria-hidden="true">V</span><span class="brand-name">Virtual Hedge Fund</span></a>
+    <nav class="header-links" aria-label="Main navigation">
+      <a href="explain.html">The framework</a>
+      <a href="scratchpad.html" aria-current="page">Development record</a>
+      <a class="home-link" href="../index.html">Research library</a>
+    </nav>
+  </header>
+  <div class="page-shell">
+    <aside class="sidebar" aria-label="On this page">
+      <p class="eyebrow">Development record</p>
+      <nav class="contents" aria-label="Chapters">
+        <a href="#reading">How to read the record</a>
+        <a href="#library">01 · A research library</a>
+        <a href="#foundations">02 · A reproducible machine</a>
+        <a href="#research-contract">03 · Define the experiment</a>
+        <a href="#real-data">04 · Meet real market data</a>
+        <a href="#historical-design">05 · Protect an honest test</a>
+        <a href="#correction">06 · Correct the foundations</a>
+        <a href="#construction">07 · Complete the portfolio rules</a>
+        <a href="#execution">08 · Make the books executable</a>
+        <a href="#terminal">09 · Account for disappearing stocks</a>
+        <a href="#today">10 · The present boundary</a>
+        <a href="#references">Sources &amp; reading</a>
+      </nav>
+    </aside>
+    <main id="main">
+      <!-- The headline describes the evidence state, not a strategy return. This
+           page is a dated engineering account; new code must not silently make
+           older historical results appear to have been recalculated. -->
+      <header class="hero">
+        <p class="eyebrow">Virtual Hedge Fund · Volume II</p>
+        <h1>From investment ideas<br>to a research system.</h1>
+        <p class="lead">The development of VHF, from its first source library in May 2026 to the current momentum study. What was built, why it changed, what the evidence shows, and what remains unfinished.</p>
+        <div class="meta"><span>Updated 7 September 2026</span><span>Research &amp; simulated execution</span></div>
+      </header>
+      <details class="mobile-contents">
+        <summary>Contents</summary>
+        <nav class="contents" aria-label="Mobile chapters">
+          <a href="#reading">How to read the record</a><a href="#library">01 · Research library</a><a href="#foundations">02 · Reproducible machine</a><a href="#research-contract">03 · Experiment design</a><a href="#real-data">04 · Market data</a><a href="#historical-design">05 · Honest testing</a><a href="#correction">06 · Corrections</a><a href="#construction">07 · Portfolio rules</a><a href="#execution">08 · Execution</a><a href="#terminal">09 · Terminal events</a><a href="#today">10 · Current position</a><a href="#references">References</a>
+        </nav>
+      </details>
+      <section class="chapter" id="reading">
+        <p class="section-number">Orientation</p><div class="section-heading"><h2>Progress has several meanings.</h2></div>
+        <p>VHF began with a straightforward ambition: turn investment research into a disciplined process for selecting securities, controlling risk, simulating trades and evaluating results. The hard part has proved to be connecting those steps without losing the economic meaning of the inputs. A plausible ranking is only the beginning. The system must also know what it owned, when it could trade, what it paid, and what happened when a security stopped trading.</p>
+        <p>The first page explains that investment logic. This page follows the development decisions that made it concrete. It separates three questions throughout: <strong>Does the software implement its rules?</strong> <strong>Can the available historical evidence support the calculation?</strong> <strong>Does the calculation establish an investment advantage?</strong> A successful answer to the first does not settle the other two.</p>
+        <div class="grid three">
+          <article class="card"><span class="tag complete">Implemented</span><h3>A rule exists in code</h3><p>Invented examples and replay can show that the rule behaves as intended. They cannot show that a strategy earns money in real markets.</p></article>
+          <article class="card"><span class="tag partial">Historically calculated</span><h3>Real inputs were used</h3><p>A result may still depend on modeled costs, incomplete prices or current data revisions. Those qualifications travel with the result.</p></article>
+          <article class="card"><span class="tag open">Investment acceptance</span><h3>The evidence is sufficient</h3><p>This requires the relevant complete paths, justified comparison and testing, and a separate review. VHF has not reached live investment acceptance.</p></article>
         </div>
-      </div>
-
-      <aside class="status-console" aria-label="Current pilot status">
-        <div class="console-head">
-          <span>phase 6 / maximum history</span>
-          <span class="console-light">aggregate verified</span>
-        </div>
-        <div class="console-body">
-          <div class="console-row">
-            <span>Reviewed XNYS sessions</span>
-            <strong>7,207</strong>
-          </div>
-          <div class="console-row">
-            <span>Completed monthly routes</span>
-            <strong>330</strong>
-          </div>
-          <div class="console-row">
-            <span>Expanding walk-forward folds</span>
-            <strong class="good">12</strong>
-          </div>
-          <div class="console-row">
-            <span>Common benchmark decisions</span>
-            <strong>108</strong>
-          </div>
-          <div class="console-row">
-            <span>Historical holdout values</span>
-            <strong class="good">UNREAD</strong>
-          </div>
-          <div class="console-row">
-            <span>Formal promotion stage</span>
-            <strong class="warn">SYNTHETIC_INTEGRATED</strong>
-          </div>
-        </div>
-      </aside>
-    </header>
-
-    <div class="panel guardrail" role="note" aria-label="Publication and evidence boundary">
-      <div class="guardrail-mark" aria-hidden="true">!</div>
-      <p>
-        <strong>This page publishes aggregate research evidence, not licensed source
-        detail.</strong> Security identifiers, holdings, action codes, counterparties,
-        transaction terms, evidence locations, source links, and content fingerprints
-        are intentionally absent. Every equity return below is a gross current-vintage,
-        total-loss lower-bound path—not a canonical point-in-time backtest, winner,
-        holdout result, or investment claim. The earlier five-year results remain
-        historical diagnostics; the maximum-history study adds stronger evaluation
-        geometry without erasing their limitations.
-      </p>
-    </div>
-
-    <section id="model" class="section" aria-labelledby="model-title">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow">01 · Core mental model</div>
-          <h2 id="model-title">One signal, several layers of uncertainty.</h2>
-        </div>
-        <p>
-          The pilot does not ask only “what did the selected portfolio return?”
-          It asks what was selected, when it could first trade, whether entry and
-          exit prices exist, which terminal outcomes are documented, how trading
-          assumptions change the arithmetic, whether the book fits a liquidity
-          guardrail, and whether factor-neutral targets can even be formed.
-        </p>
-      </div>
-
-      <div class="relationship-map" aria-label="Pilot relationship map">
-        <article class="map-node">
-          <span class="node-kicker">01 · Inputs</span>
-          <h3>Bound archives</h3>
-          <p>Current-vintage metadata, prices, capitalization, and action classifications.</p>
-        </article>
-        <article class="map-node">
-          <span class="node-kicker">02 · Screen</span>
-          <h3>Eligible universe</h3>
-          <p>Common shares, history, size, liquidity, and complete signal evidence.</p>
-        </article>
-        <article class="map-node">
-          <span class="node-kicker">03 · Rank</span>
-          <h3>Momentum quality</h3>
-          <p>12-minus-2 momentum, path discreteness, and signed recent MAX.</p>
-        </article>
-        <article class="map-node">
-          <span class="node-kicker">04 · Target</span>
-          <h3>Top 50</h3>
-          <p>Two percent per name; any unavailable entry remains cash.</p>
-        </article>
-        <article class="map-node">
-          <span class="node-kicker">05 · Route</span>
-          <h3>Next open</h3>
-          <p>Decision information dated T first affects the next reviewed session.</p>
-        </article>
-        <article class="map-node">
-          <span class="node-kicker">06 · Bound</span>
-          <h3>Three exit paths</h3>
-          <p>Total loss, documented lower recovery, and full-principal sensitivity.</p>
-        </article>
-        <article class="map-node">
-          <span class="node-kicker">07 · Diagnose</span>
-          <h3>Compare and gate</h3>
-          <p>Benchmarks, turnover, costs, capacity, factors, and promotion blockers.</p>
-        </article>
-      </div>
-
-      <div class="three-grid">
-        <article class="card concept-card">
-          <span class="card-label">What “current-vintage” means</span>
-          <h3>Today’s adjusted history can contain later knowledge.</h3>
-          <p>
-            The calculation uses a bound five-year snapshot and respects a
-            one-session trading lag, but it cannot reconstruct every historical
-            revision or classification as it appeared at each decision date.
-          </p>
-        </article>
-        <article class="card concept-card">
-          <span class="card-label">How to read terminal paths</span>
-          <h3>Bounds are not point estimates.</h3>
-          <p>
-            Total loss is the rigorous nonnegative-recovery floor. The reviewed
-            path is a tighter gross lower bound. Full-principal recovery is only a
-            sensitivity and is not an upper bound.
-          </p>
-        </article>
-        <article class="card concept-card">
-          <span class="card-label">How to read factor control</span>
-          <h3>A feasible target is not a realized portfolio.</h3>
-          <p>
-            The solver can construct neutral weights at every decision, but missing
-            long/short routes, unknown short terminal value, borrow, financing, and
-            state propagation prevent a performance calculation.
-          </p>
-        </article>
-      </div>
-
-      <h3 class="subhead">Terminology map</h3>
-      <div class="glossary-grid">
-        <article class="card glossary-card">
-          <span class="card-label">Decision T</span>
-          <h3>Economic date, not instant availability</h3>
-          <p>Information dated to session T can first influence the next reviewed regular-session open.</p>
-        </article>
-        <article class="card glossary-card">
-          <span class="card-label">Adjusted / raw route</span>
-          <h3>Research return versus execution diagnostic</h3>
-          <p>Adjusted opens carry total-return research economics; reconstructed raw opens remain routing diagnostics, not executable quotes.</p>
-        </article>
-        <article class="card glossary-card">
-          <span class="card-label">Missing entry</span>
-          <h3>Uninvested weight stays cash</h3>
-          <p>The intended allocation earns zero for that holding period and is never redistributed to names that happened to have data.</p>
-        </article>
-        <article class="card glossary-card">
-          <span class="card-label">One-way turnover</span>
-          <h3>Half the risky-weight L1 change</h3>
-          <p>Cash reconciles the state but is excluded from the sum so deployment is not counted twice.</p>
-        </article>
-        <article class="card glossary-card">
-          <span class="card-label">Capacity limit</span>
-          <h3>The first 5%-ADV bottleneck</h3>
-          <p>A rounded constant-AUM sensitivity determined by the most restrictive private trade leg—not an executable fund size.</p>
-        </article>
-        <article class="card glossary-card">
-          <span class="card-label">Formal evidence stage</span>
-          <h3>Still synthetic-integrated</h3>
-          <p>The provider-backed diagnostic is a separate smoke pilot and does not promote the canonical research system by itself.</p>
-        </article>
-      </div>
-    </section>
-
-    <section id="algorithm" class="section" aria-labelledby="algorithm-title">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow">02 · Fixed algorithm</div>
-          <h2 id="algorithm-title">The complete monthly calculation.</h2>
-        </div>
-        <p>
-          The formulas below are the stable public-safe specification that the
-          v8 aggregate implements. They expose units, timing, signs, and failure
-          rules while withholding licensed rows and identities.
-        </p>
-      </div>
-
-      <div class="algorithm-stack">
-        <article class="card algorithm-card">
-          <div class="step-id">01</div>
-          <div class="algorithm-copy">
-            <h3>Reconstruct research and liquidity routes</h3>
-            <p>
-              A provider-supplied split-adjusted close acts as the denominator
-              that maps the reported open into adjusted and raw domains. Raw
-              notional then supports a complete trailing liquidity filter.
-            </p>
-            <span class="mini-label">Implementation lens</span>
-            <p>Require positive finite price levels, permit zero but not negative volume/notional, and never bridge a missing day.</p>
-          </div>
-          <div class="formula-box" aria-label="Price and volume route formulas">
-            <pre>adjusted_open = reported_open × total_return_close / split_adjusted_close
-raw_open      = reported_open × raw_close / split_adjusted_close
-raw_volume    = reported_volume × raw_close / split_adjusted_close
-raw_notional  = raw_close × raw_volume
-
-ADV60 = mean(raw_notional over 60 complete sessions)</pre>
-            <div class="formula-note">Adjusted opens measure the research path. Raw opens and notional remain routing and liquidity diagnostics.</div>
-          </div>
-        </article>
-
-        <article class="card algorithm-card">
-          <div class="step-id">02</div>
-          <div class="algorithm-copy">
-            <h3>Build the eligible universe at each decision</h3>
-            <p>
-              Start with active USD domestic common shares, require thirteen
-              complete observed month ends and positive capitalization, then form
-              a linear 40th-percentile size breakpoint over that complete reference
-              set. Historical primary-venue evidence is unavailable, so this is an
-              all-eligible substitute rather than the canonical NYSE breakpoint.
-            </p>
-            <span class="mini-label">Fail-closed rule</span>
-            <p>Incomplete 60-session ADV or signal history excludes the name; it is not imputed.</p>
-          </div>
-          <div class="formula-box" aria-label="Eligibility formula">
-            <pre>b_t = linear_quantile_40%(market_cap_i,t in complete reference set)
-
-eligible_i,t = active_i,t
-            ∧ 13_complete_month_ends_i,t
-            ∧ market_cap_i,t &gt; b_t
-            ∧ complete(ADV60_i,t)
-            ∧ ADV60_i,t ≥ $1,000,000
-            ∧ complete(signal_history_i,t)</pre>
-          </div>
-        </article>
-
-        <article class="card algorithm-card">
-          <div class="step-id">03</div>
-          <div class="algorithm-copy">
-            <h3>Measure 12-minus-2 momentum and path quality</h3>
-            <p>
-              Momentum ends one month before the decision, deliberately skipping
-              the recent month. Information discreteness measures whether the
-              formation path arrived through many small moves or fewer jumps.
-              Zero-return days stay in the 252-day denominator. MAX is signed,
-              never converted into an absolute jump.
-            </p>
-            <span class="mini-label">How it connects</span>
-            <p>Raw momentum chooses the tail; FIP and MAX order names only inside that high-momentum tail.</p>
-          </div>
-          <div class="formula-box" aria-label="Momentum and quality formulas">
-            <pre>M_i,t  = P_TR(i, formation_end) / P_TR(i, formation_start) − 1
-
-ID_i,t = sign(M_i,t) × (n_negative / 252 − n_positive / 252)
-MAX_i,t = max(signed daily return in the skipped recent month)
-
-n_tail = max(1, ceil(0.10 × N_eligible))
-q_ID   = percentile_rank(−ID) within the high-momentum tail
-q_MAX  = percentile_rank(−MAX) within the high-momentum tail
-quality = 0.5 × q_ID + 0.5 × q_MAX</pre>
-          </div>
-        </article>
-
-        <article class="card algorithm-card">
-          <div class="step-id">04</div>
-          <div class="algorithm-copy">
-            <h3>Select, size, and route the monthly holding</h3>
-            <p>
-              Sort the top momentum decile by quality, use a stable identity only
-              as a deterministic tie-break, and select at most fifty names. Each
-              selected name receives 2%; any unfilled allocation stays cash.
-            </p>
-            <span class="mini-label">Timing boundary</span>
-            <p>Decision T enters at the next reviewed open and exits at the next monthly rebalance’s reviewed open.</p>
-          </div>
-          <div class="formula-box" aria-label="Selection and portfolio return formulas">
-            <pre>S_t = first min(50, n_tail) names by descending quality
-w_i,t = 0.02 if i ∈ S_t, otherwise 0
-w_cash,t = 1 − Σ_i w_i,t
-
-r_i,t = adjusted_open_i,exit / adjusted_open_i,entry − 1
-r_portfolio,t = Σ_i invested_weight_i,t × r_i,t
-
-missing entry → allocation remains cash</pre>
-          </div>
-        </article>
-
-        <article class="card algorithm-card">
-          <div class="step-id">05</div>
-          <div class="algorithm-copy">
-            <h3>Carry three terminal-recovery paths</h3>
-            <p>
-              A missing exit is never silently treated as a normal zero. The
-              total-loss path is the unconditional floor. Reviewed positive cash
-              can tighten that floor only when every omitted leg was checked as
-              additive and nonnegative. Complete evidence can establish an exact
-              outcome; unresolved cases stay unresolved.
-            </p>
-            <span class="mini-label">Evidence boundary</span>
-            <p>Full-principal recovery is a sensitivity, not an upper bound; acquisition value can exceed entry value.</p>
-          </div>
-          <div class="formula-box" aria-label="Terminal recovery formulas">
-            <pre>anchor = last valid target raw+adjusted open on/before effectiveness and before exit
-adjustment_scale = adjusted_open_at_anchor / raw_open_at_anchor
-adjusted_cash    = reviewed_cash_per_unit × adjustment_scale
-successor_start  = explicit first-held session for the supported successor
-successor_raw_exit = fixed_shares × raw_start × adjusted_exit / adjusted_start
-adjusted_stock   = successor_raw_exit × adjustment_scale
-documented_multiple = reviewed_adjusted_value_at_exit / adjusted_entry
-r_documented    = documented_multiple − 1
-
-unresolved total-loss path       → r = −1
-unresolved full-principal path   → r = 0
-reviewed documented-lower path   → substitute only admitted lower return</pre>
-          </div>
-        </article>
-
-        <article class="card algorithm-card">
-          <div class="step-id">06</div>
-          <div class="algorithm-copy">
-            <h3>Chain monthly metrics without hiding path semantics</h3>
-            <p>
-              Metrics are calculated from one contiguous monthly series. Sharpe
-              uses a zero reference rate and sample standard deviation. Drawdown
-              begins from an explicit wealth origin of one.
-            </p>
-            <span class="mini-label">Reading note</span>
-            <p>Changing a terminal path changes the entire chained wealth path; the columns are scenarios, not confidence intervals.</p>
-          </div>
-          <div class="formula-box" aria-label="Portfolio metric formulas">
-            <pre>W_T       = Π_t (1 + r_t)
-cumulative = W_T − 1
-annualized = W_T^(12 / T) − 1
-volatility = sample_sd(r_t) × √12
-Sharpe_0   = mean(r_t) / sample_sd(r_t) × √12
-drawdown_t = W_t / max_{s≤t}(W_s) − 1
-MDD        = min_t(drawdown_t)</pre>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <section id="versions" class="section" aria-labelledby="versions-title">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow">03 · Version ledger</div>
-          <h2 id="versions-title">How the study reached maximum history.</h2>
-        </div>
-        <p>
-          Each version narrowed a specific uncertainty without retroactively
-          upgrading the evidence stage. Later versions preserve earlier public
-          aggregates unless the ledger explicitly says a provisional value was
-          corrected.
-        </p>
-      </div>
-
-      <div class="version-note">
-        <strong>Chronology note:</strong> the v1–v3 sequence is reconstructed from
-        contemporaneous implementation evidence; the durable project record keeps
-        their cumulative early-pilot result and begins dedicated version narratives
-        at v4. That v4 record consolidates the earlier capabilities and does not
-        independently corroborate their internal split. The cards below do not
-        imply separate durable v1, v2, and v3 reports.
-      </div>
-
-      <div class="version-grid">
-        <article class="card version-card">
-          <div class="version-head">
-            <div>
-              <div class="version-number">v1</div>
-              <h3>Core descriptive engine</h3>
-            </div>
-            <span class="tag">RECONSTRUCTED</span>
-          </div>
-          <h4>What changed</h4>
-          <p>
-            Built the three-input, disk-backed long-only engine: bounded current-
-            vintage history, size and liquidity screens, 12-minus-2/FIP/signed-MAX
-            selection, top-50 equal targets, one-session-lag opens, and two missing-
-            exit treatments. Input content and the economic specification were bound
-            before calculation and checked again after streaming.
-          </p>
-          <h4>What it established</h4>
-          <p>Forty-eight monthly decisions, nine missing entries, thirty missing exits, and a deliberately wide terminal-recovery spread.</p>
-          <div class="pseudo">screen → rank → top 50 × 2% → next-open path
-missing entry = cash
-missing exit ∈ {total loss, full-principal sensitivity}</div>
-        </article>
-
-        <article class="card version-card">
-          <div class="version-head">
-            <div>
-              <div class="version-number">v2</div>
-              <h3>Missing-exit classification</h3>
-            </div>
-            <span class="tag">RECONSTRUCTED</span>
-          </div>
-          <h4>What changed</h4>
-          <p>
-            Added a separate action-classification input and strict observed-row,
-            binding, and date-window checks. All thirty selected missing exits were
-            associated with acquisition or merger events, but no exact proceeds or
-            availability time were manufactured.
-          </p>
-          <h4>How it connects</h4>
-          <p>Classification explained the gap; it did not value it. The v1 scenario returns therefore remained unchanged.</p>
-          <div class="pseudo">if the exit row is invalid or a later row exists: classify as a data gap
-else if same binding + event inside holding window: classify the event
-classification ≠ terminal proceeds</div>
-        </article>
-
-        <article class="card version-card">
-          <div class="version-head">
-            <div>
-              <div class="version-number">v3</div>
-              <h3>Reviewed timing and first benchmark</h3>
-            </div>
-            <span class="tag">RECONSTRUCTED</span>
-          </div>
-          <h4>What changed</h4>
-          <p>
-            Replaced next-observed-date inference with a pinned, reviewed XNYS
-            trading-session axis; added the complete eligible-universe
-            equal-weight benchmark and return-drift-aware turnover.
-          </p>
-          <h4>Evidence boundary</h4>
-          <p>
-            Strategy returns did not change. v3 turnover figures were provisional
-            and are intentionally omitted here because v4 corrected them to the
-            established risky-only half-L1 convention.
-          </p>
-          <div class="pseudo">decision T → immediate next reviewed session open
-benchmark_weight_i = 1 / N_eligible
-missing benchmark entry = cash, never redistributed</div>
-        </article>
-
-        <article class="card version-card durable">
-          <div class="version-head">
-            <div>
-              <div class="version-number">v4</div>
-              <h3>First durable consolidation and corrected costs</h3>
-            </div>
-            <span class="tag floor">DURABLE</span>
-          </div>
-          <h4>What changed</h4>
-          <p>
-            The first dedicated durable version record consolidates the reviewed
-            calendar, missing-exit classification, eligible equal-weight benchmark,
-            and drift-aware turnover. It also corrects turnover to half the L1
-            change across risky weights only, then adds the existing illustrative
-            half-spread-plus-commission model and deducts its drag exactly once from
-            gross monthly return.
-          </p>
-          <h4>Formula</h4>
-          <div class="pseudo">full-principal unresolved exit → remove risky position; add principal weight to cash
-position_value_i = w_prev,i(1+r_i) for positions that remain risky
-W_path = path_specific_cash + Σ_j position_value_j
-w_pre,i = position_value_i / W_path
-TO = 0.5 Σ_i |w_target,i − w_pre,i|
-linear drag = 2 × TO × (full spread/2 + commission) / 10,000</div>
-        </article>
-
-        <article class="card version-card durable">
-          <div class="version-head">
-            <div>
-              <div class="version-number">v5</div>
-              <h3>Reviewed terminal lower bound</h3>
-            </div>
-            <span class="tag floor">DURABLE</span>
-          </div>
-          <h4>What changed</h4>
-          <p>
-            Added private primary-evidence review and a strict terminal-economics
-            sidecar. Twenty-two selected outcomes are exact; five more contribute
-            only positive fixed-cash floors; three stay unresolved. The cash bridge
-            translates reviewed value into the target’s adjusted research unit.
-          </p>
-          <h4>What it means</h4>
-          <p>The new 83.7535% cumulative path is a rigorous gross lower bound—not a midpoint—and the three unresolved exits leave no finite upper bound.</p>
-        </article>
-
-        <article class="card version-card durable">
-          <div class="version-head">
-            <div>
-              <div class="version-number">v6</div>
-              <h3>Capacity and square-root impact</h3>
-            </div>
-            <span class="tag floor">DURABLE</span>
-          </div>
-          <h4>What changed</h4>
-          <p>
-            Formed the full nonzero buy/sell union from drifted pretrade weights to
-            invested targets. Every leg requires complete 60-session raw-notional
-            ADV, a raw next-open route, and 252 returns for EWMA20 volatility. One
-            missing input withholds the whole history.
-          </p>
-          <h4>Implementation lens</h4>
-          <div class="pseudo">α = 1 − exp(log(0.5) / 20)
-σ²_1 = r²_1
-σ²_t = αr²_t + (1−α)σ²_(t−1), t = 2…252
-participation_i(A) = A|Δw_i| / ADV_i
-A_limit = min_i [0.05 × ADV_i / |Δw_i|]
-impact = k√A Σ_i σ_i|Δw_i|√(|Δw_i|/ADV_i)</div>
-        </article>
-
-        <article class="card version-card durable">
-          <div class="version-head">
-            <div>
-              <div class="version-number">v7</div>
-              <h3>Factor-target feasibility</h3>
-            </div>
-            <span class="tag floor">DURABLE</span>
-          </div>
-          <h4>What changed</h4>
-          <p>
-            Added a current-vintage target-only sensitivity: 252-return beta to an
-            eligible-universe equal-weight proxy, standardized log capitalization,
-            static current sector indicators, and a sign-preserving least-change
-            projection of the raw top/bottom-decile seed.
-          </p>
-          <h4>Optimization</h4>
-          <div class="pseudo">r_proxy = mean eligible-universe daily return
-β_i = Σ(R_i−mean R_i)(r_proxy−mean r_proxy) / Σ(r_proxy−mean r_proxy)²
-size_i = zscore(log market_cap_i)
-
-minimize ||w − w_seed||²
-subject to long = +0.50, short = −0.50
-net = beta = size = every sector = 0
-fixed signs, |w_i| ≤ 0.02, residual ≤ 1e−10</div>
-        </article>
-
-        <article class="card version-card durable">
-          <div class="version-head">
-            <div>
-              <div class="version-number">v8</div>
-              <h3>Decision-close cap-weight benchmark</h3>
-            </div>
-            <span class="tag floor">DURABLE</span>
-          </div>
-          <h4>What changed</h4>
-          <p>
-            Added the registered eligible-universe cap-weight comparison. Positive
-            weights are fixed from decision-close capitalization before next-open
-            availability is inspected. Missing-entry allocation stays cash and is
-            never redistributed to surviving names.
-          </p>
-          <h4>Formula and boundary</h4>
-          <div class="pseudo">w_i,t = market_cap_i,t / Σ_j market_cap_j,t
-r_benchmark,t = Σ_i w_i,t r_i,t
-
-gross current-vintage benchmark only
-no benchmark turnover, cost, capacity, or terminal liquidation</div>
-        </article>
-
-        <article class="card version-card durable">
-          <div class="version-head">
-            <div>
-              <div class="version-number">v9</div>
-              <h3>Fold and holdout feasibility audit</h3>
-            </div>
-            <span class="tag floor">FAIL-CLOSED</span>
-          </div>
-          <h4>What changed</h4>
-          <p>
-            Added a label-only audit against the frozen 5-year train, 1-year test,
-            21-session purge, 21-session embargo, and final 3-year holdout. The
-            five-year slice had 48 completed monthly outcomes against a 108-month
-            no-gap minimum, so it materialized zero folds and locked no holdout.
-          </p>
-          <h4>Why it mattered</h4>
-          <p>It converted “we need more history” into an exact 60-month shortfall without inventing positive split semantics.</p>
-        </article>
-
-        <article class="card version-card durable">
-          <div class="version-head">
-            <div>
-              <div class="version-number">v10</div>
-              <h3>Factor-target route and capacity census</h3>
-            </div>
-            <span class="tag floor">DIAGNOSTIC</span>
-          </div>
-          <h4>What changed</h4>
-          <p>
-            Kept constituent identities private while auditing scheduled raw and
-            adjusted entry/exit routes, theoretical target-to-target turnover, and
-            60-session raw-notional ADV capacity for the signed neutral targets.
-          </p>
-          <h4>What it established</h4>
-          <p>All 48 targets exist, but only 7 decisions have complete scheduled routes and only 8 have complete capacity inputs. Signed performance remains intentionally unrun.</p>
-        </article>
-
-        <article class="card version-card latest">
-          <div class="version-head">
-            <div>
-              <div class="version-number">MAX</div>
-              <h3>Approved historical evaluation protocol</h3>
-            </div>
-            <span class="tag bound">CURRENT</span>
-          </div>
-          <h4>What changed</h4>
-          <p>
-            Captured separate maximum-history archives, pinned the reviewed XNYS
-            calendar, froze the positive fold boundaries, physically separated the
-            development rows from the historical holdout, and completed the four
-            registered benchmark paths on their exact shared dates.
-          </p>
-          <h4>Current boundary</h4>
-          <p>The development calculation is complete and reproducible. Holdout values remain unread; no winner or promotion decision exists.</p>
-        </article>
-      </div>
-    </section>
-
-    <section id="results" class="section" aria-labelledby="results-title">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow">04 · Aggregate results</div>
-          <h2 id="results-title">What v8 measured—and what each number means.</h2>
-        </div>
-        <p>
-          Results are shown as the key public aggregate record, without security-
-          level holdings or a monthly time-series chart. The existing verification
-          evidence is sufficient for these tables; no licensed-data rerun was needed.
-        </p>
-      </div>
-
-      <div class="metric-grid">
-        <article class="card metric-card">
-          <h3 class="metric-label">Window coverage</h3>
-          <span class="metric-value">6,397</span>
-          <p>Security identities overlapping the fixed five-year source window.</p>
-        </article>
-        <article class="card metric-card">
-          <h3 class="metric-label">Decision count</h3>
-          <span class="metric-value">48</span>
-          <p>Contiguous monthly decisions from July 2022 through June 2026.</p>
-        </article>
-        <article class="card metric-card">
-          <h3 class="metric-label">Mean eligible</h3>
-          <span class="metric-value">2,497.71</span>
-          <p>Mean names surviving the fixed size, liquidity, and history screens.</p>
-        </article>
-        <article class="card metric-card">
-          <h3 class="metric-label">Selected per decision</h3>
-          <span class="metric-value">50</span>
-          <p>Two percent per name in the source-faithful long-only target.</p>
-        </article>
-        <article class="card metric-card">
-          <h3 class="metric-label">Missing entries</h3>
-          <span class="metric-value">9</span>
-          <p>Target allocations retained as cash rather than redistributed.</p>
-        </article>
-        <article class="card metric-card">
-          <h3 class="metric-label">Missing exits</h3>
-          <span class="metric-value">30</span>
-          <p>Thirty occurrences across thirty different selected securities.</p>
-        </article>
-        <article class="card metric-card">
-          <h3 class="metric-label">Reviewed floors / exact</h3>
-          <span class="metric-value">27 / 22</span>
-          <p>Five records supply a lower floor without claiming complete value.</p>
-        </article>
-        <article class="card metric-card">
-          <h3 class="metric-label">Still unresolved</h3>
-          <span class="metric-value">3</span>
-          <p>The selected strategy therefore has no finite terminal-recovery upper bound.</p>
-        </article>
-      </div>
-
-      <div class="table-block">
-        <div class="table-title">
-          <h3>Long-only gross strategy paths</h3>
-          <p>Total loss is a floor; the documented path is a tighter lower bound; full principal is only a sensitivity.</p>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <caption>Current-vintage adjusted-open monthly path; zero-rate Sharpe.</caption>
-            <thead>
-              <tr>
-                <th scope="col">Missing-exit treatment</th>
-                <th scope="col">Meaning</th>
-                <th class="num" scope="col">Cumulative</th>
-                <th class="num" scope="col">Annualized</th>
-                <th class="num" scope="col">Sharpe</th>
-                <th class="num" scope="col">Max drawdown</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Total loss</th>
-                <td><span class="tag floor">UNCONDITIONAL FLOOR</span></td>
-                <td class="num">11.1287%</td>
-                <td class="num">2.6731%</td>
-                <td class="num">0.227053</td>
-                <td class="num">−22.9616%</td>
-              </tr>
-              <tr>
-                <th scope="row">Documented terminal path</th>
-                <td><span class="tag bound">GROSS LOWER BOUND</span></td>
-                <td class="num">83.7535%</td>
-                <td class="num">16.4284%</td>
-                <td class="num">0.847628</td>
-                <td class="num">−18.8376%</td>
-              </tr>
-              <tr>
-                <th scope="row">Full principal</th>
-                <td><span class="tag sensitivity">SENSITIVITY, NOT UPPER</span></td>
-                <td class="num">101.7210%</td>
-                <td class="num">19.1757%</td>
-                <td class="num">0.968946</td>
-                <td class="num">−17.2066%</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="table-block">
-        <div class="table-title">
-          <h3>Eligible-universe benchmarks</h3>
-          <p>Both benchmarks use the same constituents and terminal rules; neither is a canonical index.</p>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <caption>Equal weight and decision-close cap weight; missing-entry weight stays cash.</caption>
-            <thead>
-              <tr>
-                <th scope="col">Benchmark</th>
-                <th scope="col">Terminal path</th>
-                <th class="num" scope="col">Cumulative</th>
-                <th class="num" scope="col">Annualized</th>
-                <th class="num" scope="col">Sharpe</th>
-                <th class="num" scope="col">Max drawdown</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Equal weight</th>
-                <td>Total loss</td>
-                <td class="num">33.0926%</td>
-                <td class="num">—</td>
-                <td class="num">0.495779</td>
-                <td class="num">—</td>
-              </tr>
-              <tr>
-                <th scope="row">Equal weight</th>
-                <td>Documented lower</td>
-                <td class="num">34.4410%</td>
-                <td class="num">—</td>
-                <td class="num">0.510086</td>
-                <td class="num">—</td>
-              </tr>
-              <tr>
-                <th scope="row">Equal weight</th>
-                <td>Full-principal sensitivity</td>
-                <td class="num">65.9495%</td>
-                <td class="num">—</td>
-                <td class="num">0.813162</td>
-                <td class="num">—</td>
-              </tr>
-              <tr>
-                <th scope="row">Cap weight</th>
-                <td>Total loss</td>
-                <td class="num">83.1388%</td>
-                <td class="num">16.3309%</td>
-                <td class="num">1.160488</td>
-                <td class="num">−11.2669%</td>
-              </tr>
-              <tr>
-                <th scope="row">Cap weight</th>
-                <td>Documented lower</td>
-                <td class="num">83.4231%</td>
-                <td class="num">16.3760%</td>
-                <td class="num">1.163495</td>
-                <td class="num">−11.2464%</td>
-              </tr>
-              <tr>
-                <th scope="row">Cap weight</th>
-                <td>Full-principal sensitivity</td>
-                <td class="num">90.2406%</td>
-                <td class="num">17.4426%</td>
-                <td class="num">1.226611</td>
-                <td class="num">−11.0971%</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="result-callout">
-        <strong>BENCHMARK COVERAGE</strong>
-        <p>
-          The benchmarks contain 559 missing-exit occurrences. Only 27 have a
-          reviewed floor and 22 are exact, leaving 532 without a documented floor.
-          Their apparent terminal-path stability must not be read as complete
-          terminal economics.
-        </p>
-      </div>
-
-      <div class="table-block">
-        <div class="table-title">
-          <h3>Turnover and base linear-cost sensitivity</h3>
-          <p>The established risky-only half-L1 convention excludes cash from the turnover sum.</p>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <caption>The base model uses an illustrative 5 bp full spread and 1 bp commission; it is not calibrated.</caption>
-            <thead>
-              <tr>
-                <th scope="col">Measure</th>
-                <th class="num" scope="col">Mean one-way turnover</th>
-                <th class="num" scope="col">Cost-deducted cumulative</th>
-                <th class="num" scope="col">Cost-deducted Sharpe</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Target risky weights, before drift</th>
-                <td class="num">61.6667%</td>
-                <td class="num">—</td>
-                <td class="num">—</td>
-              </tr>
-              <tr>
-                <th scope="row">Drifted total-loss state</th>
-                <td class="num">62.9137%</td>
-                <td class="num">8.8088%</td>
-                <td class="num">0.201259</td>
-              </tr>
-              <tr>
-                <th scope="row">Drifted full-principal-cash sensitivity</th>
-                <td class="num">62.5017%</td>
-                <td class="num">97.5868%</td>
-                <td class="num">0.943207</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="table-block">
-        <div class="table-title">
-          <h3>5%-ADV capacity and impact sensitivity</h3>
-          <p>All 3,812 modeled risky-weight legs and all 48 decisions are complete on both state paths.</p>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <caption>Constant AUM is rebased monthly; costs do not feed later holdings. Capacity is rounded to protect the private bottleneck identity.</caption>
-            <thead>
-              <tr>
-                <th scope="col">State path</th>
-                <th class="num" scope="col">History limit</th>
-                <th class="num" scope="col">Decision p10</th>
-                <th class="num" scope="col">Median</th>
-                <th class="num" scope="col">p90</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Total loss</th>
-                <td class="num">$2.4m</td>
-                <td class="num">$2.7m</td>
-                <td class="num">$4.2m</td>
-                <td class="num">$8.9m</td>
-              </tr>
-              <tr>
-                <th scope="row">Full-principal-cash sensitivity</th>
-                <td class="num">$2.4m</td>
-                <td class="num">$2.7m</td>
-                <td class="num">$4.2m</td>
-                <td class="num">$8.9m</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="table-wrap" style="margin-top: 12px;">
-          <table>
-            <caption>At each state path’s own underlying unrounded history limit: (full spread bp, commission bp, square-root coefficient) are LOW (2, 0.5, 0.05), BASE (5, 1, 0.10), HIGH (10, 2, 0.20).</caption>
-            <thead>
-              <tr>
-                <th scope="col">State path</th>
-                <th scope="col">Scenario</th>
-                <th class="num" scope="col">Mean drag / rebalance</th>
-                <th class="num" scope="col">Cumulative after drag</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><th scope="row">Total loss</th><td>LOW</td><td class="num">2.513 bp</td><td class="num">9.7993%</td></tr>
-              <tr><th scope="row">Total loss</th><td>BASE</td><td class="num">5.655 bp</td><td class="num">8.1588%</td></tr>
-              <tr><th scope="row">Total loss</th><td>HIGH</td><td class="num">11.310 bp</td><td class="num">5.2666%</td></tr>
-              <tr><th scope="row">Full principal</th><td>LOW</td><td class="num">2.495 bp</td><td class="num">99.3536%</td></tr>
-              <tr><th scope="row">Full principal</th><td>BASE</td><td class="num">5.614 bp</td><td class="num">96.4314%</td></tr>
-              <tr><th scope="row">Full principal</th><td>HIGH</td><td class="num">11.229 bp</td><td class="num">91.2776%</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="result-callout">
-        <strong>CAPACITY BOUNDARY</strong>
-        <p>
-          This is an analytic, monthly rebased sensitivity—not self-financing NAV,
-          calibrated market impact, or executable capacity. It omits shares, lots,
-          partial fills, intraday volume, taxes, financing, terminal liquidation,
-          and documented-recovery state propagation.
-        </p>
-      </div>
-
-      <div class="table-block">
-        <div class="table-title">
-          <h3>v7 factor-target feasibility</h3>
-          <p>The controlled solution is feasible on 48/48 decisions, with median 470 nonzero names.</p>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <caption>Median current-vintage target exposures; sector is static current metadata, not historical classification.</caption>
-            <thead>
-              <tr>
-                <th scope="col">Target</th>
-                <th class="num" scope="col">Beta</th>
-                <th class="num" scope="col">Standardized size</th>
-                <th class="num" scope="col">Max sector exposure</th>
-                <th scope="col">Interpretation</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Long-only top 50</th>
-                <td class="num">0.869026</td>
-                <td class="num">0.429128</td>
-                <td class="num">26.0%</td>
-                <td>Material factor concentration</td>
-              </tr>
-              <tr>
-                <th scope="row">Raw 50/50 decile seed</th>
-                <td class="num">−0.081301</td>
-                <td class="num">0.238203</td>
-                <td class="num">6.6528%</td>
-                <td>Closer, but not neutral</td>
-              </tr>
-              <tr>
-                <th scope="row">Least-change controlled target</th>
-                <td class="num">&lt; 1e−10</td>
-                <td class="num">&lt; 1e−10</td>
-                <td class="num">&lt; 1e−10</td>
-                <td>Target-only numerical feasibility</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="result-callout">
-        <strong>NO FACTOR RETURN</strong>
-        <p>
-          Candidate membership totals 12,008 occurrences per side, but adjusted-
-          return routes are missing for 13 long and 1 short entries and for 96 long
-          and 15 short exits. Unknown short terminal value has no conservative
-          total-loss analogue. Quality-magnitude sizing, signed state propagation,
-          borrow, financing, costs, and capacity remain unresolved.
-        </p>
-      </div>
-    </section>
-
-    <section id="maximum-history" class="section" aria-labelledby="maximum-history-title">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow">05 · Maximum-history evaluation</div>
-          <h2 id="maximum-history-title">The length gate is closed. The evidence gates are not.</h2>
-        </div>
-        <p>
-          The expanded archives make the frozen Phase 6 geometry feasible and add
-          the two missing registered benchmarks. This section records exactly what
-          was calculated on development data and why it is still not a promotion result.
-        </p>
-      </div>
-
-      <div class="metric-grid">
-        <article class="card metric-card">
-          <h3 class="metric-label">Reviewed sessions</h3>
-          <span class="metric-value">7,207</span>
-          <p>Exact XNYS axis from 31 December 1997 through 26 August 2026.</p>
-        </article>
-        <article class="card metric-card">
-          <h3 class="metric-label">Observed month ends</h3>
-          <span class="metric-value">345</span>
-          <p>Reviewed calendar endpoints, including only completed source months.</p>
-        </article>
-        <article class="card metric-card">
-          <h3 class="metric-label">Completed routes</h3>
-          <span class="metric-value">330</span>
-          <p>Decision month end → next open → following rebalance open.</p>
-        </article>
-        <article class="card metric-card">
-          <h3 class="metric-label">No-gap minimum</h3>
-          <span class="metric-value">108</span>
-          <p>60 training + 12 testing + 36 final-holdout monthly outcomes.</p>
-        </article>
-        <article class="card metric-card">
-          <h3 class="metric-label">Materialized folds</h3>
-          <span class="metric-value">12</span>
-          <p>Expanding training with label-aware 21-session purge and embargo.</p>
-        </article>
-        <article class="card metric-card">
-          <h3 class="metric-label">All-fold test axis</h3>
-          <span class="metric-value">3,021</span>
-          <p>Daily test-only returns before applying the cash-coverage suffix.</p>
-        </article>
-        <article class="card metric-card">
-          <h3 class="metric-label">Common benchmark axis</h3>
-          <span class="metric-value">2,268</span>
-          <p>Daily returns across folds 04–12, where all four benchmarks coexist.</p>
-        </article>
-        <article class="card metric-card">
-          <h3 class="metric-label">Holdout status</h3>
-          <span class="metric-value">UNREAD</span>
-          <p>Thirty-six monthly outcomes physically excluded from development archives.</p>
-        </article>
-      </div>
-
-      <h3 class="subhead">Coverage changed from impossible to comfortably feasible</h3>
-      <div class="scope-chart" aria-label="Monthly route coverage: original slice 48, minimum 108, maximum history 330">
-        <div class="scope-row"><div class="chart-name">Original five-year slice</div><div class="scope-track"><div class="scope-fill amber" style="width: 14.5%"></div></div><div class="chart-value">48</div></div>
-        <div class="scope-row"><div class="chart-name">Frozen no-gap minimum</div><div class="scope-track"><div class="scope-fill violet" style="width: 32.7%"></div></div><div class="chart-value">108</div></div>
-        <div class="scope-row"><div class="chart-name">Maximum-history routes</div><div class="scope-track"><div class="scope-fill" style="width: 100%"></div></div><div class="chart-value">330</div></div>
-      </div>
-
-      <div class="study-strip" role="img" aria-label="Approved study sequence: expanding folds and tests, safety gaps, locked historical holdout, quarantined previously inspected window">
-        <div class="study-segment train"><b>Development · 12 folds</b><span>Expanding ≥5-year training and 1-year tests. Each boundary removes overlapping labels, then counts 21 reviewed sessions for purge and embargo.</span></div>
-        <div class="study-segment gap"><b>Gaps</b><span>21 + 21 sessions, label-aware.</span></div>
-        <div class="study-segment holdout"><b>Locked holdout · 36 months</b><span>First decision 31 May 2018; first entry 1 June 2018. Rows are absent from the development archives.</span></div>
-        <div class="study-segment quarantine"><b>Quarantined</b><span>30 June 2021 onward was already inspected by the earlier pilot and cannot be called fresh.</span></div>
-      </div>
-
-      <div class="table-block">
-        <div class="table-title">
-          <h3>Approved positive-case protocol</h3>
-          <p>These rules were frozen before newly available maximum-history return values were read.</p>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <caption>The cap preserves a final historical holdout without pretending the previously inspected recent window is unseen.</caption>
-            <thead>
-              <tr><th scope="col">Rule</th><th scope="col">Frozen implementation</th><th scope="col">Reason</th></tr>
-            </thead>
-            <tbody>
-              <tr><th scope="row">Study cap</th><td>Decision 30 Apr 2021 → entry 3 May → exit 1 Jun</td><td>Keeps 30 Jun 2021 onward quarantined as previously inspected.</td></tr>
-              <tr><th scope="row">Fold geometry</th><td>Expanding ≥5 years train; 1 year test; label-aware 21-session purge and embargo</td><td>Preserves chronology and removes overlapping return information.</td></tr>
-              <tr><th scope="row">Final holdout</th><td>Last 36 completed outcomes of the capped study; physically absent from development sources</td><td>Locks a historical final test before development calculations.</td></tr>
-              <tr><th scope="row">Raw momentum</th><td>Top 50 eligible names by unfiltered 12-minus-2 total-return momentum; 2% each</td><td>Completes the registered benchmark family without post-result weighting choices.</td></tr>
-              <tr><th scope="row">Cash</th><td>BIL current-vintage Sharadar fund prices; adjusted open = open × closeadj ÷ close; exact no-fill returns</td><td>Implements a dated Treasury-bill ETF proxy—not literal risk-free cash—instead of assuming zero return.</td></tr>
-              <tr><th scope="row">Common axis</th><td>Exact intersection, folds 04–12 only; no alignment fills</td><td>BIL begins 30 May 2007, so earlier fold returns cannot be compared honestly.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="panel guardrail" role="note" aria-label="Holdout isolation">
-        <div class="guardrail-mark" aria-hidden="true">L</div>
-        <p>
-          <strong>Holdout isolation is structural, not a promise in prose.</strong>
-          The development projection ends before the holdout, never parses later
-          value fields, and rechecks the pinned source bytes after streaming. The
-          licensed replay reported <code>holdout_values_read=false</code>. The holdout
-          has not been used in any table or chart on this page.
-        </p>
-      </div>
-
-      <h3 class="subhead">Registered benchmark family · development folds 04–12</h3>
-      <p>
-        The vertical divider in each bar is zero. Equity paths use the frozen
-        total-loss treatment for missing scheduled exits; BIL is exact and no-fill.
-      </p>
-      <div class="return-chart" role="img" aria-label="Cumulative benchmark returns: eligible equal weight minus 3.6376 percent, eligible cap weight plus 20.0552 percent, raw momentum minus 85.3386 percent, BIL cash plus 4.5493 percent">
-        <div class="return-row"><div class="chart-name">Eligible equal weight</div><div class="return-track"><div class="return-half negative"><div class="return-fill negative" style="width: 4.04%"></div></div><div class="return-half positive"></div></div><div class="chart-value">−3.64%</div></div>
-        <div class="return-row"><div class="chart-name">Eligible cap weight</div><div class="return-track"><div class="return-half negative"></div><div class="return-half positive"><div class="return-fill positive" style="width: 91.16%"></div></div></div><div class="chart-value">+20.06%</div></div>
-        <div class="return-row"><div class="chart-name">Raw momentum</div><div class="return-track"><div class="return-half negative"><div class="return-fill negative" style="width: 94.82%"></div></div><div class="return-half positive"></div></div><div class="chart-value">−85.34%</div></div>
-        <div class="return-row"><div class="chart-name">BIL cash</div><div class="return-track"><div class="return-half negative"></div><div class="return-half positive"><div class="return-fill positive" style="width: 20.68%"></div></div></div><div class="chart-value">+4.55%</div></div>
-      </div>
-
-      <div class="table-block">
-        <div class="table-title">
-          <h3>Exact aggregate result</h3>
-          <p>All rows share 108 monthly decisions and 2,268 daily returns.</p>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <caption>Annualized volatility and Sharpe use the shared daily axis; equity Sharpe is measured over BIL cash.</caption>
-            <thead>
-              <tr><th scope="col">Path</th><th class="num" scope="col">Cumulative</th><th class="num" scope="col">Annualized</th><th class="num" scope="col">Volatility</th><th class="num" scope="col">Sharpe over cash</th><th class="num" scope="col">Max drawdown</th><th class="num" scope="col">Missing entry / exit</th></tr>
-            </thead>
-            <tbody>
-              <tr><th scope="row">Eligible equal weight</th><td class="num">−3.6376%</td><td class="num">−0.4109%</td><td class="num">21.0517%</td><td class="num">0.063218</td><td class="num">−61.1147%</td><td class="num">142 / 1,134</td></tr>
-              <tr><th scope="row">Eligible cap weight</th><td class="num">+20.0552%</td><td class="num">+2.0517%</td><td class="num">16.3522%</td><td class="num">0.176239</td><td class="num">−52.8405%</td><td class="num">142 / 1,134</td></tr>
-              <tr><th scope="row">Raw momentum · top 50 EW</th><td class="num">−85.3386%</td><td class="num">−19.2109%</td><td class="num">27.3416%</td><td class="num">−0.646718</td><td class="num">−86.3373%</td><td class="num">9 / 78</td></tr>
-              <tr><th scope="row">BIL cash</th><td class="num">+4.5493%</td><td class="num">+0.4955%</td><td class="num">0.6405%</td><td class="num">—</td><td class="num">−0.5477%</td><td class="num">0 / 0</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="result-callout">
-        <strong>LOWER-BOUND WARNING</strong>
-        <p>
-          The three equity paths are not exact returns: every missing scheduled exit
-          is charged as a complete loss. Raw momentum’s −85.34% path includes 78 such
-          exits. It demonstrates the importance of terminal-economic evidence; it
-          does not establish that momentum “lost,” select a winner, or authorize the holdout.
-        </p>
-      </div>
-
-      <article class="panel evidence-panel">
-        <h3>Verification scope</h3>
-        <div class="verification-grid">
-          <div class="verification-item">
-            <strong>25 / 25 · focused</strong>
-            <p>Maximum-history split, source isolation, benchmark construction, cash coverage, and aggregate invariants.</p>
-          </div>
-          <div class="verification-item">
-            <strong>482 / 482 · broad</strong>
-            <p>Full project regression passed in 344.604 seconds after the Phase 6 additions.</p>
-          </div>
-          <div class="verification-item">
-            <strong>Licensed replay · exact</strong>
-            <p>The 108-period development result reproduced after source rehash; holdout values remained unread.</p>
-          </div>
-        </div>
-      </article>
-    </section>
-
-    <section id="boundaries" class="section" aria-labelledby="boundaries-title">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow">06 · Evidence boundaries</div>
-          <h2 id="boundaries-title">What the pilot can and cannot support.</h2>
-        </div>
-        <p>
-          The most useful result is not a single return number. It is a map of
-          which conclusions survive each evidence limitation and which attractive
-          interpretations still fail closed.
-        </p>
-      </div>
-
-      <div class="boundary-grid">
-        <article class="card boundary-card">
-          <span class="card-label">Data vintage</span>
-          <h3>Bound and reproducible locally</h3>
-          <p>Source content is checked before calculation and again after all streaming passes, but current-vintage backward adjustments do not reconstruct historical correction vintages or open the canonical provider gate.</p>
-        </article>
-        <article class="card boundary-card">
-          <span class="card-label">Calendar</span>
-          <h3>Reviewed across maximum history</h3>
-          <p>The exact 7,207-session XNYS axis is pinned from 1997 through the source end, including regular observances and extraordinary closures. Calendar authority does not imply price or metadata authority.</p>
-        </article>
-        <article class="card boundary-card">
-          <span class="card-label">Terminal evidence</span>
-          <h3>Classification is not valuation</h3>
-          <p>All selected gaps are event-associated, yet exact terminal value remains incomplete for three selected exits and most benchmark exits.</p>
-        </article>
-        <article class="card boundary-card">
-          <span class="card-label">Turnover and cost</span>
-          <h3>Arithmetic, not calibration</h3>
-          <p>Turnover follows the established accounting convention. Spread, commission, and impact inputs remain illustrative and do not constitute net performance.</p>
-        </article>
-        <article class="card boundary-card">
-          <span class="card-label">Factor control</span>
-          <h3>Target feasibility only</h3>
-          <p>Static sector metadata and incomplete long/short routes prevent historical neutral performance, attribution, or borrow-aware implementation.</p>
-        </article>
-        <article class="card boundary-card">
-          <span class="card-label">Coverage horizon</span>
-          <h3>Time length is now sufficient</h3>
-          <p>The common development suffix covers 2008 and exceeds the frozen train/test/holdout minimum. Exact terminal values, point-in-time provenance, and calibrated implementation remain independent gates.</p>
-        </article>
-      </div>
-
-      <article class="panel evidence-panel">
-        <h3>Current verification scope</h3>
-        <div class="verification-grid">
-          <div class="verification-item">
-            <strong>25 / 25 · Phase 6 focused</strong>
-            <p>Split materialization, holdout isolation, exact common-axis benchmarks, and replay invariants are green.</p>
-          </div>
-          <div class="verification-item">
-            <strong>11 / 11 · sign-flip engine</strong>
-            <p>The frozen 10,000-repetition maximum-Sharpe numerical procedure passes synthetic and adversarial checks; the real ten-trial panel is absent.</p>
-          </div>
-          <div class="verification-item">
-            <strong>482 / 482 · broad suite</strong>
-            <p>The full regression passed in 344.604 seconds. Green code evidence does not elevate incomplete historical evidence.</p>
-          </div>
-        </div>
-      </article>
-
-      <div class="evidence-ladder" aria-label="Formal evidence promotion ladder">
-        <div class="evidence-rung done"><span class="rung-state">Passed</span>UNIT_<wbr />VALIDATED</div>
-        <div class="evidence-rung current"><span class="rung-state">Formal current</span>SYNTHETIC_<wbr />INTEGRATED</div>
-        <div class="evidence-rung"><span class="rung-state">Locked</span>HISTORICAL_<wbr />RESEARCH</div>
-        <div class="evidence-rung"><span class="rung-state">Locked</span>WALK_<wbr />FORWARD_<wbr />CANDIDATE</div>
-        <div class="evidence-rung"><span class="rung-state">Locked</span>STRESS_<wbr />CAPACITY_<wbr />APPROVED</div>
-        <div class="evidence-rung"><span class="rung-state">Locked</span>PAPER_<wbr />EXPORT_<wbr />READY</div>
-      </div>
-    </section>
-
-    <section id="gates" class="section" aria-labelledby="gates-title">
-      <div class="section-heading">
-        <div>
-          <div class="eyebrow">07 · Remaining gates</div>
-          <h2 id="gates-title">Geometry is ready. Promotion still needs evidence.</h2>
-        </div>
-        <p>
-          The length, positive split, holdout-lock, raw-momentum, cash-proxy, and
-          common-axis questions are now resolved. The remaining work concerns the
-          quality and completeness of the return evidence—not the number of years.
-        </p>
-      </div>
-
-      <div class="gate-grid">
-        <article class="card gate-card ready">
-          <h3>Complete inside Phase 6 research</h3>
-          <ul>
-            <li>Fixed long-only universe, signal, ranking, sizing, and next-session timing.</li>
-            <li>Reviewed maximum-history XNYS axis and separately bound archives.</li>
-            <li>Missing-entry cash and three explicit terminal paths.</li>
-            <li>Selected-exit classification plus 27 reviewed floors, 22 exact.</li>
-            <li>Eligible equal-, eligible cap-, raw-momentum, and BIL cash benchmarks.</li>
-            <li>Corrected risky-only turnover and illustrative linear costs.</li>
-            <li>Complete 5%-ADV capacity/impact sensitivity for the two modeled state paths.</li>
-            <li>Factor-target feasibility on all 48 decisions.</li>
-            <li>Twelve expanding folds with label-aware purge and embargo.</li>
-            <li>Physically isolated, unread 36-month historical holdout.</li>
-            <li>Frozen, verified maximum-Sharpe sign-flip calculation engine.</li>
-          </ul>
-        </article>
-        <article class="card gate-card blocked">
-          <h3>Still blocked</h3>
-          <ul>
-            <li>Canonical point-in-time revision and historical venue evidence.</li>
-            <li>Exact terminal economics for three selected exits and 532 benchmark occurrences without a floor.</li>
-            <li>Provider-calibrated spread, commission, impact, and executable liquidity.</li>
-            <li>Documented-recovery state propagation into later weights, turnover, and cost.</li>
-            <li>Quality-sized factor-controlled returns, signed terminal state, borrow, short costs, and attribution.</li>
-            <li>Complete ten-trial return matrix on one exact test-only axis.</li>
-            <li>Registered-family maximum-Sharpe result and owner review.</li>
-            <li>Holdout opening and decision, which remain unauthorized until all development gates close.</li>
-          </ul>
-        </article>
-      </div>
-
-      <div class="table-wrap gate-table">
-        <table>
-          <caption>Each gate needs its own evidence; none is waived by an attractive descriptive result.</caption>
-          <thead>
-            <tr>
-              <th scope="col">Gate</th>
-              <th scope="col">Why it is open</th>
-              <th scope="col">What would close it</th>
-            </tr>
-          </thead>
+        <p class="reading-note">The status in this record is as of 7 September 2026. The latest completed historical execution calculation is version 3. Later terminal-accounting fixes and the ex-TECO variation have been implemented and checked, but have not produced new historical performance.</p>
+      </section>
+      <section class="chapter" id="library">
+        <p class="section-number">01 · May 2026</p><div class="section-heading"><h2>Start with a common investment language.</h2></div>
+        <p>The project was scaffolded on 5 May. Its first substantive source, Giuseppe A. Paleologo’s <a href="advanced-portfolio-management.html"><cite>Advanced Portfolio Management</cite></a>, was incorporated on 12 May. It supplied an organizing idea: security selection, position sizing, diversification and risk control belong to one portfolio process. A collection of attractive trades can still make an unattractive portfolio if all the trades depend on the same risk.</p>
+        <p>The library then broadened. Colin Bennett’s <a href="trading-volatility-correlation-term-structure-skew.html">volatility text</a> introduced variance, correlation, hedging and the economics of derivatives. Wesley Gray and Jack Vogel’s <a href="quantitative-momentum.html"><cite>Quantitative Momentum</cite></a> supplied a concrete equity-selection process. Donadio and Ghosh’s <a href="learn-algorithmic-trading.html"><cite>Learn Algorithmic Trading</cite></a> connected research to data handling, events, execution and risk checks. Paleologo’s <a href="elements-quantitative-investing.html"><cite>The Elements of Quantitative Investing</cite></a> deepened the treatment of factor models, estimation, sizing and attribution.</p>
+        <div class="table-wrap"><table>
+          <caption>The source library supplied different parts of the same problem</caption>
+          <thead><tr><th scope="col">Research contribution</th><th scope="col">Question it helps VHF ask</th><th scope="col">Engineering consequence</th></tr></thead>
           <tbody>
-            <tr>
-              <th scope="row">Point-in-time data</th>
-              <td>Current-vintage adjustments, correction history, and venue history remain incomplete.</td>
-              <td>A materialized canonical decision-vintage dataset with approved provenance, availability, revision, and venue rules.</td>
-            </tr>
-            <tr>
-              <th scope="row">Terminal economics</th>
-              <td>Three selected exits and most benchmark exits lack a complete admitted value.</td>
-              <td>Exact outcomes—or an explicit approved protocol decision accepting named bounds—plus state propagation through later decisions.</td>
-            </tr>
-            <tr>
-              <th scope="row">Costs and capacity</th>
-              <td>Current assumptions are illustrative, monthly rebased, and non-executable.</td>
-              <td>Calibrated execution evidence, self-financing state, and terminal liquidation.</td>
-            </tr>
-            <tr>
-              <th scope="row">Factor performance</th>
-              <td>Target math works; signed returns/state, drift, turnover, capacity, terminal economics, borrow, and financing are absent.</td>
-              <td>Final sizing and complete signed state/return/cost/borrow evidence.</td>
-            </tr>
-            <tr>
-              <th scope="row">Walk-forward / holdout</th>
-              <td>Geometry is materialized and the historical holdout is locked, but development returns are current-vintage lower bounds and the holdout remains unopened.</td>
-              <td>Close all development evidence gates, obtain owner authorization, then evaluate the frozen holdout exactly once.</td>
-            </tr>
-            <tr>
-              <th scope="row">Multiple testing</th>
-              <td>The numerical engine is frozen, but the complete ten-trial common return panel does not exist; no family statistic or winner exists.</td>
-              <td>Materialize every registered trial on the exact test-only axis, verify the panel identity, run deterministic block sign-flips, and obtain owner review.</td>
-            </tr>
-            <tr>
-              <th scope="row">Promotion</th>
-              <td>No canonical historical, stress, capacity, attribution, or holdout decision exists.</td>
-              <td>All prior prerequisites, an implemented adjacent historical-stage transition, and independent owner review; rejection remains a valid outcome.</td>
-            </tr>
+            <tr><td>Portfolio and factor research</td><td>Are returns from security selection or shared market exposures?</td><td>Separate forecasts, risk exposures, portfolio constraints and attribution.</td></tr>
+            <tr><td>Momentum and return-path quality</td><td>Which past winners qualify, and how were those gains made?</td><td>Declare the universe, observation window, ranking and rebalance rules.</td></tr>
+            <tr><td>Trading-system design</td><td>What information and cash exist when an order is decided?</td><td>Make decision times, execution events and accounting explicit.</td></tr>
+            <tr><td>Volatility and correlation</td><td>Which risks are being sold, hedged or diversified?</td><td>Keep derivative conventions and variance calculations distinct from equity returns.</td></tr>
           </tbody>
-        </table>
-      </div>
-
-      <div class="panel guardrail" role="note" aria-label="Current handoff boundary">
-        <div class="guardrail-mark" aria-hidden="true">→</div>
-        <p>
-          <strong>Current handoff:</strong> complete the registered ten-trial return
-          panel and the factor-controlled signed performance path without reading
-          the holdout. Exact terminal economics, canonical point-in-time provenance,
-          borrow/financing, and calibrated execution assumptions remain prerequisites.
-          Paper export, broker integration, and live execution remain separate,
-          later authorization boundaries.
-        </p>
-      </div>
-    </section>
-
-    <footer class="footer">
-      <p>
-        Private-safe engineering primer for the VHF Phase 6 Sharadar historical
-        research program. It does not constitute investment advice, a canonical
-        point-in-time backtest, a winner or holdout claim, a net-performance claim,
-        provider acceptance, an executable capacity estimate, a paper-trading
-        authorization, or a live-trading instruction.
-      </p>
-      <div class="footer-stamp">VHF / PHASE 6 / MAXIMUM HISTORY / 2026-08-28</div>
-    </footer>
-  </main>
+        </table></div>
+        <p>Sources became linked explanations of concepts, strategies and relationships. The original documents remained separate from these interpretations. On 1 September, the <a href="quantopian-lecture-series.html">Quantopian lecture collection</a> strengthened existing material on regression, factor analysis, multiple testing, implementation shortfall and conditional risk.</p>
+        <p>An architectural correction in August made the separation sharper: the research library records what sources say; engineering records what VHF has built and measured. A software failure does not disprove a book’s investment argument. A passing test does not validate it. This distinction prevents development status from quietly rewriting the research.</p>
+      </section>
+      <section class="chapter" id="foundations">
+        <p class="section-number">02 · 11–15 August</p><div class="section-heading"><h2>Build a machine whose arithmetic can be checked.</h2></div>
+        <p>The first isolated trading prototype appeared on 11 August. It connected momentum, a factor-risk model, portfolio construction, risk review, next-opening execution and profit-and-loss accounting. It used invented prices so that the expected behavior could be inspected without confusing implementation work with historical evidence.</p>
+        <p>Phase 1 hardened that connected example. It fixed identifiers, timing, numerical checks and accounting invariants, and added a beginner walkthrough. A fixed 650-session example became a compatibility reference. Its purpose was to detect unintended changes: rerunning the same declared example should reproduce the same economics. Its simulated return was never a market result.</p>
+        <p>Phase 2 made the process reconstructible. Every run declared its rules and produced a manifest, an event journal and derived outputs. Replay rebuilt holdings, cash, costs, drawdown and exposures from saved events. This matters because reproducing a final number is weaker evidence than showing how every change in the account produced it.</p>
+        <figure class="figure">
+          <div class="chart-scroll"><svg viewBox="0 0 880 180" role="img" aria-labelledby="replay-title replay-desc">
+            <title id="replay-title">A calculation and its independent accounting replay</title>
+            <desc id="replay-desc">Declared inputs and rules produce decisions and fills, which produce an account and report. Saved events separately feed a replay that reconstructs the account and must agree with the report.</desc>
+            <g fill="#101214" stroke="#716044"><rect x="10" y="20" width="180" height="64" rx="4"/><rect x="240" y="20" width="180" height="64" rx="4"/><rect x="470" y="20" width="180" height="64" rx="4"/><rect x="700" y="20" width="170" height="64" rx="4"/><rect x="310" y="117" width="390" height="48" rx="4"/></g>
+            <g fill="#f1eee7" font-family="system-ui,sans-serif" font-size="15" text-anchor="middle"><text x="100" y="47">Inputs &amp; rules</text><text x="100" y="68" fill="#b9b3a8">Declared before use</text><text x="330" y="47">Decisions &amp; fills</text><text x="330" y="68" fill="#b9b3a8">Recorded events</text><text x="560" y="47">Cash &amp; holdings</text><text x="560" y="68" fill="#b9b3a8">Reconciled account</text><text x="785" y="47">Report</text><text x="785" y="68" fill="#b9b3a8">Returns &amp; coverage</text><text x="505" y="146">Independent replay of the saved events</text></g>
+            <g fill="none" stroke="#b99b61" stroke-width="2"><path d="M190 52h50m-8-5 8 5-8 5M420 52h50m-8-5 8 5-8 5M650 52h50m-8-5 8 5-8 5M330 84v33M700 141h85V84m-5 8 5-8 5 8"/></g>
+          </svg></div>
+          <figcaption>Replay is a control on the calculation. It can expose an inconsistent ledger; it cannot supply a missing market price or prove that the chosen strategy is profitable.</figcaption>
+        </figure>
+        <p>Phases 3–5 addressed three different kinds of discipline. The data contract separated a security’s permanent identity from its changing ticker and distinguished when an event occurred from when information became available. The operations layer modeled orders, share lots, price ticks, corporate actions, financing and trading halts. The risk layer added dated exposures and alternative covariance estimates, then constrained how a forecast could become a position.</p>
+        <div class="table-wrap"><table>
+          <caption>The original foundation phases and their tested scope</caption>
+          <thead><tr><th scope="col">Phase</th><th scope="col">Capability added</th><th scope="col">Boundary that remained</th></tr></thead>
+          <tbody>
+            <tr><td>1 · Core arithmetic</td><td>A deterministic end-to-end example and reconciled accounting.</td><td>Invented market observations.</td></tr>
+            <tr><td>2 · Reproducibility</td><td>Explicit research specification, saved events and component-free replay.</td><td>Replay certifies the recorded process, not market opportunity.</td></tr>
+            <tr><td>3 · Data meaning</td><td>Twelve strict tables for identities, prices, actions, membership and dated inputs.</td><td>Real provider data still needed assessment and integration.</td></tr>
+            <tr><td>4 · Operations</td><td>Order lifecycle, costs, corporate actions, short financing and persistent halts.</td><td>Operational examples were synthetic.</td></tr>
+            <tr><td>5 · Risk and construction</td><td>Factor exposures, five covariance candidates and constrained sizing.</td><td>Historical estimates, model selection and operational integration remained separate.</td></tr>
+          </tbody>
+        </table></div>
+        <p>The constrained optimizer also had a specific scope: it searched a declared path from a feasible starting portfolio. It was not a universal repair mechanism for every drifted or infeasible portfolio. Later development had to address that operational case directly.</p>
+      </section>
+      <section class="chapter" id="research-contract">
+        <p class="section-number">03 · 18–23 August</p><div class="section-heading"><h2>Define an experiment before reading its answer.</h2></div>
+        <p>Phase 6 made momentum the first substantial historical research target. This choice provided a manageable chain from investment idea to implementation: identify past winners, distinguish their return paths, form a portfolio, hold it according to a schedule and compare it with appropriate alternatives.</p>
+        <p>The primary design uses calendar-month momentum with the recent month skipped, followed by two quality measures: information discreteness, or FIP, describes how gains are distributed across up and down days; signed MAX measures the largest signed daily return in the skipped month. The underlying research is <a href="https://digitalcommons.chapman.edu/business_articles/115/"><cite>Frog in the Pan</cite></a> by Da, Gurun and Warachka and <a href="https://pages.stern.nyu.edu/~rwhitela/papers/max%20jfe11.pdf"><cite>Maxing out</cite></a> by Bali, Cakici and Whitelaw. Within the high-momentum shortlist, the declared quality rule favors the specified lower-FIP and lower-MAX ranks. Fifty selected stocks receive 2% each. These ideas are anchored in <a href="quantitative-momentum.html">Gray and Vogel’s momentum framework</a>; exact data substitutions, tie rules and implementation amendments are VHF choices.</p>
+        <p>A separate daily 252/21 challenger combines momentum, the fit of a log-price trend and a penalty for the largest absolute daily move. Its formula is a VHF engineering choice. It should not be described as the same strategy with another label. The registry also includes factor-neutral and alternative holding schedules. Recording these choices in advance makes later experimentation visible instead of letting every changed parameter appear to be the original strategy.</p>
+        <div class="table-wrap"><table>
+          <caption>The ten registered constructions</caption>
+          <thead><tr><th scope="col">Signal and schedule</th><th scope="col">Long-only construction</th><th scope="col">Factor-neutral construction</th></tr></thead>
+          <tbody><tr><td>Primary · monthly</td><td>1 trial</td><td>1 trial</td></tr><tr><td>Daily challenger · monthly</td><td>1 trial</td><td>1 trial</td></tr><tr><td>Primary robustness · quarterly</td><td>1 trial</td><td>1 trial</td></tr><tr><td>Primary robustness · overlapping quarterly</td><td>1 trial</td><td>1 trial</td></tr><tr><td>Primary robustness · seasonality-aware</td><td>1 trial</td><td>1 trial</td></tr></tbody>
+        </table></div>
+        <p>Equal-weight and capitalization-weighted eligible-universe portfolios, raw momentum and the BIL Treasury-bill fund were designated comparators. Here, “raw momentum” means momentum without the quality overlay; its signal still uses total-return prices. Idle portfolio cash earns zero in the study and is not automatically invested in BIL. They answer different questions: whether selection adds value beyond the investable universe, whether quality adds value beyond momentum, and how returns compare with the cash reference.</p>
+        <p>Other components were developed in parallel. Phase 7 added synthetic attribution and evidence-governance contracts. Phase 8 added bounded research prerequisites for lead–lag signals, technical overlays, value, alternative data, machine learning and variance diagnostics. Phase 9 added an offline, replay-only broker-handoff fixture. <strong>The existence of those later phase numbers did not complete Phase 6 historical acceptance.</strong> They supplied reusable definitions and checks, without historical strategy results or permission to send orders.</p>
+      </section>
+      <section class="chapter" id="real-data">
+        <p class="section-number">04 · 23–27 August</p><div class="section-heading"><h2>Real data changed the questions.</h2></div>
+        <p>VHF began evaluating Sharadar data in August, first through schema checks and then through preserved local source captures. A five-year bundle supported the first historical pilot. It provided a practical way to exercise security mapping, prices, market capitalization and corporate-action records on real observations.</p>
+        <p>These archives are <strong>current-vintage history</strong>: historical dates as represented in the acquired dataset. A one-session delay between formation and execution does not prove that every revision, listing classification or input was available to a researcher at the original historical time. VHF therefore kept this descriptive research view separate from its stricter point-in-time data contract.</p>
+        <p>The five-year pilot developed through several versions. It added terminal-event investigation, benchmark comparisons, turnover and illustrative cost/capacity sensitivities, followed by factor-target feasibility and route-coverage checks. Each step revealed why a ranking and two endpoint prices were insufficient. A stock could be present at selection and absent at the planned sale. A neutral target could be mathematically feasible but lack a complete executable price route.</p>
+        <div class="callout"><h3>The missing-stock problem</h3><p>A missing exit quote can represent a merger, a delisting, a suspension or a data-routing problem. Selling the position for zero produces a scenario. It does not establish that the investor received nothing. Likewise, finding a merger headline does not establish when the investor could spend the proceeds.</p></div>
+        <p>The pilot’s newer period had already been inspected. Its results became development evidence, and later raw-volume corrections also superseded volume-dependent conclusions. This page deliberately avoids carrying those legacy return figures forward as current performance. Their value was diagnostic: they showed which accounting and validation problems needed to be solved.</p>
+        <p>The five-year sample also failed a simple design test. It contained 48 completed monthly return routes. The intended minimum was 60 training months, 12 test months and 36 final-holdout months—108 months before adding the effects of purge and embargo. The project could not honestly claim its intended validation design from that short window.</p>
+      </section>
+      <section class="chapter" id="historical-design">
+        <p class="section-number">05 · 27–28 August</p><div class="section-heading"><h2>Acquire enough history, then protect the last test.</h2></div>
+        <p>Maximum-history acquisition expanded the available date geometry to 345 observed month ends and 330 complete monthly routes. The first audit examined identities and date labels rather than newly available return values. That made it possible to agree on the study boundaries before seeing the outcomes those boundaries would select.</p>
+        <p>The approved design fixed twelve expanding folds, with at least five years of training and one year of testing. Purge and embargo rules separate information and holding intervals around the boundaries. A final 36-month historical holdout begins with the 1 June 2018 entry. It remains unread. The newer period beginning 30 June 2021 had already been inspected and was quarantined from claims of untouched evidence.</p>
+        <figure class="figure">
+          <div class="chart-scroll"><svg viewBox="0 0 860 214" role="img" aria-labelledby="history-title history-desc">
+            <title id="history-title">Why maximum history was necessary</title>
+            <desc id="history-desc">The five-year pilot offered 48 completed monthly routes. The simple minimum design requires 108 months before purge and embargo. Maximum history provides 330 complete routes. The actual common development test uses 108 monthly decisions and is not the same quantity as the 108-month minimum.</desc>
+            <g font-family="system-ui,sans-serif" font-size="15" fill="#d8d3c9"><text x="8" y="38">Five-year pilot</text><text x="8" y="93">Minimum geometry</text><text x="8" y="148">Maximum history</text></g>
+            <g fill="#8a754b"><rect x="205" y="19" width="84" height="26" rx="3"/><rect x="205" y="74" width="190" height="26" rx="3"/><rect x="205" y="129" width="580" height="26" rx="3"/></g>
+            <g font-family="system-ui,sans-serif" font-size="16" fill="#f1eee7"><text x="302" y="38">48 routes</text><text x="407" y="93">108 months, before purge / embargo</text><text x="797" y="148">330</text></g>
+            <text x="205" y="194" font-family="system-ui,sans-serif" font-size="14" fill="#b9b3a8">Counts describe available geometry; they are not return or performance measures.</text>
+          </svg></div>
+          <figcaption>Two different counts happen to equal 108: the simple minimum training/test/holdout requirement, and the later nine-fold common development sample. They describe different things.</figcaption>
+        </figure>
+        <div class="table-wrap"><table>
+          <caption>The frozen study boundaries still in force</caption>
+          <thead><tr><th scope="col">Boundary</th><th scope="col">Current definition</th><th scope="col">Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td>Full fold design</td><td>12 expanding folds; 21-session purge and embargo rules.</td><td>Retain the agreed chronology and overlapping-label protection.</td></tr>
+            <tr><td>Common comparison sample</td><td>Folds 04–12; 108 monthly decisions; 2,268 daily test intervals.</td><td>BIL coverage determines the common suffix used by the compared series.</td></tr>
+            <tr><td>Development value ceiling</td><td>3 April 2017, including the final opening valuation.</td><td>Current calculations use the admitted earlier-history slice.</td></tr>
+            <tr><td>Historical holdout</td><td>36 monthly routes beginning with entry on 1 June 2018.</td><td>Still unread; no result is shown or inferred here.</td></tr>
+            <tr><td>Already inspected newer period</td><td>30 June 2021 onward.</td><td>Cannot be relabeled as an untouched final test.</td></tr>
+          </tbody>
+        </table></div>
+        <p>A statistical engine for joint block sign flips and a maximum-Sharpe comparison was implemented on invented data. The broader discipline follows the trial-aware evaluation discussed in <a href="elements-quantitative-investing.html">Paleologo</a> and the <a href="quantopian-lecture-series.html">Quantopian lectures</a>; the exact test protocol is a VHF engineering declaration. Its role is to account for looking across multiple trials while preserving declared cross-trial structure. It has not supplied an actual family-wide significance result: the required complete, aligned ten-trial daily excess-return panel is still missing, and the method’s applicability must also be justified.</p>
+      </section>
+      <section class="chapter" id="correction">
+        <p class="section-number">06 · 6 September · Packages A–D</p><div class="section-heading"><h2>A fresh review found an economic error that tests had missed.</h2></div>
+        <p>The September review changed the priority from adding research features to correcting and connecting the existing path. The central finding was a reversed share-volume conversion. Adjusted prices and adjusted volume move in opposite directions under a split. The old transform had applied the price direction to volume too.</p>
+        <p>Consider a raw price of $100 and a split-adjusted price of $50, with 2,000 split-adjusted shares traded. The corresponding raw volume is 1,000 shares: both descriptions represent $100,000 traded. The old code returned 4,000 raw shares, implying $400,000. This changes liquidity eligibility and can change the entire portfolio comparison. Existing tests had repeated the same error, so their success was insufficient.</p>
+        <div class="table-wrap"><table>
+          <caption>Independent economics replaced a self-confirming fixture</caption>
+          <thead><tr><th scope="col">Representation</th><th scope="col">Price</th><th scope="col">Volume</th><th scope="col">Dollar notional</th></tr></thead>
+          <tbody><tr><td>Split-adjusted observation</td><td>$50</td><td>2,000</td><td>$100,000</td></tr><tr><td>Correct raw equivalent</td><td>$100</td><td>1,000</td><td>$100,000</td></tr><tr><td>Earlier incorrect conversion</td><td>$100</td><td>4,000</td><td>$400,000</td></tr></tbody>
+        </table></div>
+        <p>Package A corrected the conversion and versioned its consequences. Package B strengthened input admission so consumers verify the approved development archives before parsing values. Package C reconstructed the strict monthly primary and comparators. Package D added daily holdings, cash and missing-claim accounting, then replayed the actual development calculation independently.</p>
+        <p>The corrected primary formed all 108 requested portfolios. However, only 41 monthly primary observations had complete endpoint evidence. At daily frequency, exact primary returns were available for 120 of 2,268 intervals. The distinction is consequential: a month with observed beginning and ending prices need not have a complete daily path, and uncertainty can prevent the next rebalance from being sized.</p>
+        <div class="table-wrap"><table>
+          <caption>Corrected A–D coverage · actual 6 September calculation</caption>
+          <thead><tr><th scope="col">Portfolio</th><th scope="col">Exact endpoint months / 108</th><th scope="col">Exact daily intervals / 2,268</th><th scope="col">Complete equity performance?</th></tr></thead>
+          <tbody><tr><td>Eligible universe · equal weight</td><td>0</td><td>1</td><td>No</td></tr><tr><td>Eligible universe · cap weight</td><td>0</td><td>1</td><td>No</td></tr><tr><td>Raw momentum</td><td>54</td><td>62</td><td>No</td></tr><tr><td>Strict monthly primary</td><td>41</td><td>120</td><td>No</td></tr><tr><td>BIL reference</td><td>108</td><td>2,268</td><td>Complete reference series</td></tr></tbody>
+        </table></div>
+        <p>The study kept all requested observations. It separately calculated zero-recovery scenarios and reconciled their monthly endpoints with daily books, without pretending those scenarios resolved missing interior returns. All 36 equity portfolio/fold scenario endpoints reconciled. No equity series acquired complete full-period exact daily statistics.</p>
+        <p>This is why A–D could be completed while performance remained incomplete: their deliverable was corrected formation, protected inputs, honest coverage and reconciled accounting. An unavailable result can be the correct output of completed software.</p>
+      </section>
+      <section class="chapter" id="construction">
+        <p class="section-number">07 · 7 September · Package E</p><div class="section-heading"><h2>Turn trial names into precise portfolios.</h2></div>
+        <p>The registry had ten names, but several economic choices still needed definition before those names could produce holdings. Package E completed the rank-to-weight rules, short-side quality interpretation, constrained factor-neutral targets and the timing of quarterly, overlapping and seasonality-aware portfolios.</p>
+        <p>Overlapping portfolios require particular care. If three sleeves begin equally funded, their capital later drifts with their own outcomes. Rebalancing one sleeve must use that sleeve’s observed equity. It cannot quietly borrow an invented fresh allocation from the others. Neutrality is checked when a cohort is formed; older cohorts can subsequently drift away from those initial exposures.</p>
+        <p>The calendar audit checked 4,657 labels across 48 schedule/fold plans without opening provider price archives. It found that the first robustness fold had only 57–58 covered training months, below the required 60. That fold remained unavailable. All nine BIL-common folds passed the relevant geometry. The audit established usable schedules, not returns.</p>
+        <div class="callout"><h3>A target is a proposal, not a filled portfolio.</h3><p>Package E can specify the portfolio the strategy wants. Replacing the current holdings still requires known account equity, tradable exits, admissible entries and sufficient cash. If full replacement fails, the system considers the declared exit policy; if that also fails, it keeps the actual holdings and records the block.</p></div>
+      </section>
+      <section class="chapter" id="execution">
+        <p class="section-number">08 · 7 September · Package F</p><div class="section-heading"><h2>Discover what the proposed portfolios can actually do.</h2></div>
+        <p>Package F connected construction to raw shares and the operational ledger. It added decision-time cost reserves, whole-share orders, opening risk and capacity checks, financing mechanics and separately funded cohorts. Raw shares matter because actual ownership, splits, distributions and sale proceeds must be accounted for in the units an investor holds.</p>
+        <p>The historical long-only adapter then ran five trials across nine folds and four execution scenarios: LOW, BASE and HIGH modeled costs plus a zero-rate reference. Each fold begins with $1 million. Each scenario carries its own capital and rounding outcomes. These are declared cost assumptions, not calibrated estimates of actual execution. The zero-rate reference retains whole-share and adverse tick-rounding rules; it is not a frictionless adjusted-price series.</p>
+        <p>The first run exposed a feasibility problem. Fifty 2% targets already exhaust the name-weight budget. Share quantities fixed at the preceding close can exceed a 2% opening limit after overnight price gaps. The full-batch rule therefore rejected many replacements. Only 30 of 1,275 scheduled net-scenario entries were accepted. A large number of available returns merely described cash sitting idle.</p>
+        <p>The next amendment declared a fixed, uncalibrated ±5% decision-price band, discounted the value of existing holdings for budgeting, and reserved costs on intended trade changes. It was specified before revised outcomes, without a parameter search. Actual opening prices could still veto trades; they could not be used retrospectively to choose better quantities. The second run accepted 203 entries.</p>
+        <p>The third amendment handled ordinary opening actions more accurately. Splits mechanically convert the already chosen share quantities. Dividend entitlement follows ownership before trading: an ex-date buyer does not inherit the seller’s carried-holder dividend. Whole-share exits can reduce exposure while retaining unresolved fractional claims. Modeled ex-date dividend payment remains an assumption, distinct from sourced actual payment timing.</p>
+        <!-- Compare like denominators and show unknown cells alongside accepted
+             entries. More filled trades can expose more unresolved economics;
+             a green progress chart alone would reverse the meaning of the data. -->
+        <div class="table-wrap"><table>
+          <caption>Three actual historical runs, each independently replayed</caption>
+          <thead><tr><th scope="col">Historical version</th><th scope="col">Policy change</th><th scope="col">Accepted net entries / 1,275</th><th scope="col">Unknown net daily cells / 34,020</th></tr></thead>
+          <tbody><tr><td>v1</td><td>Initial raw-share integration</td><td>30</td><td>3,939</td></tr><tr><td>v2</td><td>Decision-time opening budget</td><td>203</td><td>27,126</td></tr><tr><td>v3 · latest actual run</td><td>Ordinary actions and fractional exits</td><td>239</td><td>29,080</td></tr></tbody>
+        </table></div>
+        <p>The rising unknown count is not a deterioration in arithmetic. More invested exposure encountered unresolved actions and missing marks that an idle-cash book avoided. This is an example of why coverage must be interpreted with holdings and execution, rather than optimized as a score.</p>
+        <div class="grid three">
+          <article class="card"><div class="metric-value">180</div><p class="metric-label">fold books in v3</p><p>Five long-only trials × four scenarios × nine folds.</p></article>
+          <article class="card"><div class="metric-value">414</div><p class="metric-label">scheduled targets retained</p><p>The action amendment changed execution, preserving the original targets.</p></article>
+          <article class="card"><div class="metric-value">14.5%</div><p class="metric-label">net daily cells available</p><p>4,940 of 34,020 modeled cells, including cash. The other 29,080 remain unknown.</p></article>
+        </div>
+        <p>The v3 calculation recorded 45,360 daily observations across all four scenarios. Its saved artifacts and raw journals were independently reconstructed. That is meaningful evidence of integrated accounting and reproducibility. It does not yield a complete invested return history or settle the five signed, factor-neutral trials, whose historical exposure, borrow and financing inputs remain unfinished.</p>
+      </section>
+      <section class="chapter" id="terminal">
+        <p class="section-number">09 · 6–7 September</p><div class="section-heading"><h2>A disappearing ticker leaves an economic claim.</h2></div>
+        <p>The corrected monthly inventory identified 1,134 unique missing-exit events. Investigation was deliberately bounded to a frozen queue of twenty, prioritized by affected target allocations before reviewing their economics. The cap limits research effort; it does not remove the other events from the study.</p>
+        <p>Initial source review produced thirteen exact-cash term candidates, one fixed-cash floor candidate with an additional stock leg, and six unresolved term sets. None supplied the complete evidence needed for daily admission. Candidate consideration and usable cash are different things. Original source material, the conversion from source units to held shares, entitlement and actual cash or share-delivery timing must fit together.</p>
+        <figure class="figure">
+          <div class="chart-scroll"><svg viewBox="0 0 870 170" role="img" aria-labelledby="claim-title claim-desc">
+            <title id="claim-title">A merger is an ownership and delivery sequence</title>
+            <desc id="claim-desc">Original held shares become a receivable at entitlement. Cash or successor shares arrive later. Only delivered, appropriately valued assets can enter subsequent funding. Each leg may arrive at a different opening.</desc>
+            <g fill="#101214" stroke="#716044"><rect x="10" y="20" width="180" height="76" rx="4"/><rect x="240" y="20" width="180" height="76" rx="4"/><rect x="470" y="20" width="180" height="76" rx="4"/><rect x="700" y="20" width="160" height="76" rx="4"/></g>
+            <g font-family="system-ui,sans-serif" text-anchor="middle" font-size="15" fill="#f1eee7"><text x="100" y="49">Original shares</text><text x="100" y="73" fill="#b9b3a8">Actual held units</text><text x="330" y="49">Entitlement</text><text x="330" y="73" fill="#b9b3a8">Cash / stock claim</text><text x="560" y="49">Separate receipts</text><text x="560" y="73" fill="#b9b3a8">Dated cash / shares</text><text x="780" y="49">New funding</text><text x="780" y="73" fill="#b9b3a8">When admissible</text></g>
+            <g fill="none" stroke="#b99b61" stroke-width="2"><path d="M190 58h50m-8-5 8 5-8 5M420 58h50m-8-5 8 5-8 5M650 58h50m-8-5 8 5-8 5"/></g>
+            <text x="435" y="138" font-family="system-ui,sans-serif" text-anchor="middle" font-size="15" fill="#b9b3a8">An announced cash right is not proof of cash available at the next opening.</text>
+          </svg></div>
+          <figcaption>Payment timing affects more than one return. It determines whether a later portfolio can be funded. Separate distributions and successor-share actions must also be accounted for.</figcaption>
+        </figure>
+        <p>Historical runner v4 connected a bounded reviewed-admission input to the existing claim ledger. Version 5 added an explicit review rule for a merger and its companion delisting, so one economic settlement does not leave a duplicate unresolved halt. Version 6 protects stock still owed when an intervening action affects the promised successor shares. Independent cash can arrive while an affected stock claim remains unresolved.</p>
+        <p>These later changes passed focused economic checks. <strong>The last verified original admission remains zero out of twenty.</strong> No unchanged full historical run followed the empty input. The v3 outcomes above remain v3 evidence; the existence of v4–v6 code does not update them.</p>
+        <details>
+          <summary>Why TECO became a case study—and why it is not indispensable</summary>
+          <p>TECO Energy was a utility company acquired by Emera in 2016. <a href="https://investors.emera.com/news/news-details/2016/Emera-Closes-Acquisition-of-TECO-Energy/default.aspx">Emera’s 1 July closing release</a> confirms the acquisition and a $27.55-per-common-share cash right. It does not provide the complete admitted original-source and common-holder cash-availability evidence required by this daily accounting contract. A separate stub dividend also requires its own final amount, rounding and receipt facts.</p>
+          <p>An options-settlement document cannot establish when a passive common-stock holder received spendable cash. A listing-removal date is not a payment date. The missing facts therefore remain specific, rather than being replaced by a convenient assumption.</p>
+          <p>TECO is one event in the frozen queue, not the foundation of the investment thesis. Its evidence hunt has been deferred. Other development work and review of other queued events can continue. Removing it from selection is also possible as an explicitly separate, retrospective universe variation.</p>
+        </details>
+      </section>
+      <section class="chapter" id="today">
+        <p class="section-number">10 · Current position</p><div class="section-heading"><h2>Continue with a declared variation and an honest evidence boundary.</h2></div>
+        <p>The latest implementation adds a named <strong>ex-TECO development universe</strong>. It excludes the company by permanent identity before size thresholds, eligibility, ranking, shortlist selection and weight normalization. The rule is shared across all ten constructions and the equity comparators. BIL remains unchanged.</p>
+        <p>This timing is essential. Deleting a troublesome name after seeing its missing return would alter the analyzed outcome while hiding the selection change. Applying a documented policy before formation produces a different research variation with its own targets and identity. It still uses already inspected development data and does not recover an untouched test.</p>
+        <p>The implementation retains the full accounting data. An existing holding or legally received successor cannot vanish merely because the security is excluded from future selection; it still requires a valid valuation and exit. Forty distinct focused checks passed, including synthetic monthly reconstruction and raw execution replay. <strong>No actual ex-TECO performance has been calculated.</strong></p>
+        <div class="table-wrap"><table>
+          <caption>What is complete, what is partial, and what comes next</caption>
+          <thead><tr><th scope="col">Workstream</th><th scope="col">Current evidence</th><th scope="col">Next requirement</th></tr></thead>
+          <tbody>
+            <tr><td>A–D · Corrected development study</td><td><span class="tag complete">Complete within scope</span> Actual monthly/daily calculation and independent replay; missingness retained.</td><td>Use its evidence boundaries; do not relabel incomplete paths as exact performance.</td></tr>
+            <tr><td>E · Ten constructions and calendars</td><td><span class="tag complete">Complete within scope</span> Explicit targets, cohort funding rules and actual label checks.</td><td>Supply the relevant historical execution inputs for each construction.</td></tr>
+            <tr><td>F · Historical operational accounting</td><td><span class="tag partial">Partial</span> Five long-only scenario families calculated; v3 independently replayed.</td><td>Resolve applicable terminal economics and complete signed exposures, borrow and financing.</td></tr>
+            <tr><td>Ex-TECO variation</td><td><span class="tag partial">Implemented</span> Formation, manifest, execution and replay integration checked.</td><td>Run and verify the separate monthly comparison and historical long-only variation.</td></tr>
+            <tr><td>G · Full-family inference</td><td><span class="tag open">Open</span> Statistical mechanics exist on invented examples.</td><td>Complete aligned trial evidence, account for development choices and justify inference assumptions.</td></tr>
+            <tr><td>H · Holdout</td><td><span class="tag open">Unread</span> The protected 36-month sample is preserved.</td><td>A separately reviewed and authorized holdout package.</td></tr>
+            <tr><td>Paper and live trading</td><td><span class="tag open">Later gates</span> Offline handoff prerequisites only.</td><td>Separate adapter, operational acceptance and deployment decisions.</td></tr>
+          </tbody>
+        </table></div>
+        <p>The immediate next calculation can proceed with existing licensed development inputs and the declared exclusion. It does not depend on completing TECO research. The original universe, earlier results and frozen review queue remain intact. Other unresolved events still matter, so the new variation must report its own coverage before any return comparison is interpreted.</p>
+        <p>For a reader tracking development, the useful milestone is therefore specific: a separately identified ex-TECO calculation, independently reproduced, with the holdings and missing evidence explained. A favorable-looking chart alone would not answer the project’s remaining questions.</p>
+      </section>
+      <section class="chapter" id="references">
+        <p class="section-number">Reading &amp; provenance</p><div class="section-heading"><h2>Where the methods and the record come from.</h2></div>
+        <p>The linked primers explain the research sources without requiring the original books. They are conceptual references, not evidence that VHF has historically validated every method they discuss.</p>
+        <ol class="references">
+          <li><a href="advanced-portfolio-management.html">Giuseppe A. Paleologo — <cite>Advanced Portfolio Management</cite></a>. Portfolio objectives, sizing, diversification, factor risk and attribution.</li>
+          <li><a href="elements-quantitative-investing.html">Giuseppe A. Paleologo — <cite>The Elements of Quantitative Investing</cite></a>. Estimation, covariance, factor models and portfolio construction; VHF’s ingested source is the July 2024 draft.</li>
+          <li><a href="quantitative-momentum.html">Wesley R. Gray and Jack R. Vogel — <cite>Quantitative Momentum</cite></a>. Investable momentum selection, skipped-month logic, return-path quality and rebalance considerations.</li>
+          <li><a href="learn-algorithmic-trading.html">Sebastien Donadio and Sourav Ghosh — <cite>Learn Algorithmic Trading</cite></a>. Event-driven systems, execution, risk checks and evaluation discipline.</li>
+          <li><a href="trading-volatility-correlation-term-structure-skew.html">Colin Bennett — <cite>Trading Volatility, Correlation, Term Structure and Skew</cite></a>. Variance, volatility risk, correlation and derivative conventions.</li>
+          <li><a href="quantopian-lecture-series.html">Quantopian lecture series</a>. Research workflow, regression, factor diagnostics, multiple testing and implementation shortfall.</li>
+        </ol>
+        <details>
+          <summary>Engineering records used for this dated account</summary>
+          <p>The chronology was reconciled against the canonical VHF worklog from 5 May through 7 September, the current project memory, the implementation plan and the roadmap. Earlier phase scope was checked against <cite>Roadmap through 28 August 2026</cite>. Current findings were checked against <cite>VHF project review</cite> and <cite>Corrected monthly momentum study and daily accounting</cite>, both dated 6 September.</p>
+          <p>The 7 September evidence comprises <cite>Package E construction and holding-label verification</cite>; <cite>Package F operational accounting</cite>; <cite>Historical long-only execution</cite>; <cite>Opening budget</cite>; <cite>Ordinary opening actions</cite>; <cite>Bounded terminal admission</cite>; <cite>TECO evidence</cite>; the companion-delisting and pending-stock-action records; and <cite>Ex-TECO development universe</cite>. These private engineering records support the aggregate figures reproduced above. Licensed rows, private storage paths and reconstructive artifacts are not published here.</p>
+        </details>
+        <a class="next-page" href="explain.html"><div><span>Return to part 1</span><strong>The investment framework</strong></div><div class="arrow" aria-hidden="true">←</div></a>
+      </section>
+      <footer class="page-footer"><p>Virtual Hedge Fund · Research &amp; Engineering · Development record, 7 September 2026</p><p>Illustrations explain process or coverage. They are not investment-performance charts.</p><a href="../index.html">Browse the research library</a></footer>
+    </main>
+  </div>
 </body>
 </html>
