@@ -45,7 +45,7 @@
       <div class="eyebrow">A first-principles guide / No prior reading required</div>
       <h1>From an investment idea<br>to a portfolio you can <em>explain.</em></h1>
       <p class="lead">The Virtual Hedge Fund asks a practical question: can we turn a financial idea into explicit decisions, account for every consequence, and find out whether it deserves real capital?</p>
-      <div class="meta"><span>Reader's edition · 07 September 2026</span><span>Part 1 of 2</span><span>About 25 minutes</span></div>
+      <div class="meta"><span>Reader's edition · 12 September 2026</span><span>Part 1 of 2</span><span>About 25 minutes</span></div>
       <div class="hero-note"><p>VHF is a research and simulation project. It has working software and historical development calculations. It has not established a fully validated, live investment strategy. This guide explains the framework; the <a href="scratchpad.html">development record</a> explains the evidence behind that statement.</p></div>
     </div>
     <details class="mobile-contents">
@@ -254,6 +254,11 @@
       <h2>An intended trade is not a completed trade</h2>
       <p>A <strong>target</strong> says what the portfolio wants. An <strong>order</strong> requests a transaction. A <strong>fill</strong> records a completed transaction with a quantity, price and costs. Only completed fills and actual corporate actions change the units owned.</p>
       <p>VHF's historical adapter forms decisions using the allowed earlier observations, sizes whole-share orders, and then applies opening checks. The next opening price can make the order unaffordable or breach a concentration limit. Trading volume can be inadequate. An old position may be impossible to sell. In those cases, a selected portfolio may never become the held portfolio.</p>
+      <!-- Coverage measures answer different economic questions. Keep this
+           conceptual distinction beside execution, with dated quantities on
+           the development page rather than presenting an availability rate
+           as a return, success rate or time-weighted exposure estimate. -->
+      <div class="callout"><h3>A known return can describe idle cash</h3><p>A rejected rebalance may leave the account entirely in cash. Its next return can be perfectly measurable without testing the intended stock portfolio. VHF now checks the actual ownership journal and separates available intervals with holdings or trades, available cash-only intervals, and unavailable intervals. A pending economic right is another distinct category. These are counts of what appears during an interval, not the percentage of capital invested or the fraction of time exposed.</p></div>
       <div class="process" aria-label="Target-to-ledger sequence">
         <div><b>01</b><strong>Target</strong>Desired weights</div><div><b>02</b><strong>Order</strong>Fixed share quantities</div><div><b>03</b><strong>Opening checks</strong>Cash, prices and capacity</div><div><b>04</b><strong>Fill</strong>Executed quantity and cost</div><div><b>05</b><strong>Ledger</strong>Updated holdings and cash</div>
       </div>
@@ -301,6 +306,7 @@
       <p>“Raw momentum” means the signal has no path-quality overlay. It does <strong>not</strong> mean using unadjusted prices for returns. Likewise, BIL is an external comparison, not the return automatically credited to idle cash. VHF's current ledger assumptions give uninvested cash zero interest.</p>
       <p>There are several useful summaries. <strong>Cumulative return</strong> measures total growth. <strong>Volatility</strong> measures fluctuation. <strong>Maximum drawdown</strong> measures the worst decline from a previous peak. A <strong>Sharpe ratio</strong> compares average excess return with its variability. Each compresses a different aspect of the path; none resolves missing observations or incorrect accounting.</p>
       <div class="callout"><h3>A fair comparison must retain failures</h3><p>If a stock was selected but later cannot be valued, dropping it and scaling the survivors back to 100% changes the strategy after seeing the outcome. VHF keeps the original allocation and reports unavailable exact results where necessary. A separate zero-recovery scenario can show one assumption's consequence; it does not turn that assumption into an observed settlement.</p></div>
+      <p><strong>Endpoint coverage and account coverage answer different questions.</strong> A monthly fixed basket asks what its beginning and ending adjusted prices imply under the declared entry and exit rules. A daily raw-share account must also carry actual holdings, costs, corporate actions and spendable cash through every intervening opening. Observed monthly endpoints cannot fill a missing daily value or finance a blocked replacement.</p>
       <p class="source-note">Evaluation and attribution: <a href="elements-quantitative-investing.html">The Elements of Quantitative Investing</a> and the <a href="quantopian-lecture-series.html">Quantopian lectures</a>. The benchmark family above is the project's declared development comparison.</p>
     </section>
 
@@ -316,6 +322,7 @@
       </div>
       <p><strong>Purging</strong> removes training examples whose outcome periods overlap a protected boundary. An <strong>embargo</strong> adds separation around periods that might share information. These controls are particularly important when a position is held for several months or multiple cohorts overlap.</p>
       <p>There is another problem: try enough variants and one can look good by chance. This is <strong>multiple testing</strong>. Changing a lookback, a rebalance month, a filter or a universe can each spend research evidence. VHF records declared trials and later amendments, including the retrospective ex-TECO variation. A previously inspected period does not become untouched again when the code is corrected.</p>
+      <p>The ex-TECO calculation illustrates another comparison limit. Its overall execution and availability counts match an earlier original-universe study, yet some portfolio instructions and daily accounting records differ. The two studies also use different accounting versions. Equal counts do not establish equal economics, and their differences cannot be attributed entirely to removing one company.</p>
       <p>A <strong>holdout</strong> is a reserved period kept separate from development. VHF's final historical holdout remains unread. Complete strategy-family inference and final holdout evaluation have not been completed. An isolated attractive chart therefore cannot identify a validated winner.</p>
       <h3>What different checks actually establish</h3>
       <div class="table-wrap" tabindex="0" role="region" aria-label="Four types of evidence">
@@ -339,7 +346,25 @@
         <div class="card"><span class="tag partial">Development evidence</span><h3>Historical momentum</h3><p>Corrected monthly comparisons and modeled long-only execution have been calculated. Missing terminal facts still prevent complete exact returns.</p></div>
         <div class="card"><span class="tag open">Still open</span><h3>Investment acceptance</h3><p>Complete original settlement evidence, signed historical economics, full-family inference and the final holdout. Live trading is not established.</p></div>
       </div>
-      <p>The most recent implementation adds an <strong>ex-TECO development variant</strong>. TECO is one historical company with unresolved settlement evidence, not an essential ingredient of momentum theory. The variant consistently excludes it before formation and preserves the original records. Its code and focused checks are complete; its actual historical performance has not yet been calculated.</p>
+      <p>The <strong>ex-TECO development variant has now been calculated and independently reproduced</strong>, for both the monthly comparison and the modeled long-only raw-share accounts. It consistently excludes the company before formation and preserves the original evidence. The primary still has only 41 complete monthly endpoint observations out of 108. Among 34,020 daily cells across the three cost scenarios, 3,124 are available with holdings or trading, 1,816 are available cash-only, and 29,080 remain unknown. These results establish a reproducible development calculation, while complete invested performance remains unavailable. The <a href="scratchpad.html#today">dated development record</a> explains the denominators and comparisons.</p>
+      <!-- The September 12 result is a completed numerical diagnostic. Keep
+           its input coverage, feasible solutions and historical authority
+           separate: neither a successful solve nor a matching source replay
+           establishes that these exposures were available at the old dates.
+           The 414 assessments are shared across trial/fold references; they
+           must not be presented as 414 distinct dates or executed portfolios. -->
+      <h3>A feasible model still needs historically available inputs</h3>
+      <p>On 12 September, VHF integrated and ran a separate exposure diagnostic on the ex-TECO development inputs. It asks whether the existing signed portfolio seeds—the initial positive and negative weights—can satisfy market, sector and size constraints. Its market proxy is the equal-weight return of the eligible universe, using 252 daily returns with that formation's universe held fixed over the lookback. Size is standardized against the same universe. Sector classifications come from current metadata; their historical availability remains unknown.</p>
+      <p>The proposed weights must retain each selected stock's long or short direction, allocate 50% gross to each side, respect a 2% maximum absolute weight per stock, and neutralize the modeled exposures within a fixed numerical tolerance. These requirements describe the proposed allocation. They do not establish borrowing availability, financing or completed trades.</p>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Modeled exposure diagnostic and historical eligibility">
+        <table><caption>12 September development result · 414 assessments across five signed trials</caption><thead><tr><th scope="col">Question</th><th scope="col">Recorded result</th><th scope="col">What it means</th></tr></thead><tbody>
+          <tr><th scope="row">Could the declared model return permitted weights?</th><td>323 modeled-feasible assessments.</td><td>Returned weights passed independent arithmetic and constraint checks.</td></tr>
+          <tr><th scope="row">Where were required inputs missing?</th><td>91 assessments lacked selected-stock sector labels.</td><td>The missing inputs stay visible; no stock is dropped and no substitute sector is invented.</td></tr>
+          <tr><th scope="row">Did this establish official historical targets?</th><td>All 414 official targets remain unavailable.</td><td>Every modeled result remains ineligible for execution; no strategy return is produced.</td></tr>
+        </tbody></table>
+      </div>
+      <p>An independent replay reconstructed every saved artifact from the admitted sources. That establishes reproducibility of this calculation. It cannot supply missing historical information. No projection failures occurred in this run, although the solver can fail to return a solution even when one mathematically exists; such a failure would mean unresolved computation.</p>
+      <p>The next bounded review concerns the missing sector evidence behind those 91 assessments. Any changed source or model needs its own recorded calculation and replay. The existing result, original seeds and official unavailable statuses remain preserved. The <a href="scratchpad.html#exposures">development record</a> gives the dated scope and checks.</p>
       <p>You now have the concepts needed to read the development history: what a signal is, why a target differs from a holding, how missing settlement affects capital, and why software correctness differs from investment evidence. The second page follows how VHF learned and implemented those distinctions.</p>
     </section>
 
@@ -358,7 +383,7 @@
       </ol>
     </section>
     <a class="next-page" href="scratchpad.html"><div><span>Continue to part 2</span><strong>How the project reached this point</strong></div><div class="arrow" aria-hidden="true">→</div></a>
-    <footer class="page-footer">VHF / Research &amp; engineering<br>Concept guide reviewed against the project record on 07 September 2026. Illustrations are educational examples, not simulated or realized VHF investment performance. Historical status is detailed in the companion development record.</footer>
+    <footer class="page-footer">VHF / Research &amp; engineering<br>Concept guide reviewed against the project record on 12 September 2026. Illustrations are educational examples, not simulated or realized VHF investment performance. Historical status is detailed in the companion development record.</footer>
   </main>
 </div>
 </body>
