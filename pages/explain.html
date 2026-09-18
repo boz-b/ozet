@@ -45,7 +45,7 @@
       <div class="eyebrow">A first-principles guide / No prior reading required</div>
       <h1>From an investment idea<br>to a portfolio you can <em>explain.</em></h1>
       <p class="lead">The Virtual Hedge Fund asks a practical question: can we turn a financial idea into explicit decisions, account for every consequence, and find out whether it deserves real capital?</p>
-      <div class="meta"><span>Reader's edition · 12 September 2026</span><span>Part 1 of 2</span><span>About 25 minutes</span></div>
+      <div class="meta"><span>Reader's edition · 18 September 2026</span><span>Part 1 of 2</span><span>About 30 minutes</span></div>
       <div class="hero-note"><p>VHF is a research and simulation project. It has working software and historical development calculations. It has not established a fully validated, live investment strategy. This guide explains the framework; the <a href="scratchpad.html">development record</a> explains the evidence behind that statement.</p></div>
     </div>
     <details class="mobile-contents">
@@ -110,6 +110,11 @@
         <div class="card"><div class="eyebrow">When could we act on it?</div><h3>Availability date</h3><p>The time the necessary information reached the decision process. It can be later than the economic date.</p></div>
       </div>
       <p>VHF's historical development study uses a current snapshot of older data and a modeled delay between a month-end observation and the next opening trade. It verifies which input files were used and restricts their dates. Those controls do <strong>not</strong> establish that every historical revision and delivery time is known. The study is explicitly a current-vintage reconstruction.</p>
+      <!-- Explain the source contract with invented dates, without turning an
+           acquisition receipt or an economic date into historical availability. -->
+      <h3>One observation has several clocks</h3>
+      <p>Imagine a price observed on Monday, published by a provider that evening, delivered to an investor on Tuesday and downloaded by a researcher years later. Those are four different facts: <strong>observation, publication, historical availability and research acquisition</strong>. A later correction adds a version question: which value was actually available on Tuesday? This is a teaching example, not a VHF source receipt.</p>
+      <p>A matching file fingerprint proves that the stored bytes have not changed. It does not prove who supplied them or when an earlier investor could use them. A data adapter can preserve original records, convert units and record those clocks. It cannot fill unknown clocks with convenient dates. VHF's new source contract therefore separates unchanged files, authentic originals, historical timing and complete coverage.</p>
       <h3>The same stock can need two price representations</h3>
       <p>A two-for-one split replaces one old share with two new shares. A $100 share might become two $50 shares without creating or destroying wealth. A raw price chart would show a 50% drop; that would be a false loss for the holder.</p>
       <div class="table-wrap" tabindex="0" role="region" aria-label="Hypothetical stock split example">
@@ -262,6 +267,12 @@
       <div class="process" aria-label="Target-to-ledger sequence">
         <div><b>01</b><strong>Target</strong>Desired weights</div><div><b>02</b><strong>Order</strong>Fixed share quantities</div><div><b>03</b><strong>Opening checks</strong>Cash, prices and capacity</div><div><b>04</b><strong>Fill</strong>Executed quantity and cost</div><div><b>05</b><strong>Ledger</strong>Updated holdings and cash</div>
       </div>
+      <!-- Borrow capacity, recall obligations and financing describe different
+           events. The invented shared-pool example grants no historical locate. -->
+      <h3>Borrowing is a shared resource with a lifecycle</h3>
+      <p>A <strong>locate</strong> concerns finding shares for a proposed short sale. A later opening check asks whether the fixed order is still supported. Suppose two sleeves share 1,000 free shares: each cannot independently reserve 700. The ledger must conserve the pool across both sleeves. A planned purchase to cover a short does not release shares until the relevant event actually occurs. Separate alternative simulations are not competing live users of the same pool.</p>
+      <p>A <strong>recall</strong> asks for an existing loan to be returned. It is different from a restriction on new shorts or zero new availability. If the portfolio cannot execute the required cover, the liability remains. Likewise, a missing fee record is not a zero rate. Stock borrowing, cash financing and pending negative claims each require the appropriate terms throughout their charged intervals.</p>
+      <p>VHF has implemented these checks and source-coverage mechanics using invented examples. Historical application still needs original evidence tied to the relevant account, pool, security and loan. A recent indicative quote or an actual account's old bill cannot establish borrowing for a hypothetical trade that account never made.</p>
       <h3>Small trading costs can compound into a large hurdle</h3>
       <p><strong>Turnover</strong> measures trading relative to capital. <strong>Spread</strong> is the gap between buying and selling quotes. <strong>Market impact</strong> is the change in execution price associated with trading. Fees add another charge. A strategy that changes many positions must earn enough before costs to absorb all of them.</p>
       <!-- The controls intentionally use one simple turnover convention. Their
@@ -354,17 +365,23 @@
            The 414 assessments are shared across trial/fold references; they
            must not be presented as 414 distinct dates or executed portfolios. -->
       <h3>A feasible model still needs historically available inputs</h3>
-      <p>On 12 September, VHF integrated and ran a separate exposure diagnostic on the ex-TECO development inputs. It asks whether the existing signed portfolio seeds—the initial positive and negative weights—can satisfy market, sector and size constraints. Its market proxy is the equal-weight return of the eligible universe, using 252 daily returns with that formation's universe held fixed over the lookback. Size is standardized against the same universe. Sector classifications come from current metadata; their historical availability remains unknown.</p>
+      <p>On 12 September, VHF integrated and ran a separate exposure diagnostic on the ex-TECO development inputs. It asks whether the existing signed portfolio seeds—the initial positive and negative weights—can satisfy market, sector and size constraints. Its market proxy is the equal-weight return of the eligible universe, using 252 daily returns with that formation's universe held fixed over the lookback. Size is standardized against the same universe. The initial version used current sector metadata; a later version adds a bounded reviewed supplement. Historical availability remains unknown for both.</p>
       <p>The proposed weights must retain each selected stock's long or short direction, allocate 50% gross to each side, respect a 2% maximum absolute weight per stock, and neutralize the modeled exposures within a fixed numerical tolerance. These requirements describe the proposed allocation. They do not establish borrowing availability, financing or completed trades.</p>
       <div class="table-wrap" tabindex="0" role="region" aria-label="Modeled exposure diagnostic and historical eligibility">
-        <table><caption>12 September development result · 414 assessments across five signed trials</caption><thead><tr><th scope="col">Question</th><th scope="col">Recorded result</th><th scope="col">What it means</th></tr></thead><tbody>
-          <tr><th scope="row">Could the declared model return permitted weights?</th><td>323 modeled-feasible assessments.</td><td>Returned weights passed independent arithmetic and constraint checks.</td></tr>
-          <tr><th scope="row">Where were required inputs missing?</th><td>91 assessments lacked selected-stock sector labels.</td><td>The missing inputs stay visible; no stock is dropped and no substitute sector is invented.</td></tr>
-          <tr><th scope="row">Did this establish official historical targets?</th><td>All 414 official targets remain unavailable.</td><td>Every modeled result remains ineligible for execution; no strategy return is produced.</td></tr>
+        <table><caption>Two preserved model versions · 414 assessments across five signed trials</caption><thead><tr><th scope="col">Question</th><th scope="col">Recorded result</th><th scope="col">What it means</th></tr></thead><tbody>
+          <tr><th scope="row">What did the initial model establish?</th><td>323 modeled-feasible assessments; 91 lacked selected-stock sector labels.</td><td>The original result retains its missing inputs and remains a separate version.</td></tr>
+          <tr><th scope="row">What did the reviewed supplement change?</th><td>414 modeled-feasible assessments; zero missing-sector assessments.</td><td>A declared classification for two securities across 31 date pairs completes this model's inputs. The original 323 numerical results are preserved.</td></tr>
+          <tr><th scope="row">Did either version establish official historical targets?</th><td>All 414 official targets remain unavailable.</td><td>Historical timing and sector mapping remain unverified. No signed strategy return is produced.</td></tr>
         </tbody></table>
       </div>
-      <p>An independent replay reconstructed every saved artifact from the admitted sources. That establishes reproducibility of this calculation. It cannot supply missing historical information. No projection failures occurred in this run, although the solver can fail to return a solution even when one mathematically exists; such a failure would mean unresolved computation.</p>
-      <p>The next bounded review concerns the missing sector evidence behind those 91 assessments. Any changed source or model needs its own recorded calculation and replay. The existing result, original seeds and official unavailable statuses remain preserved. The <a href="scratchpad.html#exposures">development record</a> gives the dated scope and checks.</p>
+      <p>Each version has its own calculation and independent replay. That establishes reproducibility, not historical information availability. Neither run reported an uncertified projection, although the solver can fail to return a solution even when one mathematically exists; such a failure would mean unresolved computation. Both retain 119 formation dates and 425 trial/fold references, which are different counts from the 414 shared numerical assessments.</p>
+      <!-- Keep current capability, missing evidence and next action together.
+           This review does not imply a new backtest or a provider purchase. -->
+      <h3 id="source-boundary">A delivery contract makes the remaining questions concrete</h3>
+      <p>The 18 September review groups the necessary evidence into eleven roles: three for exposures; three for account assignment and decision/opening borrowing; two for restrictions and recalls; and three for stock, cash and claim rates. No real package has yet been admitted for any role. This finding concerns the reviewed inputs; it does not establish that the information is unavailable everywhere.</p>
+      <p>The provider review distinguishes <strong>supported fields</strong>, <strong>unsupported interpretations</strong> and <strong>unknown archives</strong>. Sharadar documents candidate prices, point-in-time/as-reported daily metrics and SIC-change events. The remaining question is whether the required historical releases, delivery evidence and dated sector mappings can be obtained. An inquiry is prepared but unsent. The <a href="scratchpad.html#provider-feasibility">development record links the documentation and describes that next dependency</a>.</p>
+      <p>Broker statements raise a separate question: do the records cover the relevant years and match the simulated economics? The standard IBKR Flex window described in the review starts after this study ends. Older archives remain unknown. Its documented tiered, settled-balance accounting also differs from VHF's simplified financing convention. Importing a rate without its applicable balance, collateral, timing and fee rules would change its economic meaning.</p>
+      <p>These findings do not change the investment hypothesis or establish a profitable strategy. They identify what a historical signed calculation would need before it could be trusted. Complete settlement evidence, full-family inference, the unread holdout and any broker deployment retain their separate gates. The <a href="scratchpad.html#source-readiness">development record</a> gives the dated implementation and review checkpoints.</p>
       <p>You now have the concepts needed to read the development history: what a signal is, why a target differs from a holding, how missing settlement affects capital, and why software correctness differs from investment evidence. The second page follows how VHF learned and implemented those distinctions.</p>
     </section>
 
@@ -383,7 +400,7 @@
       </ol>
     </section>
     <a class="next-page" href="scratchpad.html"><div><span>Continue to part 2</span><strong>How the project reached this point</strong></div><div class="arrow" aria-hidden="true">→</div></a>
-    <footer class="page-footer">VHF / Research &amp; engineering<br>Concept guide reviewed against the project record on 12 September 2026. Illustrations are educational examples, not simulated or realized VHF investment performance. Historical status is detailed in the companion development record.</footer>
+    <footer class="page-footer">VHF / Research &amp; engineering<br>Concept guide reviewed against the project record on 18 September 2026. Illustrations are educational examples, not simulated or realized VHF investment performance. Historical status is detailed in the companion development record.</footer>
   </main>
 </div>
 </body>
