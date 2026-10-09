@@ -1,0 +1,15 @@
+{
+  "name": "ozet",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "build": "node scripts/build-text-drop.mjs",
+    "test": "node --test tests/text-drop.test.mjs"
+  },
+  "dependencies": {
+    "@vercel/blob": "2.8.1"
+  }
+}

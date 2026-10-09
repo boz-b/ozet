@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Paste long text and download Markdown and plain text copies from any computer.">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Text Drop</title>
+  <link rel="stylesheet" href="/assets/text-drop.css">
+</head>
+<body>
+<main>
+  <header>
+    <div class="private">YOUR TEXT INBOX</div>
+    <h1>Text Drop</h1>
+    <p>Paste your text. Save it here. Download <strong>.md</strong> and <strong>.txt</strong> copies from any computer.</p>
+  </header>
+  <form id="unlock-form">
+    <label for="access-code">Text Drop access code</label>
+    <input id="access-code" type="password" autocomplete="off" required>
+    <div class="actions"><button id="unlock" type="submit">Open Text Drop</button></div>
+    <p>Use the same access code on both computers.</p>
+  </form>
+  <div id="app" hidden>
+  <form id="save-form">
+    <label for="name">Name <span>(optional)</span></label>
+    <input id="name" name="name" maxlength="100" placeholder="e.g. Book notes" autocomplete="off">
+    <label for="text">Your text</label>
+    <textarea id="text" name="text" rows="18" placeholder="Paste your text here…" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="limit" required></textarea>
+    <div class="actions">
+      <button id="submit" type="submit">Submit</button>
+      <span id="limit">Long texts supported · up to 25 MiB per submission</span>
+    </div>
+  </form>
+  <p id="status" role="status" aria-live="polite"></p>
+  <section aria-labelledby="saved-heading">
+    <div class="section-heading"><h2 id="saved-heading">Saved texts</h2><div><button id="refresh" type="button" class="secondary">Refresh</button> <button id="lock" type="button" class="secondary">Lock</button></div></div>
+    <p class="help">Open this same page on another computer and enter your Text Drop access code.</p>
+    <div id="entries"></div>
+    <p id="list-status" role="status" aria-live="polite">Loading saved texts…</p>
+    <button id="more" type="button" class="secondary" hidden>Load more</button>
+  </section>
+  </div>
+  <p id="access-status" role="status" aria-live="polite"></p>
+  <noscript>Enable JavaScript to save text and load your downloads.</noscript>
+</main>
+<script src="/assets/text-drop.js" defer></script>
+</body>
+</html>
