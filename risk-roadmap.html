@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#030405">
+  <meta name="description" content="Intraday-risk explained: inputs, risk methods, trade assessment, completed software and the evidence still needed.">
+  <title>Intraday-risk · Methods &amp; roadmap</title>
+  <link rel="stylesheet" href="assets/vhf-guide.css">
+  <link rel="stylesheet" href="assets/risk-roadmap.css">
+  <script src="assets/vhf-guide.js" defer></script>
+  <script src="assets/risk-roadmap.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="progress" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="brand" href="#concepts"><span class="brand-mark" aria-hidden="true">R</span><span>Intraday-risk</span></a>
+    <nav class="header-links" aria-label="Quick navigation"><a href="#methods">Methods</a><a href="#standing">Current state</a><a href="#roadmap">Roadmap</a></nav>
+  </header>
+  <div class="page-shell">
+    <aside class="sidebar" aria-label="On this page">
+      <p class="eyebrow">The working model</p>
+      <nav class="contents" aria-label="Chapters">
+        <a href="#concepts">01 · Concepts</a><a href="#inputs">02 · Required inputs</a><a href="#methods">03 · The five risk checks</a><a href="#request">04 · One trade assessment</a><a href="#planning">05 · Portfolio &amp; trade planning</a><a href="#standing">06 · What is built</a><a href="#limits">07 · What the evidence says</a><a href="#remaining">08 · What remains</a><a href="#roadmap">09 · Development roadmap</a>
+      </nav>
+      <p class="sidebar-note">State at <strong>13 October 2026</strong><br>Europe/Istanbul<br>Development is paused.<br>Reading this page starts no work.</p>
+    </aside>
+    <main id="main">
+      <!-- Begin with the substance. There is no project-origin story, marketing
+           hero or link from the landing page. All status claims are dated. -->
+      <section class="chapter first-chapter" id="concepts">
+        <p class="section-number">01 · Concepts</p>
+        <h1>What could this trade do<br> to the account’s risk?</h1>
+        <p class="page-date">Project state · 13 October 2026 · Europe/Istanbul</p>
+        <p class="lead"><strong>Intraday-risk</strong> assesses a proposed trade against the whole account: possible near-term losses, the cost of closing positions, stressed exposures and the reliability of the evidence. It is a risk check, not a signal that finds profitable trades.</p>
+        <dl class="concept-grid">
+          <div><dt>Trade intent</dt><dd>A proposed instrument, side, quantity and order terms. It has not become a confirmed fill.</dd></div>
+          <div><dt>Exposure</dt><dd>Shares × price. A long position gains when the price rises; a short position loses. Gross exposure adds absolute values; net exposure allows offsets.</dd></div>
+          <div><dt>Forecast horizon</dt><dd>The period being assessed: <strong>5, 15 or 30 minutes</strong>. This differs from the time the computer takes to return an answer.</dd></div>
+          <div><dt>VaR · loss quantile</dt><dd>A loss threshold at a chosen model confidence level. A 99% VaR describes a modeled tail, not a maximum possible loss.</dd></div>
+          <div><dt>Stress scenario</dt><dd>A specified adverse market move or trading condition. It asks “what if?”, without claiming that the event has a measured probability.</dd></div>
+          <div><dt>Durable result</dt><dd>The decision and required evidence are safely recorded before a usable answer returns. A number briefly held in memory is not enough.</dd></div>
+        </dl>
+        <p class="status-line"><span class="tag partial">Current boundary</span> The software calculates and records diagnostics. It does not authorize or send orders.</p>
+      </section>
+      <details class="mobile-contents"><summary>Contents</summary><nav class="contents" aria-label="Mobile chapters"><a href="#concepts">Concepts</a><a href="#inputs">Required inputs</a><a href="#methods">The five risk checks</a><a href="#request">One trade assessment</a><a href="#planning">Portfolio &amp; trade planning</a><a href="#standing">What is built</a><a href="#limits">Current evidence</a><a href="#remaining">Remaining work</a><a href="#roadmap">Roadmap</a></nav></details>
+
+      <section class="chapter" id="inputs">
+        <p class="section-number">02 · Required inputs</p><h2>A complete picture of the account.</h2>
+        <p>The tool needs both values and their context: which instrument they describe, when they were observed, when they became available, and which version is current. Fast calculations on stale or incomplete inputs are still unusable.</p>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Required inputs, horizontally scrollable"><table>
+          <caption>Input roles · real sources have not yet been admitted for operational use</caption>
+          <thead><tr><th scope="col">Input</th><th scope="col">What it supplies</th><th scope="col">Why it matters</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Account state</th><td>Confirmed holdings, cash, account value, working orders and reserved commitments.</td><td>Risk covers the account, including orders that can still fill. Unknown obligations cannot be treated as zero.</td></tr>
+            <tr><th scope="row">Market observations</th><td>Completed one-minute midpoint prices, current marks, bid/ask depth, instrument identifiers and session times.</td><td>Historical returns drive forecasts; current prices and depth drive valuation and exit costs.</td></tr>
+            <tr><th scope="row">Model</th><td>Time-of-day volatility pattern, changing covariance, historical joint shocks and declared simulation settings.</td><td>Specifies how future price paths are generated. A fitted model still needs independent validation.</td></tr>
+            <tr><th scope="row">Policy</th><td>Approved loss, exposure and concentration limits; stresses, fees, freshness and permitted order rules.</td><td>Calculating a loss is different from deciding whether that loss is acceptable.</td></tr>
+            <tr><th scope="row">Candidate &amp; health</th><td>The supplied intent, its expiry, source/model health, account revision and stop/freeze state.</td><td>Binds the answer to this request and prevents reuse after relevant state changes.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>Unfilled orders are a range of possible holdings.</h3>
+        <p>With 100 shares, an outstanding buy of 50 and sell of 80, the possible holding is <strong>20–150 shares</strong>. It is not necessarily 70: either order can fill first, partly, or not at all. Pending cancellations remain included until cancellation is confirmed.</p>
+        <div class="lab envelope-lab">
+          <p class="eyebrow">Illustrative share arithmetic · no market data</p>
+          <label for="candidate-shares">Add a candidate buy: <output id="candidate-label" for="candidate-shares">20 shares</output></label>
+          <input id="candidate-shares" type="range" min="0" max="100" step="5" value="20" aria-describedby="envelope-caption">
+          <div class="range-diagram" aria-hidden="true"><div class="range-axis"></div><div class="range-before"></div><div class="range-after" id="range-after"></div><span class="axis-zero">0</span><span class="axis-end">250 shares</span></div>
+          <div class="lab-result" aria-live="polite"><span>Before the candidate<br><strong>20–150</strong></span><span>After the candidate<br><strong id="envelope-result">20–170</strong></span></div>
+          <p class="caption" id="envelope-caption">Gold shows the range after the candidate; blue shows the existing range. The check must cover partial fills and both ends, including loss of a hedge. These are possible quantities, not predicted fills.</p>
+        </div>
+      </section>
+
+      <section class="chapter" id="methods">
+        <p class="section-number">03 · The five risk checks</p><h2>Different questions need different measures.</h2>
+        <p>The project calls its components <strong>F</strong> (forecast), <strong>L</strong> (liquidity), <strong>P</strong> (portfolio stress), <strong>V</strong> (validation) and <strong>G</strong> (gate). Their limits remain separate. Adding VaR, stress loss and exit cost into one total would count some price moves more than once.</p>
+
+        <article class="method" id="forecast"><div class="method-label">F</div><div><h3>Forecast losses over 5, 15 and 30 minutes</h3>
+          <p><strong>Method:</strong> a time-of-day-adjusted, multivariate EWMA model, followed by Monte Carlo simulation. EWMA is an exponentially weighted moving average: recent observations receive more weight. The model’s covariance describes how instruments vary and move together; simulation turns that estimate into possible future price paths.</p>
+          <ol class="method-steps">
+            <li><strong>Remove the usual time-of-day effect.</strong> Scale completed one-minute returns by a pattern learned from earlier data, so a normally busy opening minute is not confused with an unexpected shock.</li>
+            <li><strong>Update joint variability.</strong> Combine the previous covariance estimate with the newest return movement. Stabilize noisy estimates using declared rules; reject invalid estimates.</li>
+            <li><strong>Reuse historical joint shocks.</strong> Standardize and resample whole historical vectors, keeping the instruments’ joint shock structure rather than drawing each stock independently.</li>
+            <li><strong>Simulate forward.</strong> Generate many 30-minute paths. Each path updates its covariance minute by minute. Restore the time-of-day pattern for the actual request time.</li>
+            <li><strong>Measure portfolio losses.</strong> Apply fixed holdings to each simulated path and select the declared loss percentile at each horizon. Also report covariance for other checks.</li>
+          </ol>
+          <details><summary>Assumptions and the key calculation</summary><p>For each simulated outcome, <strong>loss = −Σ(shares × starting price × simulated return)</strong>. Sorting these losses gives the empirical VaR. The raw quantile is retained; the operational loss figure is floored at zero.</p><p>The model uses zero conditional log-return drift and assumes standardized shock vectors can be sampled independently over future minutes. Neither assumption makes the model correct by construction. Training, parameter tuning and final validation use separate chronological periods. Model adequacy, tail precision and residual dependence need real-data evidence.</p><p>Previously simulated shocks may be reused only while their state and settings remain valid. A later intent needs its own time-of-day projection and current marks. Reuse cannot refresh an old input’s age.</p></details>
+        </div></article>
+
+        <article class="method"><div class="method-label">L</div><div><h3>Estimate what it would cost to close the position</h3>
+          <p><strong>Method:</strong> walk the visible order book. Sell a long position through bids, or buy back a short through asks, using each level’s available quantity. Compare the weighted execution price with the current midpoint and include the required fees.</p>
+          <p>Repeat with adverse prices, wider spreads and less depth. Report price movement, trading friction and total liquidation loss separately. If depth does not cover the whole position, the full cost is <strong>unknown</strong>; the tool does not invent liquidity beyond the last visible quote.</p>
+          <details><summary>A small book-walking example</summary><p>Illustrative only: selling 100 shares against 60 shares at $99.90 and 40 at $99.80 produces an average price of $99.86. Against a $100 midpoint, the price cost is $14, plus fees. With only 80 shares of visible bids, the cost of selling all 100 cannot be established.</p><p>This is an immediate-exit estimate from a snapshot. It does not predict replenishment, future fills or cross-asset market impact. Missing required fees also prevent a verified all-in cost.</p></details>
+        </div></article>
+
+        <article class="method"><div class="method-label">P</div><div><h3>Test volatility, broken hedges and explicit shocks</h3>
+          <p><strong>Method:</strong> compare ordinary portfolio volatility with higher volatility and a hedge-failure scenario in which held positions can lose together. Then apply approved market, sector and individual-name shocks. Check gross/net exposure, leverage and concentration as well.</p>
+          <p>Each required scenario must pass its own limit. The worst covariance scenario is used instead of averaging favorable and unfavorable cases. For unfilled orders, conservative bounds cover possible holdings; a hedge that works only after both legs fill is insufficient.</p>
+          <details><summary>Three distinctions that matter</summary><p><strong>Dollar volatility</strong> is a standard deviation, not VaR or a worst possible loss. <strong>Shock loss</strong> is the loss under one specified move, not a probability forecast. <strong>A fill-range bound</strong> can overstate the risk of any one attainable portfolio, but protects against assuming a convenient fill order.</p><p>Historical daily shocks stay daily/event scenarios. They are not rescaled and presented as calibrated five-minute probabilities. Scenario coverage cannot omit an instrument merely because its history is missing.</p></details>
+        </div></article>
+
+        <article class="method"><div class="method-label">V</div><div><h3>Check whether the model’s forecasts deserve trust</h3>
+          <p><strong>Method:</strong> save the forecast, then compare it with the later price outcome for the <em>holdings frozen at the forecast time</em>. Later strategy trades must not change the result being scored.</p>
+          <p>The Kupiec test checks whether losses exceed VaR too often. The Christoffersen test checks whether those exceptions cluster. Separate checks compare predicted costs with actual fills and fees. A small sample or missing endpoints yields insufficient evidence, not an automatic pass.</p>
+          <details><summary>How the validation avoids an easy but misleading pass</summary><p>Declare the sample schedule before looking at results. Use eligible, non-overlapping windows for primary tests, preserve missed forecasts, and do not join exception sequences across missing data or session changes. Non-overlap alone does not prove independence.</p><p>Corrections append to the record rather than erase it. Live fills, paper fills and observable-book proxies remain distinct evidence. Validation may recommend degrading a model; it cannot increase a limit or clear a stop by itself.</p></details>
+        </div></article>
+
+        <article class="method"><div class="method-label">G</div><div><h3>Combine the evidence into one decision</h3>
+          <p><strong>Method:</strong> check identity, account state, freshness, order terms, cash, limits, model health and stop conditions; then require the applicable F/L/P/V results. Every result must refer to the same current context.</p>
+          <p>A failed, stale, missing or unqualified required check blocks new risk. The same intent cannot be reused with different contents. A controlled-reduction calculation exists for narrowly defined cases, but reduction is disabled. It must prove the required risk measures do not worsen during partial completion; a smaller final position alone is insufficient.</p>
+        </div></article>
+      </section>
+
+      <section class="chapter" id="request">
+        <p class="section-number">04 · One trade assessment</p><h2>From a supplied intent to a recorded answer.</h2>
+        <p>This is the first use case selected for the next requirements record. The request supplies the trade; Part 1 assesses it. It does not choose the portfolio or make the trade smaller until it passes.</p>
+        <ol class="request-flow">
+          <li><span>01</span><div><strong>Receive &amp; admit</strong><p>Validate the request and record accepted queue state. Include waiting time in the response time.</p></div></li>
+          <li><span>02</span><div><strong>Freeze a coherent context</strong><p>Bind the current account revision, market inputs, model, policy, clock and expiry. Form before/after fill ranges.</p></div></li>
+          <li><span>03</span><div><strong>Run the required checks</strong><p>Use valid prepared forecasts where permitted; project for this origin and run liquidity, stress and health checks. Missing preparation is part of the wait or causes refusal.</p></div></li>
+          <li><span>04</span><div><strong>Recheck &amp; save</strong><p>Confirm that sources, revisions and expiry still hold. Write the required decision and evidence before returning.</p></div></li>
+          <li><span>05</span><div><strong>Return the diagnostic</strong><p>Report what the gate would decide, reasons and evidence references. Today this creates no executable approval or broker reservation.</p></div></li>
+        </ol>
+        <div class="equation-strip"><strong>Complete response time</strong><span>admission + queue wait + required preparation + checks + durable return</span></div>
+        <p>Expiry, lost essential events, corrupt records or failed writes leave the system unable to approve new risk. Restart must verify saved history before becoming ready. These checks explain why measuring only the numerical kernel misses much of the actual response.</p>
+      </section>
+
+      <section class="chapter" id="planning">
+        <p class="section-number">05 · The separate planning layer</p><h2>Part 2 proposes what to hold and how to get there.</h2>
+        <p>These algorithms are also implemented, but sit outside the selected supplied-intent response. They consume explicit forecasts or strategy targets; they do not manufacture an investment signal.</p>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Part 2 methods, horizontally scrollable"><table>
+          <thead><tr><th scope="col">Stage</th><th scope="col">Method</th><th scope="col">Important limit</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Choose a target</th><td>Use constrained convex optimization to balance expected utility or target tracking against portfolio risk, trading and holding costs. Enforce cash, exposure, capacity and direction limits.</td><td>Forecast mode requires supplied returns and uncertainty. Target-tracking mode uses the supplied target, not invented expected profit.</td></tr>
+            <tr><th scope="row">Make quantities tradable</th><td>Solve for continuous quantities first, then round to whole lots and search a bounded set of repairs. Recheck the original financial limits and risk measures independently.</td><td>A feasible repaired answer is not a promise of the globally best integer portfolio. No feasible candidate means refusal.</td></tr>
+            <tr><th scope="row">Schedule movement</th><td>Allocate a fixed target across intervals, balancing execution costs with the risk of carrying the remaining gap. Account for position changes within each interval and uncertain partial completion.</td><td>The target and original deadline stay fixed. Unresolved commitments prevent a new next-slice proposal until recalculation is appropriate.</td></tr>
+            <tr><th scope="row">Reassess economics</th><td>Evaluate the resulting schedule, costs, risk, capacities and final certificates together; retain the result and its inputs.</td><td>A mathematically acceptable slice is a proposal, not an order-submission instruction.</td></tr>
+          </tbody>
+        </table></div>
+        <details><summary>Solver and safety boundary</summary><p>The numerical backend uses Clarabel with scaled inputs, one bounded solve at a time and explicit time/memory controls. Financial checks are reconstructed after solving; a numerical tolerance cannot waive an original cash or risk limit.</p><p>Pure candidate calculations reuse explicitly bound immutable inputs. They should not refit the forecast or rebuild and write the entire evidence store for every candidate. The outer request still verifies current sources and saves the final evidence. Real return, volume, fee and covariance profiles remain separate inputs requiring admission.</p></details>
+      </section>
+
+      <section class="chapter" id="standing">
+        <p class="section-number">06 · What is built</p><h2>The offline calculation system exists.</h2>
+        <p><strong>“Completed” below means the scoped software and its stated checks were delivered.</strong> It does not mean that real data, model calibration, timing or trading operation have passed. Synthetic tests use controlled invented inputs with known expected behavior.</p>
+        <div class="table-wrap" tabindex="0" role="region" aria-label="Completed software and evidence"><table>
+          <thead><tr><th scope="col">Delivered part</th><th scope="col">What is present</th><th scope="col">Evidence boundary</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Part 1 · risk assessment</th><td>Contracts, synthetic account/market adapters, fill ranges, F/L/P/V/G, retained evidence, replay and fault/restart behavior.</td><td>Offline review completed 23 September. Real models remain unvalidated and real-policy compliance cannot yet be evaluated.</td></tr>
+            <tr><th scope="row">Part 2 · calculations</th><td>Input contracts, bounded solver, target selection, whole-share repair, scheduling, economics and evidence publication.</td><td>Qualification package completed 8 October. Native regression covered 1,020 cases with one platform skip; 13 selected Linux checks passed. A prior solver failure remains unexplained.</td></tr>
+            <tr><th scope="row">Execution environment</th><td>Native Mac development, bounded Linux ARM64 container checks, resource monitoring and source-bound evidence.</td><td>Compatibility evidence belongs to those tested sources and environments. It does not qualify the actual Trading Pi.</td></tr>
+            <tr><th scope="row">Delivery preparation</th><td>Source packaging, release records and a delivery/workflow design.</td><td>Preparation is complete; operational rollout and host acceptance are not.</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section class="chapter" id="limits">
+        <p class="section-number">07 · What the evidence says</p><h2>Correct answers still need a useful response time.</h2>
+        <p>The original engineering suggestions were under 10 seconds for scheduled forecast work and under 500 milliseconds for a cached assessment. They were not established service guarantees. The integrated path missed them.</p>
+        <figure class="latency-figure">
+          <h3>Historical assessment service time</h3>
+          <div class="comparison"><div class="comparison-label"><span>Engineering suggestion</span><strong>0.500 s</strong></div><div class="bar-track"><span class="timing-target" style="width:5%"></span></div></div>
+          <div class="comparison"><div class="comparison-label"><span>11 October candidate · mean</span><strong>9.985 s</strong></div><div class="bar-track"><span class="timing-observed" style="width:99.84612%"></span></div></div>
+          <figcaption>About 20× the suggested service target. Two native Mac samples, measured through durable return, from an unpromoted codec/recorder candidate. Queue wait is separate; Part 2 is excluded. This is not a measurement of the current committed source or a tail-latency guarantee.</figcaption>
+        </figure>
+        <p>Earlier, the 23 September instrumented release run recorded 40.077 seconds for an origin and 92.118 seconds for an assessment. Those results used a different source and measurement setup; they are not a like-for-like speedup comparison with October.</p>
+        <h3>The architecture review ended without an accepted solution.</h3>
+        <p>Two offline proposals were assessed: reuse decoding within one request, and prepare an immutable generation before requests arrive. Neither established both equivalent safety/integrity checks and a credible complete-response budget. The assessment ended <strong>NO_GO after two of two attempts</strong>. That does not prove 500 ms impossible; it means neither proposal justified an implementation experiment.</p>
+        <p>A separate Linux solver refusal also remains unexplained. A later passing check does not explain the original failure. Existing diagnostic and codec changes are preserved as unfinished work, not promoted into the delivered software.</p>
+      </section>
+
+      <section class="chapter" id="remaining">
+        <p class="section-number">08 · What remains</p><h2>Define useful operation, then qualify it.</h2>
+        <p><strong>Development is paused.</strong> The selected future response is a complete durable Part 1 assessment of a supplied intent. Actual arrival patterns, useful deadlines, freshness limits, workload and host resources have not yet been decided through use of the intended setup.</p>
+        <div class="remaining-list">
+          <article><span class="tag partial">Requirements</span><h3>Define the operating contract</h3><p>Decide who supplies intents, how frequently they arrive, the largest account covered, allowable input ages, and useful success/refusal deadlines. The B3 draft (#188) records the use-case choice; the remaining values are still open.</p></article>
+          <article><span class="tag open">Evidence</span><h3>Resolve failure and timing blockers</h3><p>Give the retained solver failure an evidence-backed disposition (#177). For latency (#178), establish stage costs and any safe remedy against the chosen requirement. Further design work needs a new bounded scope and new evidence or requirements; the exhausted review is not a retry queue.</p></article>
+          <article><span class="tag open">Qualification</span><h3>Test broader cases, then the actual host</h3><p>After the preceding gates or an explicit exception, test the declared 1/2/4/8-name workload coverage, queues, failures and recovery. Then measure the frozen runtime on the actual Trading Pi. Both stages of #179 are unstarted; eight names is a current capability ceiling, not a qualified service size.</p></article>
+          <article><span class="tag open">Real operation</span><h3>Admit sources, models, policy and account authority</h3><p>Obtain suitable data/depth/fees, calibrate and independently validate the model, approve limits, and establish complete authoritative account/reservation state. Finish host integration, controlled observation and operational delivery. These are independent requirements; fast synthetic calculations cannot replace them.</p></article>
+        </div>
+        <details class="source-detail"><summary>Source basis and scope of this page</summary><p>This is a dated explanation of repository specifications and retained engineering evidence, not a fresh test or a new model review. No private account rows, broker identifiers, journals or credentials are included.</p><ul>
+          <li><a href="https://github.com/boz-b/broke/blob/f33cf2cc64a4277abde0c4251337728115343a15/intraday_risk_v1_implementation_plan_2026-09-20.md">Part 1 specification</a> — concepts, F/L/P/V/G, inputs, safety and work stages.</li>
+          <li><a href="https://github.com/boz-b/broke/blob/f33cf2cc64a4277abde0c4251337728115343a15/intraday_risk_part2_calculation_implementation_plan_2026-09-20.md">Part 2 specification</a> — target selection, scheduling and mathematical limits.</li>
+          <li><a href="https://github.com/boz-b/broke/blob/f33cf2cc64a4277abde0c4251337728115343a15/docs/risk_v1/release.md">Part 1 release evidence</a> and <a href="https://github.com/boz-b/broke/blob/f33cf2cc64a4277abde0c4251337728115343a15/docs/risk_v1/qualification.md">Part 2 qualification</a> — completed software and remaining gates.</li>
+          <li><a href="https://github.com/boz-b/broke/blob/f33cf2cc64a4277abde0c4251337728115343a15/docs/risk_v1/latency-disposition.md">Completed latency disposition</a> — measured-source distinctions and both rejected proposals.</li>
+          <li><a href="https://github.com/boz-b/broke/issues/188">B3 requirement task</a> — local draft, selected supplied-intent use case, currently paused. Repository links may require access.</li>
+        </ul></details>
+      </section>
+
+      <!-- Historical bars indicate the period of delivered milestones, not
+           measured effort. Future bands show dependency stages, never invented
+           dates or durations. Text labels carry status without relying on color. -->
+      <section class="chapter roadmap-chapter" id="roadmap">
+        <p class="section-number">09 · Development roadmap</p><h2>Delivered milestones → remaining gates.</h2>
+        <p>History uses recorded milestone dates. The future chart shows order and dependencies only: <strong>no restart date, duration or delivery promise is set</strong>.</p>
+        <figure class="gantt-figure">
+          <div class="chart-legend"><span><i class="legend-box done"></i>Delivered offline work</span><span><i class="legend-box stopped"></i>Unresolved / paused</span><span><i class="legend-box future"></i>Future requirement</span></div>
+          <p class="chart-scroll-hint">Scroll each chart horizontally to see all dates and stages.</p>
+          <div class="table-wrap gantt-scroll" tabindex="0" role="region" aria-label="Historical Gantt chart, scroll horizontally"><table class="gantt">
+            <caption>Completed history · 2026 · milestone bands are not equal units of time</caption>
+            <thead><tr><th scope="col">Work package</th><th scope="col">20 Sep</th><th scope="col">21–23 Sep</th><th scope="col">24–30 Sep</th><th scope="col">1–8 Oct</th><th scope="col">9–13 Oct</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Contracts, inputs &amp; storage</th><td class="done">Built</td><td></td><td></td><td></td><td></td></tr>
+              <tr><th scope="row">F/L/P/V/G &amp; offline release</th><td class="done">F / L / G</td><td class="done">P / V / replay</td><td></td><td></td><td></td></tr>
+              <tr><th scope="row">Part 2 backend &amp; target selection</th><td></td><td></td><td class="done">Delivered</td><td></td><td></td></tr>
+              <tr><th scope="row">Scheduling, economics &amp; qualification</th><td></td><td></td><td></td><td class="done">Delivered</td><td></td></tr>
+              <tr><th scope="row">Mac / Linux tooling &amp; delivery prep</th><td></td><td></td><td></td><td class="done">Checks</td><td class="done">Packaging</td></tr>
+              <tr><th scope="row">Solver / latency follow-up</th><td></td><td></td><td></td><td></td><td class="stopped">Unresolved</td></tr>
+              <tr><th scope="row">Two-attempt architecture assessment</th><td></td><td></td><td></td><td></td><td class="done">NO_GO · closed</td></tr>
+              <tr><th scope="row">B3 operating requirement</th><td></td><td></td><td></td><td></td><td class="stopped">Draft · paused</td></tr>
+            </tbody>
+          </table></div>
+          <div class="table-wrap gantt-scroll" tabindex="0" role="region" aria-label="Future dependency Gantt chart, scroll horizontally"><table class="gantt future-gantt">
+            <caption>Future sequence · all stages need a separately selected scope</caption>
+            <thead><tr><th scope="col">Required work</th><th scope="col">A · Define</th><th scope="col">B · Resolve</th><th scope="col">C · Qualify</th><th scope="col">D · Integrate</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Complete B3 operating requirements</th><td class="stopped">Paused</td><td></td><td></td><td></td></tr>
+              <tr><th scope="row">#177 solver disposition</th><td class="future">Evidence</td><td></td><td></td><td></td></tr>
+              <tr><th scope="row">#178 timing / safety evidence</th><td></td><td class="future">After A*</td><td></td><td></td></tr>
+              <tr><th scope="row">#179 C1 · broader workload</th><td></td><td></td><td class="future">First</td><td></td></tr>
+              <tr><th scope="row">#179 C2 · actual Trading Pi</th><td></td><td></td><td class="future">Then</td><td></td></tr>
+              <tr><th scope="row">Real inputs, model &amp; policy admission</th><td colspan="3" class="future parallel">Independent workstream · scope and timing undecided</td><td class="future">Required</td></tr>
+              <tr><th scope="row">Host / account authority &amp; delivery</th><td></td><td></td><td></td><td class="future">Separate gates</td></tr>
+            </tbody>
+          </table></div>
+          <figcaption>*Further timing work requires resolved prerequisites or an explicit bounded exception. Real-data/model/policy and host-authority work has its own dependencies; the long band does not commit to parallel execution. Passing a timing gate never authorizes orders. The completed two-attempt assessment stays closed.</figcaption>
+        </figure>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
