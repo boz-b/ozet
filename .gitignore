@@ -1,0 +1,9 @@
+# Preserve the earlier, unpublished Sites draft locally.
+/text-drop/
+# Keep any locally downloaded text out of the public research site.
+/text-inject/
+/.runtime/
+/.vercel/
+/node_modules/
+/public/
+.env*
