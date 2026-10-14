@@ -35,8 +35,8 @@
       <a href="#execution">08 &nbsp; Trade and account</a>
       <a href="#comparison">09 &nbsp; Choose a fair comparison</a>
       <a href="#evidence">10 &nbsp; Test without hindsight</a>
-      <a href="#scope">11 &nbsp; Understand today's scope</a>
-      <a href="#reading">12 &nbsp; Sources and next reading</a>
+      <a href="#scope">11 &nbsp; The September position</a>
+      <a href="#october-lessons">12 · What October added</a><a href="#acceptance-rules">13 · Which rules would change?</a><a href="#finish-study">14 · A practical finish</a><a href="#reading">15 · Sources and next reading</a>
     </nav>
     <p class="sidebar-note">Read in order the first time.<br>Numbers in teaching examples are <strong>invented</strong>, unless explicitly described as project evidence.</p>
   </aside>
@@ -45,13 +45,13 @@
       <div class="eyebrow">A first-principles guide / No prior reading required</div>
       <h1>From an investment idea<br>to a portfolio you can <em>explain.</em></h1>
       <p class="lead">The Virtual Hedge Fund asks a practical question: can we turn a financial idea into explicit decisions, account for every consequence, and find out whether it deserves real capital?</p>
-      <div class="meta"><span>Reader's edition · 19 September 2026</span><span>Work through 18 September</span><span>Part 1 of 2</span><span>About 30 minutes</span></div>
-      <div class="hero-note"><p>VHF is a research and simulation project. It has working software and historical development calculations. It has not established a fully validated, live investment strategy. This guide explains the framework; the <a href="scratchpad.html">development record</a> explains the evidence behind that statement.</p></div>
+      <div class="meta"><span>Reader's edition · 14 October 2026</span><span>Calculations through 13 October</span><span>Part 1 of 2</span><span>Framework, progress and proposed finish</span></div>
+      <div class="hero-note"><p><strong>Where we stand on 14 October:</strong> VHF has working research tools and saved studies, but no validated investment strategy. Numerical work is stopped. Read the <a href="scratchpad.html#progress-overview">progress from the beginning</a>, then see <a href="#october-lessons">what the October work means</a>, <a href="#acceptance-rules">the exact proposed rule changes</a>, and <a href="#finish-study">how to finish usefully</a>.</p></div>
     </div>
     <details class="mobile-contents">
-      <summary>In this guide · 12 chapters</summary>
+      <summary>In this guide · 15 chapters</summary>
       <nav class="contents" aria-label="Mobile guide contents">
-        <a href="#purpose">01 · The question behind VHF</a><a href="#capital">02 · Follow the money</a><a href="#observations">03 · Start with credible data</a><a href="#momentum">04 · Find relative winners</a><a href="#quality">05 · Examine the return path</a><a href="#portfolio">06 · Build a portfolio</a><a href="#risk">07 · Measure shared risk</a><a href="#execution">08 · Trade and account</a><a href="#comparison">09 · Choose a fair comparison</a><a href="#evidence">10 · Test without hindsight</a><a href="#scope">11 · Understand today's scope</a><a href="#reading">12 · Sources and next reading</a>
+        <a href="#purpose">01 · The question behind VHF</a><a href="#capital">02 · Follow the money</a><a href="#observations">03 · Start with credible data</a><a href="#momentum">04 · Find relative winners</a><a href="#quality">05 · Examine the return path</a><a href="#portfolio">06 · Build a portfolio</a><a href="#risk">07 · Measure shared risk</a><a href="#execution">08 · Trade and account</a><a href="#comparison">09 · Choose a fair comparison</a><a href="#evidence">10 · Test without hindsight</a><a href="#scope">11 · The September position</a><a href="#october-lessons">12 · What October added</a><a href="#acceptance-rules">13 · Which rules would change?</a><a href="#finish-study">14 · A practical finish</a><a href="#reading">15 · Sources and next reading</a>
       </nav>
     </details>
 
@@ -114,7 +114,7 @@
            acquisition receipt or an economic date into historical availability. -->
       <h3>One observation has several clocks</h3>
       <p>Imagine a price observed on Monday, published by a provider that evening, delivered to an investor on Tuesday and downloaded by a researcher years later. Those are four different facts: <strong>observation, publication, historical availability and research acquisition</strong>. A later correction adds a version question: which value was actually available on Tuesday? This is a teaching example, not a VHF source receipt.</p>
-      <p>A matching file fingerprint proves that the stored bytes have not changed. It does not prove who supplied them or when an earlier investor could use them. A data adapter can preserve original records, convert units and record those clocks. It cannot fill unknown clocks with convenient dates. VHF's new source contract therefore separates unchanged files, authentic originals, historical timing and complete coverage.</p>
+      <p>A matching file fingerprint proves that the stored bytes have not changed. It does not prove who supplied them or when an earlier investor could use them. A data adapter can preserve original records, convert units and record those clocks. It cannot fill unknown clocks with convenient dates. VHF's source requirements therefore separate unchanged files, authentic originals, historical timing and complete coverage. Engineering records call this written specification a ‘source contract’; it is not a legal agreement.</p>
       <h3>The same stock can need two price representations</h3>
       <p>A two-for-one split replaces one old share with two new shares. A $100 share might become two $50 shares without creating or destroying wealth. A raw price chart would show a 50% drop; that would be a false loss for the holder.</p>
       <div class="table-wrap" tabindex="0" role="region" aria-label="Hypothetical stock split example">
@@ -348,8 +348,9 @@
     </section>
 
     <section class="chapter" id="scope">
-      <span class="section-number">11 / THE PRESENT SCOPE</span>
+      <span class="section-number">11 / THE SEPTEMBER POSITION</span>
       <h2>A broad research ambition, one concrete development frontier</h2>
+      <p class="reading-note">This section preserves the position described on 18 September. Its numerical results belong to those earlier versions. <a href="#october-lessons">Chapters 12–14 explain the subsequent work, current limits and proposed finish.</a></p>
       <p>The library reaches beyond momentum. Paleologo provides the portfolio and risk framework. Donadio and Ghosh explain trading-system mechanics. Bennett develops volatility, options and correlation research. Quantopian contributes practical statistical discipline. These sources help VHF consider how strategies might complement one another and share data, risk and execution infrastructure.</p>
       <p>For example, a <strong>value</strong> strategy compares prices with measures of business value; it asks a different selection question from momentum. A <strong>volatility</strong> strategy may compare the movement priced into options with the movement that later occurs. Those ideas can require different instruments, information and accounting. Their presence in the library is not evidence that VHF has run or validated them historically.</p>
       <div class="grid three">
@@ -377,16 +378,81 @@
       <p>Each version has its own calculation and independent replay. That establishes reproducibility, not historical information availability. Neither run reported an uncertified projection, although the solver can fail to return a solution even when one mathematically exists; such a failure would mean unresolved computation. Both retain 119 formation dates and 425 trial/fold references, which are different counts from the 414 shared numerical assessments.</p>
       <!-- Keep current capability, missing evidence and next action together.
            This review does not imply a new backtest or a provider purchase. -->
-      <h3 id="source-boundary">A delivery contract makes the remaining questions concrete</h3>
+      <h3 id="source-boundary">Written data requirements make the remaining questions concrete</h3>
       <p>The 18 September review groups the necessary evidence into eleven roles: three for exposures; three for account assignment and decision/opening borrowing; two for restrictions and recalls; and three for stock, cash and claim rates. No real package has yet been admitted for any role. This finding concerns the reviewed inputs; it does not establish that the information is unavailable everywhere.</p>
-      <p>The provider review distinguishes <strong>supported fields</strong>, <strong>unsupported interpretations</strong> and <strong>unknown archives</strong>. Sharadar documents candidate prices, point-in-time/as-reported daily metrics and SIC-change events. The remaining question is whether the required historical releases, delivery evidence and dated sector mappings can be obtained. An inquiry is prepared but unsent. The <a href="scratchpad.html#provider-feasibility">development record links the documentation and describes that next dependency</a>.</p>
+      <p>The September provider review distinguished fields present in the data from historical facts the data did not establish. It proposed an inquiry about archived releases, delivery evidence and dated sector mappings. <strong>Contacting Sharadar was subsequently ruled out on 20 September; the inquiry was not sent.</strong> The project instead tested explicit assumptions using the data already held. The <a href="scratchpad.html#provider-feasibility">dated provider review</a> remains background, not the current next step.</p>
       <p>Broker statements raise a separate question: do the records cover the relevant years and match the simulated economics? The standard IBKR Flex window described in the review starts after this study ends. Older archives remain unknown. Its documented tiered, settled-balance accounting also differs from VHF's simplified financing convention. Importing a rate without its applicable balance, collateral, timing and fee rules would change its economic meaning.</p>
       <p>These findings do not change the investment hypothesis or establish a profitable strategy. They identify what a historical signed calculation would need before it could be trusted. Complete settlement evidence, full-family inference, the unread holdout and any broker deployment retain their separate gates. The <a href="scratchpad.html#source-readiness">development record</a> gives the dated implementation and review checkpoints.</p>
       <p>You now have the concepts needed to read the development history: what a signal is, why a target differs from a holding, how missing settlement affects capital, and why software correctness differs from investment evidence. The second page follows how VHF learned and implemented those distinctions.</p>
     </section>
 
+    <!-- Explain the October work in everyday terms. The dated chronology lives
+         in scratchpad.html; these sections distinguish study design, software
+         acceptance and authorization so a proposal cannot imply a new run. -->
+    <section class="chapter" id="october-lessons">
+      <span class="section-number">12 / WHAT THE OCTOBER WORK MEANS</span>
+      <h2>More calculations answered some questions, but not the original one.</h2>
+      <p>The original question was whether a repeatable stock-selection strategy deserves investment. Since the September account above, the project has completed a large study using explicit assumptions about missing payments, examined its saved results, and built more machinery for borrowing and short-selling shares. It has not established a reliable winning strategy. The <a href="scratchpad.html#modeled-study">development record continues the history from 20 September</a>.</p>
+      <h3>“Modeled” means an assumption has replaced an unknown fact.</h3>
+      <p>Suppose a selected stock stops trading and the records do not tell us what the investor received. We can test receiving nothing, half a reference value, or the full reference value after a delay. That makes the question calculable under each assumption. It does not discover the missing payment. A <strong>scenario</strong> is one such set of assumptions.</p>
+      <p>The long-only study ran 720 separately funded simulated accounts. Only 295 had complete return paths; 425 still had missing information. Two later changes produced separate sets of 32 and 48 accounts. They changed particular rules about final sales or fractions of shares. We cannot combine favorable pieces from those versions and call the mixture one strategy.</p>
+      <p>A review of the same 16 complete strategy-and-period combinations found average profit ranging from about −$75,000 to +$49,000 per $1 million starting account when the assumed recovery changed. These are averages over separately funded test accounts, not one fund's return. The lesson is that <strong>the missing economic facts can matter far more than the last decimal place</strong>.</p>
+      <h3>“Signed” means the portfolio includes positive and negative holdings.</h3>
+      <p>A <strong>long position</strong> means owning shares. A <strong>short position</strong> means owing borrowed shares that were sold. In a calculation, a long position has a positive weight and a short position a negative weight. That plus-or-minus sign is why the technical records say “signed.” It has nothing to do with signing a document or approving results.</p>
+      <p>For example, ignoring fees, borrowing and selling one share for $100, then buying it back for $90, leaves a $10 gain after returning the share. Buying it back for $110 creates a $10 loss. The investor also needs permission to borrow it, must pay applicable charges, and may have to return it sooner than planned. A negative number in a portfolio spreadsheet does not establish that any of those conditions were available.</p>
+      <p>The newer VHF work tests eight hypothetical borrowing and financing conditions, including higher fees, reduced availability and requests to return borrowed shares. The software was connected to existing development inputs, but its first 320-case real-data attempt stopped on memory pressure. Later large tests used invented data to check whether the machine and program could cope. The latest of those stopped on rounding noise. <strong>No accepted completed return result from the new 320-case study exists.</strong></p>
+      <h3>Read the counts as experiments, not as evidence of 720 independent successes.</h3>
+      <dl class="glossary">
+        <dt>Book or account</dt><dd>One simulated portfolio with its own starting money and record of holdings, cash and costs.</dd>
+        <dt>Fold or test period</dt><dd>One historical time window used for evaluation. Separately funded windows cannot simply be joined into a fund track record.</dd>
+        <dt>Complete path</dt><dd>Every value needed for that account's whole-period result is available under its declared assumptions. This does not mean the assumptions are historically verified.</dd>
+        <dt>Replay or reconstruction</dt><dd>A check that rebuilds account values from saved events, or repeats the calculation from the inputs. The report should say which was done: these are different amounts of work.</dd>
+        <dt>Capacity test</dt><dd>Here, a test of whether the computer can finish the workload within memory and time limits. It is not a measurement of how much investment capital a strategy can trade in the market.</dd>
+      </dl>
+    </section>
+    <section class="chapter" id="acceptance-rules">
+      <span class="section-number">13 / WHICH RULES WOULD CHANGE?</span>
+      <h2>Separate the investment rules from the checks on the calculation.</h2>
+      <p>The phrase “accept a revised contract” was too vague. In these engineering records, a <strong>contract is a written technical specification</strong>. Some specifications define the experiment; others define how software and data must behave. The proposed finalization changes concern the accounting tolerance and the amount of repeat verification. They are changes to the study's <strong>calculation acceptance requirements</strong>, not a legal agreement and not a new investment strategy.</p>
+      <div class="table-wrap" tabindex="0" role="region" aria-label="Three different decisions in a research study"><table>
+        <caption>Three questions that must not be confused</caption>
+        <thead><tr><th scope="col">Question</th><th scope="col">Example</th><th scope="col">Proposal here</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">What investment experiment are we running?</th><td>Which stocks, dates, position limits, trading costs and borrowing assumptions?</td><td>Keep the existing strategy rules and the fixed 320-case list for any optional extension.</td></tr>
+          <tr><th scope="row">When is a calculation checked well enough to report?</th><td>How closely must cash and profit records reconcile? Must every simulation be run twice?</td><td>Write a sensible monetary tolerance and a smaller, explicitly limited verification requirement before implementation.</td></tr>
+          <tr><th scope="row">Are we spending resources on it now?</th><td>Which code version and cases may run, and for how many machine-hours?</td><td>A separate decision with a fixed budget. Updating this guide does not start a calculation.</td></tr>
+        </tbody>
+      </table></div>
+      <h3>A tiny arithmetic difference is not the same as missing money.</h3>
+      <p>The failed check compared total account value with starting capital plus profits, less costs. Those amounts should agree. Adding thousands of fees separately to cash and to a cumulative-cost total produced a difference of about 10<sup>−24</sup> dollars. That is vastly less than a cent. The program stopped because its allowed difference was even smaller. This particular discrepancy is explained rounding noise, not an economically meaningful loss.</p>
+      <p>A useful check must still reject a missing fee, a fee counted twice or an incorrect holding. My proposal is to test a <strong>maximum unexplained balance difference of one cent per simulated account</strong>, checked both during the run and by independently adding up the whole account history at the end. This is a candidate engineering limit, not an approved change. It must be checked against known correct calculations and deliberately incorrect entries. It is not permission to discard a cent on every fee, or to add invented cash to make the totals agree.</p>
+      <h3>Use basis points for readable returns, not for every intermediate number.</h3>
+      <p><strong>One basis point is 0.01 percentage points.</strong> A return of 7.123456% can be displayed as 7.12%. On $1 million of starting capital, one basis point is $100. That is a sensible scale for communicating performance differences; it is much too loose as a universal accounting error allowance.</p>
+      <p>Keep extra digits inside the calculation and retain actual share quantities and price ticks. Rounding every daily return or fee can accumulate error. Relaxing a portfolio limit can also change whether an entire trade is allowed. Therefore “show returns to one basis point,” “allow a cent of accounting difference,” and “relax portfolio limits” are three different changes. <strong>Only the first two are recommended here; the portfolio rules remain unchanged.</strong></p>
+      <p>For the preselected independent comparisons, a proposed materiality limit is one basis point in total return and one basis point in maximum drawdown, with changed trades and pass/fail decisions examined separately. This does not prove that every untested path agrees, and it is not a new tolerance for the portfolio optimizer. The numerical policy has not been implemented or measured across the proposed study.</p>
+      <h3>Less repeat computation means less verification, not the same proof at no cost.</h3>
+      <p>The previous plan called for 320 calculations followed by 320 fresh full repeats. The alternative is one calculation of the 320 cases, account-balance checks on all available results, and independent repeat checks on a smaller set chosen in advance. That set should cover both periods, all five strategy versions, all eight borrowing assumptions and the known failure mechanisms. Its exact cases and cost must be fixed before those 320 cases run.</p>
+      <p>This saves work but gives less assurance about cases not independently repeated. The final report must say so. Preserving the data, code and outputs keeps later checking possible. It does not make a costly full repeat affordable, and lowering a tolerance does not automatically make calculations faster. We have not measured how much runtime is spent on high-precision arithmetic itself.</p>
+    </section>
+    <section class="chapter" id="finish-study">
+      <span class="section-number">14 / A PRACTICAL FINISH</span>
+      <h2>Close with an answer the evidence can support.</h2>
+      <p><strong>The best balance of usefulness, time and cost is to complete the report from existing results now.</strong> State what was built, where the evidence is incomplete, which assumptions change the conclusion, and why no reliable strategy ranking follows. That finishes a research study; it does not certify a fund for investment.</p>
+      <p>If more computation is worth paying for, the one optional extension has a narrow purpose: measure how the declared borrowing conditions affect the proposed portfolios in two development periods. It is not a shortcut to proving a profitable strategy. The <a href="scratchpad.html#completion-plan">development record gives the five-step plan and stopping conditions</a>.</p>
+      <div class="process" aria-label="Proposed sequence, not an active calculation">
+        <div><b>01</b><strong>Set rules and budget</strong>Specify checks, cases and total machine-hours.</div>
+        <div><b>02</b><strong>Fix and test</strong>Check the known rounding failure and account balances.</div>
+        <div><b>03</b><strong>Test capacity once</strong>Try the full workload with invented inputs.</div>
+        <div><b>04</b><strong>Run once</strong>Calculate the fixed 320 cases if the budget permits.</div>
+        <div><b>05</b><strong>Check and close</strong>Report what passed, failed or remains unknown.</div>
+      </div>
+      <p>A failed stage or an exhausted budget ends that extension with a written finding. It does not automatically start another repair cycle. A legitimate missing-data result remains missing; a software failure remains a failure. Neither can be relabeled to make the completion count look better.</p>
+      <p>The development cutoff remains 3 April 2017. The final reserved test stays unread. Borrowing freshness, liquidity history, price history and actual trading checks stay in place. No new provider inquiry, trading deployment or broader strategy search is needed to close the current research work.</p>
+      <p>The useful handover is a readable report plus preserved inputs, code and saved results. Reports should be reproducible without rerunning the portfolios. A future refresh with new market data would still need new calculations and a measured resource budget. The completed long-only work shows local runs are possible; the unfinished buying-and-shorting work shows why affordable future refreshes cannot yet be promised.</p>
+      <p class="source-note">Status checked against the project record on 14 October 2026. Numerical work remains stopped. The proposed changes above have not been accepted as new calculation rules or implemented. The <a href="scratchpad.html#references">development record lists the dated evidence</a>.</p>
+    </section>
     <section class="chapter" id="reading">
-      <span class="section-number">12 / REFERENCES</span>
+      <span class="section-number">15 / REFERENCES</span>
       <h2>The reading behind the framework</h2>
       <p>You do not need to read these sources before using either guide. Each linked VHF primer explains its source in more detail. Publisher, author and archive links identify the underlying work. VHF's numerical settings, implementation changes and reported results are project decisions, not claims that the authors endorsed this particular system.</p>
       <ol class="references">
@@ -400,7 +466,7 @@
       </ol>
     </section>
     <a class="next-page" href="scratchpad.html"><div><span>Continue to part 2</span><strong>How the project reached this point</strong></div><div class="arrow" aria-hidden="true">→</div></a>
-    <footer class="page-footer">VHF / Research &amp; engineering<br>Guide updated 19 September 2026 against the project record through 18 September. Illustrations are educational examples, not simulated or realized VHF investment performance. Historical status is detailed in the companion development record.</footer>
+    <footer class="page-footer">VHF / Research &amp; engineering<br>Guide updated 14 October 2026 against numerical work through 13 October and the current stop decision. Illustrations are educational examples, not simulated or realized VHF investment performance. Historical status is detailed in the companion development record.</footer>
   </main>
 </div>
 </body>
